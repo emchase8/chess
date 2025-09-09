@@ -8,7 +8,12 @@ package chess;
  */
 public class ChessPosition {
 
+    private int p_row;
+    private int p_col;
+
     public ChessPosition(int row, int col) {
+        p_row = row;
+        p_col = col;
     }
 
     /**
@@ -16,7 +21,8 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        throw new RuntimeException("Not implemented");
+        return p_row;
+//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -24,6 +30,7 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        throw new RuntimeException("Not implemented");
+        return p_col;
+//        throw new RuntimeException("Not implemented");
     }
 }

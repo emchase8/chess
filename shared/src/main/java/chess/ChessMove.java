@@ -8,22 +8,31 @@ package chess;
  */
 public class ChessMove {
 
+    private ChessPosition start;
+    private ChessPosition end;
+    private ChessPiece.PieceType promote;
+
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        start = startPosition;
+        end = endPosition;
+        promote = promotionPiece;
     }
 
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        throw new RuntimeException("Not implemented");
+        return start;
+//        throw new RuntimeException("Not implemented");
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        throw new RuntimeException("Not implemented");
+        return end;
+//        throw new RuntimeException("Not implemented");
     }
 
     /**
