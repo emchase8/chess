@@ -42,7 +42,7 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-
+//  this needs some work
         throw new RuntimeException("Not implemented");
     }
 }
