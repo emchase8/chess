@@ -18,7 +18,7 @@ public class ChessPiece {
         color = pieceColor;
         p_type = type;
     }
-
+    //override allows us to overwrite Object methods (equal, toString, hashCode, etc.)
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -31,6 +31,14 @@ public class ChessPiece {
     @Override
     public int hashCode() {
         return Objects.hash(color, p_type);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "color=" + color.name() +
+                ", p_type=" + p_type.name() +
+                '}';
     }
 
     /**
@@ -70,6 +78,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece my_piece = board.getPiece(myPosition);
+        //implement a class for each piece that can return a collection of valid moves and call them here
         if (my_piece.getPieceType() == PieceType.KING) {
             //king stuff
         } else if (my_piece.getPieceType() == PieceType.QUEEN) {
@@ -83,6 +92,8 @@ public class ChessPiece {
         } else {
             //pawn stuff
         }
+        //PLACEHOLDER, DELETE BEFORE TURNING IN!!!!!!
+        return java.util.List.of();
 //        throw new RuntimeException("Not implemented");
     }
 }
