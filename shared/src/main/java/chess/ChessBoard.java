@@ -49,8 +49,22 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-//  this needs some work
-        throw new RuntimeException("Not implemented");
+        for (int i = 0; i < board.length; i++) {
+            if (i == 0) {
+                //set row
+            } else if (i == 1) {
+                //set row of pawns
+            } else if (i == 6) {
+                //set row of pawns
+            } else if (i == 7) {
+                //set row
+            } else {
+                for (int j = 0; j < board[i].length; j++) {
+                    board[i][j] = null;
+                }
+            }
+        }
+//        throw new RuntimeException("Not implemented");
     }
 
     @Override
