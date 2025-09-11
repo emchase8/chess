@@ -26,7 +26,6 @@ public class ChessMove {
      */
     public ChessPosition getStartPosition() {
         return start;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -34,7 +33,6 @@ public class ChessMove {
      */
     public ChessPosition getEndPosition() {
         return end;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -44,7 +42,11 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        throw new RuntimeException("Not implemented");
+        if (promote != null) {
+            return promote;
+        } else {
+            return null;
+        }
     }
 
     @Override

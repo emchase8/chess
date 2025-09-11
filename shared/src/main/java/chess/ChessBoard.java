@@ -11,10 +11,10 @@ import java.util.Objects;
  */
 public class ChessBoard {
 
-    private char[][] board;
+    private ChessPiece[][] board;
 
     public ChessBoard() {
-        board = new char[8][8];
+        board = new ChessPiece[8][8];
     }
 
     /**
@@ -24,8 +24,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-//        board[-position.getRow()][position.getColumn()-1] =
-        throw new RuntimeException("Not implemented");
+        board[board.length-position.getRow()][position.getColumn()-1] = piece;
+//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -36,8 +36,12 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-//        if (board[-position.getRow()][position.getColumn()-1] )
-        throw new RuntimeException("Not implemented");
+        if (board[board.length-position.getRow()][position.getColumn()-1] != null) {
+            return board[board.length-position.getRow()][position.getColumn()-1];
+        } else {
+            return null;
+        }
+//        throw new RuntimeException("Not implemented");
     }
 
     /**
