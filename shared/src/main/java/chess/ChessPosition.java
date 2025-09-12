@@ -50,9 +50,6 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "ChessPosition{" +
-                "p_row=" + p_row +
-                ", p_col=" + p_col +
-                '}';
+        return "[" + p_row + "," + p_col + "]";
     }
 }

@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.List;
 
 /**
  * Represents a single chess piece
@@ -103,7 +104,8 @@ public class ChessPiece {
         ChessPiece my_piece = board.getPiece(myPosition);
         //implement a class for each piece that can return a collection of valid moves and call them here
         if (my_piece.getPieceType() == PieceType.KING) {
-            //king stuff
+            List moves = KingMove.kingMoves(board, myPosition, color);
+            return moves;
         } else if (my_piece.getPieceType() == PieceType.QUEEN) {
             //queen stuff
         } else if (my_piece.getPieceType() == PieceType.ROOK) {
