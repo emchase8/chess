@@ -35,10 +35,35 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return "ChessPiece{" +
-                "color=" + color.name() +
-                ", p_type=" + p_type.name() +
-                '}';
+        if (color.equals(ChessGame.TeamColor.WHITE)) {
+            if (p_type.equals(PieceType.KING)) {
+                return "K";
+            } else if (p_type.equals(PieceType.QUEEN)) {
+                return "Q";
+            } else if (p_type.equals(PieceType.ROOK)) {
+                return "R";
+            } else if (p_type.equals(PieceType.KNIGHT)) {
+                return "N";
+            } else if (p_type.equals(PieceType.BISHOP)) {
+                return "B";
+            } else {
+                return "P";
+            }
+        } else {
+            if (p_type.equals(PieceType.KING)) {
+                return "k";
+            } else if (p_type.equals(PieceType.QUEEN)) {
+                return "q";
+            } else if (p_type.equals(PieceType.ROOK)) {
+                return "r";
+            } else if (p_type.equals(PieceType.KNIGHT)) {
+                return "n";
+            } else if (p_type.equals(PieceType.BISHOP)) {
+                return "b";
+            } else {
+                return "p";
+            }
+        }
     }
 
     /**
@@ -58,7 +83,6 @@ public class ChessPiece {
      */
     public ChessGame.TeamColor getTeamColor() {
         return color;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -66,7 +90,6 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return p_type;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**

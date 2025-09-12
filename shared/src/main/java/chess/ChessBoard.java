@@ -24,9 +24,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        //might need new piece instead of just piece?
         board[board.length-position.getRow()][position.getColumn()-1] = piece;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -42,7 +40,6 @@ public class ChessBoard {
         } else {
             return null;
         }
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -51,7 +48,7 @@ public class ChessBoard {
      */
     public void resetBoard() {
         for (int i = 0; i < board.length; i++) {
-            if (i == 0) {
+            if (i == 7) {
                 board[i][0] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
                 board[i][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
                 board[i][2] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
@@ -60,15 +57,15 @@ public class ChessBoard {
                 board[i][5] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
                 board[i][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
                 board[i][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
-            } else if (i == 1) {
+            } else if (i == 6) {
                 for (int j = 0; j < board[i].length; j++) {
                     board[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
                 }
-            } else if (i == 6) {
+            } else if (i == 1) {
                 for (int j = 0; j < board[i].length; j++) {
                     board[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
                 }
-            } else if (i == 7) {
+            } else if (i == 0) {
                 board[i][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
                 board[i][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
                 board[i][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
@@ -83,7 +80,6 @@ public class ChessBoard {
                 }
             }
         }
-//        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -103,8 +99,22 @@ public class ChessBoard {
     //double for loop adding to a string? try to make it look like an actual chess board (way easier to debug later)
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "board=" + Arrays.toString(board) +
-                '}';
+        StringBuilder my_board = new StringBuilder();
+        for (int i = 1; i < board.length+1; i++) {
+            for (int j = 1; j < board.length+1; j++) {
+                if (this.getPiece(new ChessPosition(i,j)) == null) {
+                    my_board.append("| |");
+                } else {
+                    ChessPiece piece = this.getPiece(new ChessPosition(i,j));
+                    my_board.append("|");
+                    my_board.append(piece.toString());
+                    my_board.append("|");
+                }
+                if (j == 8) {
+                    my_board.append("\n");
+                }
+            }
+        }
+        return my_board.toString();
     }
 }
