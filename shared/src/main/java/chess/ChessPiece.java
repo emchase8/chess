@@ -111,7 +111,8 @@ public class ChessPiece {
         } else if (my_piece.getPieceType() == PieceType.ROOK) {
             //rook stuff
         } else if (my_piece.getPieceType() == PieceType.BISHOP) {
-            //bishop stuff
+            List moves = BishopMove.bishopMoves(board, myPosition, color);
+            return moves;
         } else if (my_piece.getPieceType() == PieceType.KNIGHT) {
             List moves = KnightMove.knightMoves(board, myPosition, color);
             return moves;
