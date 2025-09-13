@@ -119,10 +119,8 @@ public class ChessPiece {
             List moves = KnightMove.knightMoves(board, myPosition, color);
             return moves;
         } else {
-            //pawn stuff
+            List moves = PawnMove.pawnMoves(board, myPosition, color);
+            return moves;
         }
-        //PLACEHOLDER, DELETE BEFORE TURNING IN!!!!!!
-        return java.util.List.of();
-//        throw new RuntimeException("Not implemented");
     }
 }
