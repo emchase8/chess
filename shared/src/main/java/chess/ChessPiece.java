@@ -107,7 +107,8 @@ public class ChessPiece {
             List moves = KingMove.kingMoves(board, myPosition, color);
             return moves;
         } else if (my_piece.getPieceType() == PieceType.QUEEN) {
-            //queen stuff
+            List moves = QueenMove.queenMoves(board, myPosition, color);
+            return moves;
         } else if (my_piece.getPieceType() == PieceType.ROOK) {
             List moves = RookMove.rookMoves(board, myPosition, color);
             return moves;
