@@ -113,7 +113,8 @@ public class ChessPiece {
         } else if (my_piece.getPieceType() == PieceType.BISHOP) {
             //bishop stuff
         } else if (my_piece.getPieceType() == PieceType.KNIGHT) {
-            //knight stuff
+            List moves = KnightMove.knightMoves(board, myPosition, color);
+            return moves;
         } else {
             //pawn stuff
         }

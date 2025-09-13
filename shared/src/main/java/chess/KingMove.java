@@ -8,7 +8,6 @@ public class KingMove {
     public static boolean validate(ChessPosition myPosition, ChessBoard board, ChessGame.TeamColor team) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        //board.getPiece(myPosition) == null
         if (1 <= row && row <= 8 && 1 <= col && col <=8 && board.getPiece(myPosition) == null) {
             return true;
         } else if (1 <= row && row <= 8 && 1 <= col && col <=8 && board.getPiece(myPosition).getTeamColor() != team) {
@@ -19,7 +18,7 @@ public class KingMove {
     }
 
     public static List kingMoves(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor team) {
-        List<ChessMove> moves = new ArrayList<ChessMove>();
+        List<ChessMove> moves = new ArrayList<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         int up_row = row + 1;
