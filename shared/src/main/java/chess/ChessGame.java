@@ -70,10 +70,12 @@ public class ChessGame {
              List<ChessMove> valid = new ArrayList();
              for (ChessMove move : moves) {
                  my_board.addPiece(startPosition, null);
+                 my_board.addPiece(move.getEndPosition(), piece);
                  if (!isInCheck(piece.getTeamColor())) {
                      valid.add(move);
                  }
                  my_board.addPiece(startPosition, piece);
+                 my_board.addPiece(move.getEndPosition(), null);
              }
              return valid;
          } else {
@@ -88,7 +90,30 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> valid = validMoves(move.getStartPosition());
+        if (valid.contains(move)) {
+            ChessPiece piece = my_board.getPiece(move.getStartPosition());
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                ChessPiece.PieceType promote = move.getPromotionPiece();
+                if (piece.getTeamColor() == TeamColor.WHITE && move.getEndPosition().getRow() == 8) {
+                    my_board.addPiece(move.getStartPosition(), null);
+                    ChessPiece upgrade = new ChessPiece(piece.getTeamColor(), promote);
+                    my_board.addPiece(move.getEndPosition(), upgrade);
+                } else if (piece.getTeamColor() == TeamColor.BLACK && move.getEndPosition().getRow() == 1) {
+                    my_board.addPiece(move.getStartPosition(), null);
+                    ChessPiece upgrade = new ChessPiece(piece.getTeamColor(), promote);
+                    my_board.addPiece(move.getEndPosition(), upgrade);
+                } else {
+                    my_board.addPiece(move.getStartPosition(), null);
+                    my_board.addPiece(move.getEndPosition(), piece);
+                }
+            } else {
+                my_board.addPiece(move.getStartPosition(), null);
+                my_board.addPiece(move.getEndPosition(), piece);
+            }
+        } else {
+            throw new InvalidMoveException("Sorry, you can not make that move. Try again :)");
+        }
     }
 
     /**
