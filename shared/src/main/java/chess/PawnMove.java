@@ -23,7 +23,7 @@ public class PawnMove {
             return results;
         }
     }
-//  FIGURE OUT HOW TO PROMOTE ON MONDAY!!!!!!!
+
     public static List pawnMoves(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor team) {
         List<ChessMove> moves = new ArrayList<>();
         int row = myPosition.getRow();
