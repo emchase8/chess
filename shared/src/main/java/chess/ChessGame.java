@@ -1,7 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -35,7 +37,6 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         return whose_turn;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -45,7 +46,6 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         whose_turn = team;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -67,13 +67,18 @@ public class ChessGame {
          if (my_board.getPiece(startPosition) != null) {
              ChessPiece piece = my_board.getPiece(startPosition);
              Collection<ChessMove> moves = piece.pieceMoves(my_board, startPosition);
+             List<ChessMove> valid = new ArrayList();
              for (ChessMove move : moves) {
-
+                 my_board.addPiece(startPosition, null);
+                 if (!isInCheck(piece.getTeamColor())) {
+                     valid.add(move);
+                 }
+                 my_board.addPiece(startPosition, piece);
              }
+             return valid;
          } else {
              return null;
          }
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -124,7 +129,6 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         my_board = board;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -134,6 +138,5 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return my_board;
-//        throw new RuntimeException("Not implemented");
     }
 }
