@@ -67,36 +67,54 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-         if (my_board.getPiece(startPosition) != null) {
-             //need to first check if king in check, and act accordingly if so
+        //WHY DOESN'T MY BOARD RESET AFTER EACH TRY!!!!!!!!
+        if (my_board.getPiece(startPosition) != null) {
              ChessPiece piece = my_board.getPiece(startPosition);
              Collection<ChessMove> moves = piece.pieceMoves(my_board, startPosition);
              List<ChessMove> valid = new ArrayList();
              if (isInCheck(piece.getTeamColor())) {
-                 ChessBoard test_board = new ChessBoard();
                  for (ChessMove move : moves) {
-                     test_board = my_board;
-                     test_board.addPiece(startPosition, null);
-                     test_board.addPiece(move.getEndPosition(), piece);
+                     my_board.addPiece(startPosition, null);
+                     ChessPiece capture = null;
+                     if (my_board.getPiece(move.getEndPosition())!=null) {
+                         capture = my_board.getPiece(move.getEndPosition());
+                     }
+                     my_board.addPiece(move.getEndPosition(), piece);
                      if (isInCheck(piece.getTeamColor())) {
-                         System.out.println("invalid");
-                         System.out.println(test_board.toString());
+                         my_board.addPiece(startPosition, piece);
+                         if (capture != null) {
+                             my_board.addPiece(move.getEndPosition(), capture);
+                         } else {
+                             my_board.addPiece(move.getEndPosition(), null);
+                         }
                          continue;
                      } else {
-                         System.out.println("valid");
-                         System.out.println(test_board.toString());
+                         my_board.addPiece(startPosition, piece);
+                         if (capture != null) {
+                             my_board.addPiece(move.getEndPosition(), capture);
+                         } else {
+                             my_board.addPiece(move.getEndPosition(), null);
+                         }
                          valid.add(move);
                      }
                  }
              } else {
                  for (ChessMove move : moves) {
                      my_board.addPiece(startPosition, null);
+                     ChessPiece capture = null;
+                     if (my_board.getPiece(move.getEndPosition())!=null) {
+                         capture = my_board.getPiece(move.getEndPosition());
+                     }
                      my_board.addPiece(move.getEndPosition(), piece);
                      if (!isInCheck(piece.getTeamColor())) {
                          valid.add(move);
                      }
                      my_board.addPiece(startPosition, piece);
-                     my_board.addPiece(move.getEndPosition(), null);
+                     if (capture != null) {
+                         my_board.addPiece(move.getEndPosition(), capture);
+                     } else {
+                         my_board.addPiece(move.getEndPosition(), null);
+                     }
                  }
              }
              return valid;
@@ -140,6 +158,8 @@ public class ChessGame {
                 } else {
                     setTeamTurn(TeamColor.WHITE);
                 }
+            } else {
+                throw new InvalidMoveException("Sorry, you can not make that move. Try again :)");
             }
         } else {
             throw new InvalidMoveException("Sorry, you can not make that move. Try again :)");
@@ -201,7 +221,7 @@ public class ChessGame {
                 }
             }
         }
-        if (isInCheck(teamColor) && validMoves(king_position) == null) {
+        if (isInCheck(teamColor) && validMoves(king_position).isEmpty()) {
             return true;
         } else {
             return false;
