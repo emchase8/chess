@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.ArrayList;
 
 /**
@@ -22,15 +20,6 @@ public class ChessGame {
         whose_turn = TeamColor.WHITE;
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
 
     /**
      * @return Which team's turn it is
@@ -46,6 +35,20 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         whose_turn = team;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(my_board, chessGame.my_board) && whose_turn == chessGame.whose_turn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(my_board, whose_turn);
     }
 
     /**
@@ -123,7 +126,26 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition king_position = new ChessPosition(1,1);
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition current_pos = new ChessPosition(row, col);
+                ChessPiece current_piece = my_board.getPiece(current_pos);
+                if (current_piece != null && current_piece.getPieceType() == ChessPiece.PieceType.KING && current_piece.getTeamColor() == teamColor) {
+                    king_position = current_pos;
+                }
+            }
+        }
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition current = new ChessPosition(row, col);
+                ChessPiece opponent = my_board.getPiece(current);
+                if (opponent != null && opponent.pieceMoves(my_board,current).contains(king_position) && opponent.getTeamColor() != teamColor) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
