@@ -86,7 +86,6 @@ public class ChessGame {
                          } else {
                              my_board.addPiece(move.getEndPosition(), null);
                          }
-                         continue;
                      } else {
                          my_board.addPiece(startPosition, piece);
                          if (capture != null) {
@@ -222,7 +221,6 @@ public class ChessGame {
         }
         if (isInCheck(teamColor) && validMoves(king_position).isEmpty()) {
             ChessPiece king = my_board.getPiece(king_position);
-            Collection<ChessMove> king_moves = king.pieceMoves(my_board,king_position);
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition current_pos = new ChessPosition(row, col);
