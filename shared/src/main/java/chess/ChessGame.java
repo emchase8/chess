@@ -164,13 +164,7 @@ public class ChessGame {
         }
     }
 
-    /**
-     * Determines if the given team is in check
-     *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
-     */
-    public boolean isInCheck(TeamColor teamColor) {
+    public ChessPosition getKingPosition(TeamColor teamColor) {
         ChessPosition king_position = new ChessPosition(1,1);
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
@@ -182,6 +176,17 @@ public class ChessGame {
                 }
             }
         }
+        return king_position;
+    }
+
+    /**
+     * Determines if the given team is in check
+     *
+     * @param teamColor which team to check for check
+     * @return True if the specified team is in check
+     */
+    public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition king_position = getKingPosition(teamColor);
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition current = new ChessPosition(row, col);
@@ -208,19 +213,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition king_position = new ChessPosition(1,1);
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition current_pos = new ChessPosition(row, col);
-                ChessPiece current_piece = my_board.getPiece(current_pos);
-                if (current_piece != null && current_piece.getPieceType() == ChessPiece.PieceType.KING && current_piece.getTeamColor() == teamColor) {
-                    king_position = current_pos;
-                    break;
-                }
-            }
-        }
+        ChessPosition king_position = getKingPosition(teamColor);
         if (isInCheck(teamColor) && validMoves(king_position).isEmpty()) {
-            ChessPiece king = my_board.getPiece(king_position);
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition current_pos = new ChessPosition(row, col);
