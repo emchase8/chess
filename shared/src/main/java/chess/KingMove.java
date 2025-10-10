@@ -5,12 +5,12 @@ import java.util.ArrayList;
 
 public class KingMove {
 
-    public static boolean validate(ChessPosition myPosition, ChessBoard board, ChessGame.TeamColor team) {
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        if (1 <= row && row <= 8 && 1 <= col && col <=8 && board.getPiece(myPosition) == null) {
+    public static boolean validateKing(ChessPosition myPosition, ChessBoard board, ChessGame.TeamColor team) {
+        int rowKing = myPosition.getRow();
+        int colKing = myPosition.getColumn();
+        if (1 <= rowKing && rowKing <= 8 && 1 <= colKing && colKing <=8 && board.getPiece(myPosition) == null) {
             return true;
-        } else if (1 <= row && row <= 8 && 1 <= col && col <=8 && board.getPiece(myPosition).getTeamColor() != team) {
+        } else if (1 <= rowKing && rowKing <= 8 && 1 <= colKing && colKing <=8 && board.getPiece(myPosition).getTeamColor() != team) {
             return true;
         } else {
             return false;
@@ -28,17 +28,17 @@ public class KingMove {
         for (int i : List.of(leftCol, col, rightCol)) {
             for (int j : List.of(upRow, downRow)) {
                 ChessPosition myNew = new ChessPosition(j, i);
-                if (validate(myNew, board, team)) {
+                if (validateKing(myNew, board, team)) {
                     moves.add(new ChessMove(myPosition, myNew, null));
                 }
             }
         }
         ChessPosition right = new ChessPosition(row, rightCol);
-        if (validate(right, board, team)) {
+        if (validateKing(right, board, team)) {
             moves.add(new ChessMove(myPosition, right, null));
         }
         ChessPosition left = new ChessPosition(row, leftCol);
-        if (validate(left, board, team)) {
+        if (validateKing(left, board, team)) {
             moves.add(new ChessMove(myPosition, left, null));
         }
 

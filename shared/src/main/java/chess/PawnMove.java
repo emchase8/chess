@@ -5,22 +5,22 @@ import java.util.ArrayList;
 
 public class PawnMove {
 
-    public static boolean[] validate(ChessPosition myPosition, ChessBoard board, ChessGame.TeamColor team) {
-        boolean[] results = new boolean[2];
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        if (1<=row && row<=8 && 1<=col && col<=8 && board.getPiece(myPosition) == null) {
-            results[0] = true;
-            results[1] = false;
-            return results;
-        } else if (1<=row && row<=8 && 1<=col && col<=8 && board.getPiece(myPosition).getTeamColor() != team) {
-            results[0] = true;
-            results[1] = true;
-            return results;
+    public static boolean[] validatePawn(ChessPosition myPosition, ChessBoard board, ChessGame.TeamColor team) {
+        boolean[] resultsPawn = new boolean[2];
+        int rowPawn = myPosition.getRow();
+        int colPawn = myPosition.getColumn();
+        if (1<=rowPawn && rowPawn<=8 && 1<=colPawn && colPawn<=8 && board.getPiece(myPosition) == null) {
+            resultsPawn[0] = true;
+            resultsPawn[1] = false;
+            return resultsPawn;
+        } else if (1<=rowPawn && rowPawn<=8 && 1<=colPawn && colPawn<=8 && board.getPiece(myPosition).getTeamColor() != team) {
+            resultsPawn[0] = true;
+            resultsPawn[1] = true;
+            return resultsPawn;
         } else {
-            results[0] = false;
-            results[1] = false;
-            return results;
+            resultsPawn[0] = false;
+            resultsPawn[1] = false;
+            return resultsPawn;
         }
     }
 
@@ -32,11 +32,11 @@ public class PawnMove {
             ChessPosition up1 = new ChessPosition(row+1, col);
             if (row == 2) {
                 ChessPosition up2 = new ChessPosition(row+2, col);
-                if (validate(up2, board, team)[0] && !validate(up2, board, team)[1] && validate(up1, board, team)[0] && !validate(up1, board, team)[1]) {
+                if (validatePawn(up2, board, team)[0] && !validatePawn(up2, board, team)[1] && validatePawn(up1, board, team)[0] && !validatePawn(up1, board, team)[1]) {
                     moves.add(new ChessMove(myPosition, up2, null));
                 }
             }
-            if (validate(up1, board, team)[0] && !validate(up1, board, team)[1]) {
+            if (validatePawn(up1, board, team)[0] && !validatePawn(up1, board, team)[1]) {
                 if ((row+1)==8) {
                     moves.add(new ChessMove(myPosition, up1, ChessPiece.PieceType.QUEEN));
                     moves.add(new ChessMove(myPosition, up1, ChessPiece.PieceType.BISHOP));
@@ -47,7 +47,7 @@ public class PawnMove {
                 }
             }
             ChessPosition left = new ChessPosition(row+1, col-1);
-            if (validate(left, board, team)[1]) {
+            if (validatePawn(left, board, team)[1]) {
                 if ((row+1)==8) {
                     moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.QUEEN));
                     moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.BISHOP));
@@ -58,7 +58,7 @@ public class PawnMove {
                 }
             }
             ChessPosition right = new ChessPosition(row+1, col+1);
-            if (validate(right, board, team)[1]) {
+            if (validatePawn(right, board, team)[1]) {
                 if ((row+1)==8) {
                     moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.QUEEN));
                     moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.BISHOP));
@@ -72,11 +72,11 @@ public class PawnMove {
             ChessPosition down1 = new ChessPosition(row-1, col);
             if (row == 7) {
                 ChessPosition down2 = new ChessPosition(row-2, col);
-                if (validate(down2, board, team)[0] && !validate(down2, board, team)[1] && validate(down1, board, team)[0] && !validate(down1, board, team)[1]) {
+                if (validatePawn(down2, board, team)[0] && !validatePawn(down2, board, team)[1] && validatePawn(down1, board, team)[0] && !validatePawn(down1, board, team)[1]) {
                     moves.add(new ChessMove(myPosition, down2, null));
                 }
             }
-            if (validate(down1, board, team)[0] && !validate(down1, board, team)[1]) {
+            if (validatePawn(down1, board, team)[0] && !validatePawn(down1, board, team)[1]) {
                 if ((row-1)==1) {
                     moves.add(new ChessMove(myPosition, down1, ChessPiece.PieceType.QUEEN));
                     moves.add(new ChessMove(myPosition, down1, ChessPiece.PieceType.BISHOP));
@@ -87,7 +87,7 @@ public class PawnMove {
                 }
             }
             ChessPosition left = new ChessPosition(row-1, col-1);
-            if (validate(left, board, team)[1]) {
+            if (validatePawn(left, board, team)[1]) {
                 if ((row-1)==1) {
                     moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.QUEEN));
                     moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.BISHOP));
@@ -98,7 +98,7 @@ public class PawnMove {
                 }
             }
             ChessPosition right = new ChessPosition(row-1, col+1);
-            if (validate(right, board, team)[1]) {
+            if (validatePawn(right, board, team)[1]) {
                 if ((row-1)==1) {
                     moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.QUEEN));
                     moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.BISHOP));

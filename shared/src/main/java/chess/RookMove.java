@@ -5,22 +5,22 @@ import java.util.ArrayList;
 
 public class RookMove {
 
-    public static boolean[] validate(ChessPosition myPosition, ChessBoard board, ChessGame.TeamColor team) {
-        boolean[] results = new boolean[2];
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        if (1<=row && row<=8 && 1<=col && col<=8 && board.getPiece(myPosition) == null) {
-            results[0] = true;
-            results[1] = false;
-            return results;
-        } else if (1<=row && row<=8 && 1<=col && col<=8 && board.getPiece(myPosition).getTeamColor() != team) {
-            results[0] = true;
-            results[1] = true;
-            return results;
+    public static boolean[] validateRook(ChessPosition myPosition, ChessBoard board, ChessGame.TeamColor team) {
+        boolean[] resultsRook = new boolean[2];
+        int rowRook = myPosition.getRow();
+        int colRook = myPosition.getColumn();
+        if (1<=rowRook && rowRook<=8 && 1<=colRook && colRook<=8 && board.getPiece(myPosition) == null) {
+            resultsRook[0] = true;
+            resultsRook[1] = false;
+            return resultsRook;
+        } else if (1<=rowRook && rowRook<=8 && 1<=colRook && colRook<=8 && board.getPiece(myPosition).getTeamColor() != team) {
+            resultsRook[0] = true;
+            resultsRook[1] = true;
+            return resultsRook;
         } else {
-            results[0] = false;
-            results[1] = false;
-            return results;
+            resultsRook[0] = false;
+            resultsRook[1] = false;
+            return resultsRook;
         }
     }
 
@@ -33,48 +33,48 @@ public class RookMove {
         int left1 = col-1;
         int right1 = col+1;
         while (up1 <=8) {
-            ChessPosition test_up = new ChessPosition(up1, col);
-            if (validate(test_up, board, team)[1]) {
-                moves.add(new ChessMove(myPosition, test_up, null));
+            ChessPosition testUp = new ChessPosition(up1, col);
+            if (validateRook(testUp, board, team)[1]) {
+                moves.add(new ChessMove(myPosition, testUp, null));
                 break;
-            } else if (validate(test_up, board, team)[0]) {
-                moves.add(new ChessMove(myPosition, test_up, null));
+            } else if (validateRook(testUp, board, team)[0]) {
+                moves.add(new ChessMove(myPosition, testUp, null));
                 up1++;
             } else {
                 break;
             }
         }
         while (down1 >= 1) {
-            ChessPosition test_down = new ChessPosition(down1, col);
-            if (validate(test_down, board, team)[1]) {
-                moves.add(new ChessMove(myPosition, test_down, null));
+            ChessPosition testDown = new ChessPosition(down1, col);
+            if (validateRook(testDown, board, team)[1]) {
+                moves.add(new ChessMove(myPosition, testDown, null));
                 break;
-            } else if (validate(test_down, board, team)[0]) {
-                moves.add(new ChessMove(myPosition, test_down, null));
+            } else if (validateRook(testDown, board, team)[0]) {
+                moves.add(new ChessMove(myPosition, testDown, null));
                 down1--;
             } else {
                 break;
             }
         }
         while (right1 <= 8) {
-            ChessPosition test_right = new ChessPosition(row, right1);
-            if (validate(test_right, board, team)[1]) {
-                moves.add(new ChessMove(myPosition, test_right, null));
+            ChessPosition testRight = new ChessPosition(row, right1);
+            if (validateRook(testRight, board, team)[1]) {
+                moves.add(new ChessMove(myPosition, testRight, null));
                 break;
-            } else if (validate(test_right, board, team)[0]) {
-                moves.add(new ChessMove(myPosition, test_right, null));
+            } else if (validateRook(testRight, board, team)[0]) {
+                moves.add(new ChessMove(myPosition, testRight, null));
                 right1++;
             } else {
                 break;
             }
         }
         while (left1 >= 1) {
-            ChessPosition test_left = new ChessPosition(row, left1);
-            if (validate(test_left, board, team)[1]) {
-                moves.add(new ChessMove(myPosition, test_left, null));
+            ChessPosition testLeft = new ChessPosition(row, left1);
+            if (validateRook(testLeft, board, team)[1]) {
+                moves.add(new ChessMove(myPosition, testLeft, null));
                 break;
-            } else if (validate(test_left, board, team)[0]) {
-                moves.add(new ChessMove(myPosition, test_left, null));
+            } else if (validateRook(testLeft, board, team)[0]) {
+                moves.add(new ChessMove(myPosition, testLeft, null));
                 left1--;
             } else {
                 break;
