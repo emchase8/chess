@@ -21,36 +21,36 @@ public class KnightMove {
         List<ChessMove> moves = new ArrayList<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int up_2 = row+2;
-        int up_1 = row+1;
-        int down_1 = row-1;
-        int down_2 = row-2;
-        int left_2 = col-2;
-        int left_1 = col-1;
-        int right_1 = col+1;
-        int right_2 = col+2;
-        for (int i: List.of(up_1, down_1)) {
-            ChessPosition test_1 = new ChessPosition(i, left_2);
-            if (validate(test_1, board, team)) {
-                moves.add(new ChessMove(myPosition, test_1, null));
+        int up2 = row+2;
+        int up1 = row+1;
+        int down1 = row-1;
+        int down2 = row-2;
+        int left2 = col-2;
+        int left1 = col-1;
+        int right1 = col+1;
+        int right2 = col+2;
+        for (int i: List.of(up1, down1)) {
+            ChessPosition test1 = new ChessPosition(i, left2);
+            if (validate(test1, board, team)) {
+                moves.add(new ChessMove(myPosition, test1, null));
             }
         }
-        for (int i: List.of(up_2, down_2)) {
-            ChessPosition test_2 = new ChessPosition(i, left_1);
-            if (validate(test_2, board, team)) {
-                moves.add(new ChessMove(myPosition, test_2, null));
+        for (int i: List.of(up2, down2)) {
+            ChessPosition test2 = new ChessPosition(i, left1);
+            if (validate(test2, board, team)) {
+                moves.add(new ChessMove(myPosition, test2, null));
             }
         }
-        for (int i: List.of(up_2, down_2)) {
-            ChessPosition test_3 = new ChessPosition(i, right_1);
-            if (validate(test_3, board, team)) {
-                moves.add(new ChessMove(myPosition, test_3, null));
+        for (int i: List.of(up2, down2)) {
+            ChessPosition test3 = new ChessPosition(i, right1);
+            if (validate(test3, board, team)) {
+                moves.add(new ChessMove(myPosition, test3, null));
             }
         }
-        for (int i: List.of(up_1, down_1)) {
-            ChessPosition test_4 = new ChessPosition(i, right_2);
-            if (validate(test_4, board, team) && right_2 <= 8 && right_2 >= 1) {
-                moves.add(new ChessMove(myPosition, test_4, null));
+        for (int i: List.of(up1, down1)) {
+            ChessPosition test4 = new ChessPosition(i, right2);
+            if (validate(test4, board, team) && right2 <= 8 && right2 >= 1) {
+                moves.add(new ChessMove(myPosition, test4, null));
             }
         }
         return moves;

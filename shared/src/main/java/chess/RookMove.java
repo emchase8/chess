@@ -28,54 +28,54 @@ public class RookMove {
         List<ChessMove> moves = new ArrayList<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int up_1 = row+1;
-        int down_1 = row-1;
-        int left_1 = col-1;
-        int right_1 = col+1;
-        while (up_1 <=8) {
-            ChessPosition test_up = new ChessPosition(up_1, col);
+        int up1 = row+1;
+        int down1 = row-1;
+        int left1 = col-1;
+        int right1 = col+1;
+        while (up1 <=8) {
+            ChessPosition test_up = new ChessPosition(up1, col);
             if (validate(test_up, board, team)[1]) {
                 moves.add(new ChessMove(myPosition, test_up, null));
                 break;
             } else if (validate(test_up, board, team)[0]) {
                 moves.add(new ChessMove(myPosition, test_up, null));
-                up_1++;
+                up1++;
             } else {
                 break;
             }
         }
-        while (down_1 >= 1) {
-            ChessPosition test_down = new ChessPosition(down_1, col);
+        while (down1 >= 1) {
+            ChessPosition test_down = new ChessPosition(down1, col);
             if (validate(test_down, board, team)[1]) {
                 moves.add(new ChessMove(myPosition, test_down, null));
                 break;
             } else if (validate(test_down, board, team)[0]) {
                 moves.add(new ChessMove(myPosition, test_down, null));
-                down_1--;
+                down1--;
             } else {
                 break;
             }
         }
-        while (right_1 <= 8) {
-            ChessPosition test_right = new ChessPosition(row, right_1);
+        while (right1 <= 8) {
+            ChessPosition test_right = new ChessPosition(row, right1);
             if (validate(test_right, board, team)[1]) {
                 moves.add(new ChessMove(myPosition, test_right, null));
                 break;
             } else if (validate(test_right, board, team)[0]) {
                 moves.add(new ChessMove(myPosition, test_right, null));
-                right_1++;
+                right1++;
             } else {
                 break;
             }
         }
-        while (left_1 >= 1) {
-            ChessPosition test_left = new ChessPosition(row, left_1);
+        while (left1 >= 1) {
+            ChessPosition test_left = new ChessPosition(row, left1);
             if (validate(test_left, board, team)[1]) {
                 moves.add(new ChessMove(myPosition, test_left, null));
                 break;
             } else if (validate(test_left, board, team)[0]) {
                 moves.add(new ChessMove(myPosition, test_left, null));
-                left_1--;
+                left1--;
             } else {
                 break;
             }

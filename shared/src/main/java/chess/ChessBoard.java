@@ -99,22 +99,22 @@ public class ChessBoard {
     //double for loop adding to a string? try to make it look like an actual chess board (way easier to debug later)
     @Override
     public String toString() {
-        StringBuilder my_board = new StringBuilder();
+        StringBuilder myBoard = new StringBuilder();
         for (int i = 1; i < board.length+1; i++) {
             for (int j = 1; j < board.length+1; j++) {
                 if (this.getPiece(new ChessPosition(i,j)) == null) {
-                    my_board.append("| |");
+                    myBoard.append("| |");
                 } else {
                     ChessPiece piece = this.getPiece(new ChessPosition(i,j));
-                    my_board.append("|");
-                    my_board.append(piece.toString());
-                    my_board.append("|");
+                    myBoard.append("|");
+                    myBoard.append(piece.toString());
+                    myBoard.append("|");
                 }
                 if (j == 8) {
-                    my_board.append("\n");
+                    myBoard.append("\n");
                 }
             }
         }
-        return my_board.toString();
+        return myBoard.toString();
     }
 }

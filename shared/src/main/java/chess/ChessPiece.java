@@ -13,11 +13,11 @@ import java.util.List;
 public class ChessPiece {
 
     private ChessGame.TeamColor color;
-    private ChessPiece.PieceType p_type;
+    private ChessPiece.PieceType pType;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         color = pieceColor;
-        p_type = type;
+        pType = type;
     }
     //override allows us to overwrite Object methods (equal, toString, hashCode, etc.)
     @Override
@@ -26,40 +26,40 @@ public class ChessPiece {
             return false;
         }
         ChessPiece that = (ChessPiece) o;
-        return color == that.color && p_type == that.p_type;
+        return color == that.color && pType == that.pType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(color, p_type);
+        return Objects.hash(color, pType);
     }
 
     @Override
     public String toString() {
         if (color.equals(ChessGame.TeamColor.WHITE)) {
-            if (p_type.equals(PieceType.KING)) {
+            if (pType.equals(PieceType.KING)) {
                 return "K";
-            } else if (p_type.equals(PieceType.QUEEN)) {
+            } else if (pType.equals(PieceType.QUEEN)) {
                 return "Q";
-            } else if (p_type.equals(PieceType.ROOK)) {
+            } else if (pType.equals(PieceType.ROOK)) {
                 return "R";
-            } else if (p_type.equals(PieceType.KNIGHT)) {
+            } else if (pType.equals(PieceType.KNIGHT)) {
                 return "N";
-            } else if (p_type.equals(PieceType.BISHOP)) {
+            } else if (pType.equals(PieceType.BISHOP)) {
                 return "B";
             } else {
                 return "P";
             }
         } else {
-            if (p_type.equals(PieceType.KING)) {
+            if (pType.equals(PieceType.KING)) {
                 return "k";
-            } else if (p_type.equals(PieceType.QUEEN)) {
+            } else if (pType.equals(PieceType.QUEEN)) {
                 return "q";
-            } else if (p_type.equals(PieceType.ROOK)) {
+            } else if (pType.equals(PieceType.ROOK)) {
                 return "r";
-            } else if (p_type.equals(PieceType.KNIGHT)) {
+            } else if (pType.equals(PieceType.KNIGHT)) {
                 return "n";
-            } else if (p_type.equals(PieceType.BISHOP)) {
+            } else if (pType.equals(PieceType.BISHOP)) {
                 return "b";
             } else {
                 return "p";
@@ -90,7 +90,7 @@ public class ChessPiece {
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return p_type;
+        return pType;
     }
 
     /**
@@ -101,21 +101,21 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece my_piece = board.getPiece(myPosition);
+        ChessPiece myPiece = board.getPiece(myPosition);
         //implement a class for each piece that can return a collection of valid moves and call them here
-        if (my_piece.getPieceType() == PieceType.KING) {
+        if (myPiece.getPieceType() == PieceType.KING) {
             List moves = KingMove.kingMoves(board, myPosition, color);
             return moves;
-        } else if (my_piece.getPieceType() == PieceType.QUEEN) {
+        } else if (myPiece.getPieceType() == PieceType.QUEEN) {
             List moves = QueenMove.queenMoves(board, myPosition, color);
             return moves;
-        } else if (my_piece.getPieceType() == PieceType.ROOK) {
+        } else if (myPiece.getPieceType() == PieceType.ROOK) {
             List moves = RookMove.rookMoves(board, myPosition, color);
             return moves;
-        } else if (my_piece.getPieceType() == PieceType.BISHOP) {
+        } else if (myPiece.getPieceType() == PieceType.BISHOP) {
             List moves = BishopMove.bishopMoves(board, myPosition, color);
             return moves;
-        } else if (my_piece.getPieceType() == PieceType.KNIGHT) {
+        } else if (myPiece.getPieceType() == PieceType.KNIGHT) {
             List moves = KnightMove.knightMoves(board, myPosition, color);
             return moves;
         } else {

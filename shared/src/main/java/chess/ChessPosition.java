@@ -10,12 +10,12 @@ import java.util.Objects;
  */
 public class ChessPosition {
 
-    private int p_row;
-    private int p_col;
+    private int pRow;
+    private int pCol;
 
     public ChessPosition(int row, int col) {
-        p_row = row;
-        p_col = col;
+        pRow = row;
+        pCol = col;
     }
 
     /**
@@ -23,7 +23,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        return p_row;
+        return pRow;
     }
 
     /**
@@ -31,7 +31,7 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        return p_col;
+        return pCol;
     }
 
     @Override
@@ -40,16 +40,16 @@ public class ChessPosition {
             return false;
         }
         ChessPosition that = (ChessPosition) o;
-        return p_row == that.p_row && p_col == that.p_col;
+        return pRow == that.pRow && pCol == that.pCol;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(p_row, p_col);
+        return Objects.hash(pRow, pCol);
     }
 
     @Override
     public String toString() {
-        return "[" + p_row + "," + p_col + "]";
+        return "[" + pRow + "," + pCol + "]";
     }
 }

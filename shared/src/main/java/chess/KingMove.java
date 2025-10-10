@@ -21,23 +21,23 @@ public class KingMove {
         List<ChessMove> moves = new ArrayList<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int up_row = row + 1;
-        int down_row = row - 1;
-        int left_col = col - 1;
-        int right_col = col + 1;
-        for (int i : List.of(left_col, col, right_col)) {
-            for (int j : List.of(up_row, down_row)) {
-                ChessPosition my_new = new ChessPosition(j, i);
-                if (validate(my_new, board, team)) {
-                    moves.add(new ChessMove(myPosition, my_new, null));
+        int upRow = row + 1;
+        int downRow = row - 1;
+        int leftCol = col - 1;
+        int rightCol = col + 1;
+        for (int i : List.of(leftCol, col, rightCol)) {
+            for (int j : List.of(upRow, downRow)) {
+                ChessPosition myNew = new ChessPosition(j, i);
+                if (validate(myNew, board, team)) {
+                    moves.add(new ChessMove(myPosition, myNew, null));
                 }
             }
         }
-        ChessPosition right = new ChessPosition(row, right_col);
+        ChessPosition right = new ChessPosition(row, rightCol);
         if (validate(right, board, team)) {
             moves.add(new ChessMove(myPosition, right, null));
         }
-        ChessPosition left = new ChessPosition(row, left_col);
+        ChessPosition left = new ChessPosition(row, leftCol);
         if (validate(left, board, team)) {
             moves.add(new ChessMove(myPosition, left, null));
         }

@@ -29,21 +29,21 @@ public class PawnMove {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         if (team == ChessGame.TeamColor.WHITE) {
-            ChessPosition up_1 = new ChessPosition(row+1, col);
+            ChessPosition up1 = new ChessPosition(row+1, col);
             if (row == 2) {
-                ChessPosition up_2 = new ChessPosition(row+2, col);
-                if (validate(up_2, board, team)[0] && !validate(up_2, board, team)[1] && validate(up_1, board, team)[0] && !validate(up_1, board, team)[1]) {
-                    moves.add(new ChessMove(myPosition, up_2, null));
+                ChessPosition up2 = new ChessPosition(row+2, col);
+                if (validate(up2, board, team)[0] && !validate(up2, board, team)[1] && validate(up1, board, team)[0] && !validate(up1, board, team)[1]) {
+                    moves.add(new ChessMove(myPosition, up2, null));
                 }
             }
-            if (validate(up_1, board, team)[0] && !validate(up_1, board, team)[1]) {
+            if (validate(up1, board, team)[0] && !validate(up1, board, team)[1]) {
                 if ((row+1)==8) {
-                    moves.add(new ChessMove(myPosition, up_1, ChessPiece.PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, up_1, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(myPosition, up_1, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, up_1, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, up1, ChessPiece.PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, up1, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(myPosition, up1, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, up1, ChessPiece.PieceType.KNIGHT));
                 } else {
-                    moves.add(new ChessMove(myPosition, up_1, null));
+                    moves.add(new ChessMove(myPosition, up1, null));
                 }
             }
             ChessPosition left = new ChessPosition(row+1, col-1);
@@ -69,21 +69,21 @@ public class PawnMove {
                 }
             }
         } else {
-            ChessPosition down_1 = new ChessPosition(row-1, col);
+            ChessPosition down1 = new ChessPosition(row-1, col);
             if (row == 7) {
-                ChessPosition down_2 = new ChessPosition(row-2, col);
-                if (validate(down_2, board, team)[0] && !validate(down_2, board, team)[1] && validate(down_1, board, team)[0] && !validate(down_1, board, team)[1]) {
-                    moves.add(new ChessMove(myPosition, down_2, null));
+                ChessPosition down2 = new ChessPosition(row-2, col);
+                if (validate(down2, board, team)[0] && !validate(down2, board, team)[1] && validate(down1, board, team)[0] && !validate(down1, board, team)[1]) {
+                    moves.add(new ChessMove(myPosition, down2, null));
                 }
             }
-            if (validate(down_1, board, team)[0] && !validate(down_1, board, team)[1]) {
+            if (validate(down1, board, team)[0] && !validate(down1, board, team)[1]) {
                 if ((row-1)==1) {
-                    moves.add(new ChessMove(myPosition, down_1, ChessPiece.PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, down_1, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(myPosition, down_1, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, down_1, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, down1, ChessPiece.PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, down1, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(myPosition, down1, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, down1, ChessPiece.PieceType.KNIGHT));
                 } else {
-                    moves.add(new ChessMove(myPosition, down_1, null));
+                    moves.add(new ChessMove(myPosition, down1, null));
                 }
             }
             ChessPosition left = new ChessPosition(row-1, col-1);
