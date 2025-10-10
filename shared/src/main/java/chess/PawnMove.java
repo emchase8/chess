@@ -32,8 +32,10 @@ public class PawnMove {
             ChessPosition up1 = new ChessPosition(row+1, col);
             if (row == 2) {
                 ChessPosition up2 = new ChessPosition(row+2, col);
-                if (validatePawn(up2, board, team)[0] && !validatePawn(up2, board, team)[1] && validatePawn(up1, board, team)[0] && !validatePawn(up1, board, team)[1]) {
-                    moves.add(new ChessMove(myPosition, up2, null));
+                if (validatePawn(up2, board, team)[0] && !validatePawn(up2, board, team)[1]) {
+                    if (validatePawn(up1, board, team)[0] && !validatePawn(up1, board, team)[1]) {
+                        moves.add(new ChessMove(myPosition, up2, null));
+                    }
                 }
             }
             if (validatePawn(up1, board, team)[0] && !validatePawn(up1, board, team)[1]) {
@@ -46,34 +48,36 @@ public class PawnMove {
                     moves.add(new ChessMove(myPosition, up1, null));
                 }
             }
-            ChessPosition left = new ChessPosition(row+1, col-1);
-            if (validatePawn(left, board, team)[1]) {
+            ChessPosition leftWhite = new ChessPosition(row+1, col-1);
+            if (validatePawn(leftWhite, board, team)[1]) {
                 if ((row+1)==8) {
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, leftWhite, ChessPiece.PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, leftWhite, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(myPosition, leftWhite, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, leftWhite, ChessPiece.PieceType.KNIGHT));
                 } else {
-                    moves.add(new ChessMove(myPosition, left, null));
+                    moves.add(new ChessMove(myPosition, leftWhite, null));
                 }
             }
-            ChessPosition right = new ChessPosition(row+1, col+1);
-            if (validatePawn(right, board, team)[1]) {
+            ChessPosition rightWhite = new ChessPosition(row+1, col+1);
+            if (validatePawn(rightWhite, board, team)[1]) {
                 if ((row+1)==8) {
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, rightWhite, ChessPiece.PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, rightWhite, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(myPosition, rightWhite, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, rightWhite, ChessPiece.PieceType.KNIGHT));
                 } else {
-                    moves.add(new ChessMove(myPosition, right, null));
+                    moves.add(new ChessMove(myPosition, rightWhite, null));
                 }
             }
         } else {
             ChessPosition down1 = new ChessPosition(row-1, col);
             if (row == 7) {
                 ChessPosition down2 = new ChessPosition(row-2, col);
-                if (validatePawn(down2, board, team)[0] && !validatePawn(down2, board, team)[1] && validatePawn(down1, board, team)[0] && !validatePawn(down1, board, team)[1]) {
-                    moves.add(new ChessMove(myPosition, down2, null));
+                if (validatePawn(down2, board, team)[0] && !validatePawn(down2, board, team)[1]) {
+                    if (validatePawn(down1, board, team)[0] && !validatePawn(down1, board, team)[1]) {
+                        moves.add(new ChessMove(myPosition, down2, null));
+                    }
                 }
             }
             if (validatePawn(down1, board, team)[0] && !validatePawn(down1, board, team)[1]) {
@@ -86,26 +90,26 @@ public class PawnMove {
                     moves.add(new ChessMove(myPosition, down1, null));
                 }
             }
-            ChessPosition left = new ChessPosition(row-1, col-1);
-            if (validatePawn(left, board, team)[1]) {
+            ChessPosition leftBlack = new ChessPosition(row-1, col-1);
+            if (validatePawn(leftBlack, board, team)[1]) {
                 if ((row-1)==1) {
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, left, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, leftBlack, ChessPiece.PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, leftBlack, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(myPosition, leftBlack, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, leftBlack, ChessPiece.PieceType.KNIGHT));
                 } else {
-                    moves.add(new ChessMove(myPosition, left, null));
+                    moves.add(new ChessMove(myPosition, leftBlack, null));
                 }
             }
-            ChessPosition right = new ChessPosition(row-1, col+1);
-            if (validatePawn(right, board, team)[1]) {
+            ChessPosition rightBlack = new ChessPosition(row-1, col+1);
+            if (validatePawn(rightBlack, board, team)[1]) {
                 if ((row-1)==1) {
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.BISHOP));
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, right, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(myPosition, rightBlack, ChessPiece.PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, rightBlack, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(myPosition, rightBlack, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, rightBlack, ChessPiece.PieceType.KNIGHT));
                 } else {
-                    moves.add(new ChessMove(myPosition, right, null));
+                    moves.add(new ChessMove(myPosition, rightBlack, null));
                 }
             }
         }

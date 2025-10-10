@@ -59,6 +59,15 @@ public class ChessGame {
         BLACK
     }
 
+    public void resetBoard(ChessPosition startPosition, ChessPiece piece, ChessPiece capture, ChessMove move) {
+        myBoard.addPiece(startPosition, piece);
+        if (capture != null) {
+            myBoard.addPiece(move.getEndPosition(), capture);
+        } else {
+            myBoard.addPiece(move.getEndPosition(), null);
+        }
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -80,19 +89,9 @@ public class ChessGame {
                      }
                      myBoard.addPiece(move.getEndPosition(), piece);
                      if (isInCheck(piece.getTeamColor())) {
-                         myBoard.addPiece(startPosition, piece);
-                         if (capture != null) {
-                             myBoard.addPiece(move.getEndPosition(), capture);
-                         } else {
-                             myBoard.addPiece(move.getEndPosition(), null);
-                         }
+                         resetBoard(startPosition, piece, capture, move);
                      } else {
-                         myBoard.addPiece(startPosition, piece);
-                         if (capture != null) {
-                             myBoard.addPiece(move.getEndPosition(), capture);
-                         } else {
-                             myBoard.addPiece(move.getEndPosition(), null);
-                         }
+                         resetBoard(startPosition, piece, capture, move);
                          valid.add(move);
                      }
                  }
