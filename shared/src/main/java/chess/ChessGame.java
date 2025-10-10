@@ -213,23 +213,22 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessPosition kingPosition = getKingPosition(teamColor);
-        if (isInCheck(teamColor) && validMoves(kingPosition).isEmpty()) {
-            for (int rowCM = 1; rowCM <= 8; rowCM++) {
-                for (int colCM = 1; colCM <= 8; colCM++) {
-                    ChessPosition currentPos = new ChessPosition(rowCM, colCM);
-                    ChessPiece currentPiece = myBoard.getPiece(currentPos);
-                    if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> moves = validMoves(currentPos);
-                        if (!moves.isEmpty()) {
-                            return false;
-                        }
+        if (!isInCheck(teamColor) || !validMoves(kingPosition).isEmpty()) {
+            return false;
+        }
+        for (int rowCM = 1; rowCM <= 8; rowCM++) {
+            for (int colCM = 1; colCM <= 8; colCM++) {
+                ChessPosition currentPos = new ChessPosition(rowCM, colCM);
+                ChessPiece currentPiece = myBoard.getPiece(currentPos);
+                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(currentPos);
+                    if (!moves.isEmpty()) {
+                        return false;
                     }
                 }
             }
-            return true;
-        } else {
-            return false;
         }
+        return true;
     }
 
     /**
