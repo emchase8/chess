@@ -20,27 +20,27 @@ public class Server {
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
-//        javalin.post("/user", context -> registerHandler(context));
+        javalin.post("/user", context -> registerHandler(context));
         return javalin.port();
     }
 
     //how to use json stuff
 //var serializer = new Gson();
-//
 //var game = new ChessGame();
-//
 // serialize to JSON
 //var json = serializer.toJson(game);
-//
 // deserialize back to ChessGame
 //game = serializer.fromJson(json, ChessGame.class);
 
 
-    private registerHandler(Context context) {
+    private void registerHandler(Context context) {
         var serializer = new Gson();
         RegisterRequest request = serializer.fromJson(context.body(), RegisterRequest.class);
         UserService inst = new UserService();
         RegisterResult result = inst.register(request);
+        var json = serializer.toJson(result);
+        context.status(200);
+        context.json(json);
     }
 
     public void stop() {
