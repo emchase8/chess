@@ -20,6 +20,7 @@ public class Server {
         javalin.start(desiredPort);
         javalin.delete("/db", context -> clearHandler(context));
         javalin.post("/user", context -> registerHandler(context));
+        javalin.post("/session", context -> loginHandler(context));
         return javalin.port();
     }
 
@@ -71,6 +72,24 @@ public class Server {
             context.status(403);
         } else if (result.message().equals("Error: bad request")) {
             context.status(400);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void loginHandler(Context context) {
+        var serializer = new Gson();
+        LoginRequest request = serializer.fromJson(context.body(), LoginRequest.class);
+        UserService inst = new UserService();
+        MostBasicResult result = inst.login(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
         } else {
             context.status(500);
         }

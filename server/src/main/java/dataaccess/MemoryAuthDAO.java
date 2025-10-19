@@ -25,4 +25,13 @@ public class MemoryAuthDAO implements AuthDAO {
             auths.get(username).add(auth);
         }
     }
+
+    @Override
+    public void updateAuth(String username, String authToken) throws NotAuthException {
+        if (!auths.containsKey(username)) {
+            throw new NotAuthException("Error: unauthorized");
+        } else {
+            auths.get(username).add(new AuthData(username, authToken));
+        }
+    }
 }

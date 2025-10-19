@@ -3,6 +3,7 @@ package service;
 import dataaccess.AlreadyTakenException;
 import dataaccess.MemoryUserDAO;
 import dataaccess.MemoryAuthDAO;
+import dataaccess.NotAuthException;
 import model.AuthData;
 import model.UserData;
 import java.util.UUID;
@@ -44,5 +45,26 @@ public class UserService {
             return new ErrorResult("Error: bad request");
         }
         return new RegisterResult(registerRequest.username(), newAuthToken);
+    }
+
+    public MostBasicResult login(LoginRequest loginRequest) {
+        MemoryUserDAO userMem = new MemoryUserDAO();
+        try {
+            if (loginRequest.username() != null && loginRequest.password() != null) {
+                userMem.getUser(loginRequest.username());
+            } else {
+                return new ErrorResult("Error: bad request");
+            }
+        } catch (AlreadyTakenException e) {
+            MemoryAuthDAO authMem = new MemoryAuthDAO();
+            String newAuthToken = generateToken();
+            try {
+                authMem.updateAuth(loginRequest.username(), newAuthToken);
+                return new LoginResult(loginRequest.username(), newAuthToken);
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
+            }
+        }
+        return new ErrorResult("Error:");
     }
 }
