@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import service.results.Result;
 
 public class AuthService {
     public Result clear() {

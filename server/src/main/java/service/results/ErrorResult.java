@@ -1,4 +1,4 @@
-package service;
+package service.results;
 
 public record ErrorResult(String message) implements MostBasicResult {
     @Override

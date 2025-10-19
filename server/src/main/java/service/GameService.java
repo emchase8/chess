@@ -3,6 +3,7 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.MemoryGameDAO;
+import service.results.Result;
 
 public class GameService {
     public Result clear() {

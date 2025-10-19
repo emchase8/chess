@@ -6,6 +6,11 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.NotAuthException;
 import model.AuthData;
 import model.UserData;
+import service.requests.LoginRequest;
+import service.requests.LogoutRequest;
+import service.requests.RegisterRequest;
+import service.results.*;
+
 import java.util.UUID;
 
 public class UserService {

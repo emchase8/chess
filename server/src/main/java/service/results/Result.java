@@ -1,3 +1,3 @@
-package service;
+package service.results;
 
 public record Result(String message) {}

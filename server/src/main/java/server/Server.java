@@ -4,6 +4,11 @@ import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.*;
 import service.*;
+import service.requests.LoginRequest;
+import service.requests.LogoutRequest;
+import service.requests.RegisterRequest;
+import service.results.MostBasicResult;
+import service.results.Result;
 
 public class Server {
 

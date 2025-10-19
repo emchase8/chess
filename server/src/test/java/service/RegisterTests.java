@@ -1,6 +1,8 @@
 package service;
 
 import org.junit.jupiter.api.Test;
+import service.requests.RegisterRequest;
+import service.results.MostBasicResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 

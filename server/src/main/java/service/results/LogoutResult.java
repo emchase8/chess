@@ -1,6 +1,6 @@
-package service;
+package service.results;
 
-public record LogoutResult() implements MostBasicResult{
+public record LogoutResult() implements MostBasicResult {
     @Override
     public String authToken() {
         return "";
