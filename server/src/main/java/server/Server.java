@@ -21,6 +21,7 @@ public class Server {
         javalin.delete("/db", context -> clearHandler(context));
         javalin.post("/user", context -> registerHandler(context));
         javalin.post("/session", context -> loginHandler(context));
+        javalin.delete("/session", context -> logoutHandler(context));
         return javalin.port();
     }
 
@@ -86,6 +87,7 @@ public class Server {
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);
+            context.sessionAttribute("auth", "authorized");
         } else if (result.message().equals("Error: bad request")) {
             context.status(400);
         } else if (result.message().equals("Error: unauthorized")) {

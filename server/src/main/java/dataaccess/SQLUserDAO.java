@@ -9,4 +9,6 @@ public class SQLUserDAO implements UserDAO {
     public void createUser(String username, UserData user) throws DataAccessException {};
     @Override
     public void clear() throws DataAccessException {};
+    @Override
+    public void checkPassword(String username, String password) throws NotAuthException {}
 }

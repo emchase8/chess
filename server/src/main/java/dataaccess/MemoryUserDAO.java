@@ -28,4 +28,11 @@ public class MemoryUserDAO implements UserDAO {
         }
         users.put(username, user);
     };
+
+    @Override
+    public void checkPassword(String username, String password) throws NotAuthException {
+        if (!users.get(username).password().equals(password)) {
+            throw new NotAuthException("Error: unauthorized");
+        }
+    }
 }

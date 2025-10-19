@@ -56,6 +56,11 @@ public class UserService {
                 return new ErrorResult("Error: bad request");
             }
         } catch (AlreadyTakenException e) {
+            try {
+                userMem.checkPassword(loginRequest.username(), loginRequest.password());
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
+            }
             MemoryAuthDAO authMem = new MemoryAuthDAO();
             String newAuthToken = generateToken();
             try {
@@ -65,6 +70,6 @@ public class UserService {
                 return new ErrorResult("Error: unauthorized");
             }
         }
-        return new ErrorResult("Error:");
+        return new ErrorResult("Error: unauthorized");
     }
 }
