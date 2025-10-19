@@ -3,9 +3,7 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.*;
-import service.RegisterRequest;
-import service.RegisterResult;
-import service.UserService;
+import service.*;
 
 public class Server {
 
@@ -20,6 +18,7 @@ public class Server {
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
+        javalin.delete("/db", context -> clearHandler(context));
         javalin.post("/user", context -> registerHandler(context));
         return javalin.port();
     }
@@ -32,15 +31,48 @@ public class Server {
 // deserialize back to ChessGame
 //game = serializer.fromJson(json, ChessGame.class);
 
+    private void clearHandler(Context context) {
+        var serializer = new Gson();
+        UserService userInst = new UserService();
+        AuthService authInst = new AuthService();
+        GameService gameInst = new GameService();
+        Result uResult = userInst.clear();
+        if (uResult.message().equals("Error: unable to clear users")) {
+            var json = serializer.toJson(uResult);
+            context.status(500);
+            context.json(json);
+        }
+        Result aResult = authInst.clear();
+        if (aResult.message().equals("Error: unable to clear authTokens")) {
+            var json = serializer.toJson(aResult);
+            context.status(500);
+            context.json(json);
+        }
+        Result gResult = gameInst.clear();
+        if (gResult.message().equals("Error: unable to clear games")) {
+            var json = serializer.toJson(gResult);
+            context.status(500);
+            context.json(json);
+        }
+        var json = serializer.toJson(aResult);
+        context.status(200);
+        context.json(json);
+    }
 
     private void registerHandler(Context context) {
         var serializer = new Gson();
         RegisterRequest request = serializer.fromJson(context.body(), RegisterRequest.class);
         UserService inst = new UserService();
         RegisterResult result = inst.register(request);
-        var json = serializer.toJson(result);
-        context.status(200);
-        context.json(json);
+        if (result.message().isEmpty()) {
+            var json = serializer.toJson(result);
+            context.status(200);
+            context.json(json);
+        } else if (result.message().equals("Error: already taken")){
+            var json = serializer.toJson(result);
+            context.status(403);
+            context.json(json);
+        }
     }
 
     public void stop() {

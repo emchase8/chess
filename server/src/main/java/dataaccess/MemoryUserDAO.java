@@ -10,6 +10,11 @@ public class MemoryUserDAO implements UserDAO {
     Map<String, UserData> users = new HashMap<>();
 
     @Override
+    public void clear() throws DataAccessException {
+        users.clear();
+    }
+
+    @Override
     public void getUser(String username) throws AlreadyTakenException {
         if (users.containsKey(username)) {
             throw new AlreadyTakenException("Error: username already taken");

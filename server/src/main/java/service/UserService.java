@@ -12,6 +12,17 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
+    public Result clear() {
+        MemoryUserDAO userMem = new MemoryUserDAO();
+        try {
+            userMem.clear();
+            return new Result("");
+        } catch (dataaccess.DataAccessException e) {
+            //figure out how exceptions work!!!
+            return new Result("Error: unable to clear users");
+        }
+    }
+
     public RegisterResult register(RegisterRequest registerRequest) {
         UserData newUser = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
         String newAuthToken = generateToken();
@@ -21,20 +32,20 @@ public class UserService {
         try {
             userMem.getUser(registerRequest.username());
         } catch (AlreadyTakenException e) {
-            RegisterResult result = new RegisterResult("", "", e.getMessage());
-            return result;
+            //figure out how exceptions work!!!
+            return new RegisterResult("", "", "Error: already taken");
         }
         try {
             userMem.createUser(registerRequest.username(), newUser);
         } catch (dataaccess.DataAccessException e) {
             //figure out how exceptions work!!!
-            throw new RuntimeException(e);
+            return new RegisterResult("", "", "Error: unable to create user");
         }
         try {
             authMem.createAuth(registerRequest.username(), newAuth);
         } catch (dataaccess.DataAccessException e) {
             //figure out how exceptions work!!!
-            throw new RuntimeException(e);
+            return new RegisterResult("", "", "Error: unable to create authToken");
         }
         return new RegisterResult(registerRequest.username(), newAuthToken, "");
     }

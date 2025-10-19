@@ -1,15 +1,17 @@
 package service;
 
-//how to use json stuff
-//var serializer = new Gson();
-//
-//var game = new ChessGame();
-//
-// serialize to JSON
-//var json = serializer.toJson(game);
-//
-// deserialize back to ChessGame
-//game = serializer.fromJson(json, ChessGame.class);
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
 
 public class AuthService {
+    public Result clear() {
+        MemoryAuthDAO authMem = new MemoryAuthDAO();
+        try {
+            authMem.clear();
+            return new Result("");
+        } catch (dataaccess.DataAccessException e) {
+            //figure out how exceptions work!!!
+            return new Result("Error: unable to clear authTokens");
+        }
+    }
 }
