@@ -5,4 +5,12 @@ public record LoginResult(String username, String authToken) implements MostBasi
     public String message() {
         return "";
     }
+    @Override
+    public String username() {
+        return username;
+    }
+    @Override
+    public String authToken() {
+        return authToken;
+    }
 }

@@ -72,4 +72,14 @@ public class UserService {
         }
         return new ErrorResult("Error: unauthorized");
     }
+
+    public MostBasicResult logout(LogoutRequest logoutRequest) {
+        MemoryAuthDAO authMem = new MemoryAuthDAO();
+        try {
+            authMem.checkAuth(logoutRequest.authToken());
+            return new LogoutResult();
+        } catch (NotAuthException n) {
+            return new ErrorResult("Error: unauthorized");
+        }
+    }
 }

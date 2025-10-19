@@ -5,4 +5,14 @@ public record RegisterResult(String username, String authToken) implements MostB
     public String message() {
         return "";
     }
+
+    @Override
+    public String username() {
+        return username;
+    }
+
+    @Override
+    public String authToken() {
+        return authToken;
+    }
 }

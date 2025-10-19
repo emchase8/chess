@@ -1,3 +1,13 @@
 package service;
 
-public record ErrorResult(String message) implements MostBasicResult {}
+public record ErrorResult(String message) implements MostBasicResult {
+    @Override
+    public String authToken() {
+        return "";
+    }
+
+    @Override
+    public String username() {
+        return "";
+    }
+}

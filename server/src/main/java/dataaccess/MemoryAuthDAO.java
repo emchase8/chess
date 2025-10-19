@@ -31,7 +31,23 @@ public class MemoryAuthDAO implements AuthDAO {
         if (!auths.containsKey(username)) {
             throw new NotAuthException("Error: unauthorized");
         } else {
-            auths.get(username).add(new AuthData(username, authToken));
+            auths.get(username).add(new AuthData(authToken, username));
+        }
+    }
+
+    @Override
+    public void checkAuth(String authToken) throws NotAuthException {
+        int found = 0;
+        for (Map.Entry mapElement : auths.entrySet()) {
+            String username = (String)mapElement.getKey();
+            AuthData current = new AuthData(authToken, username);
+            if (auths.get(username).contains(current)) {
+                found = 1;
+            }
+        }
+        if (found == 0) {
+            throw new NotAuthException("Error: unauthorized");
         }
     }
 }
+

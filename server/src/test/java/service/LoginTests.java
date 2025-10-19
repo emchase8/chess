@@ -12,7 +12,7 @@ public class LoginTests {
         MostBasicResult registerResult = service.register(newUser);
         LoginRequest loginOrym = new LoginRequest("Orym", "Ashari");
         MostBasicResult loginResult = service.login(loginOrym);
-        //how to deal with the basicness???????
+        assertEquals("Orym", loginResult.username());
     }
 
     @Test

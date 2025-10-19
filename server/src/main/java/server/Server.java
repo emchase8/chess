@@ -69,6 +69,8 @@ public class Server {
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);
+            //don't need this if register doesn't login
+            context.sessionAttribute("auth", result.authToken());
         } else if (result.message().equals("Error: already taken")){
             context.status(403);
         } else if (result.message().equals("Error: bad request")) {
@@ -87,9 +89,28 @@ public class Server {
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);
-            context.sessionAttribute("auth", "authorized");
+            context.sessionAttribute("auth", result.authToken());
         } else if (result.message().equals("Error: bad request")) {
             context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void logoutHandler(Context context) {
+        var serializer = new Gson();
+        //doesn't work in normal server test?????
+        String currentAuth = context.sessionAttribute("auth");
+        LogoutRequest request = new LogoutRequest(currentAuth);
+        UserService inst = new UserService();
+        MostBasicResult result = inst.logout(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+            context.sessionAttribute("auth", "");
         } else if (result.message().equals("Error: unauthorized")) {
             context.status(401);
         } else {
