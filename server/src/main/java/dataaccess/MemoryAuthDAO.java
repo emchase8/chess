@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class MemoryAuthDAO implements AuthDAO {
 
-    Map<String, List<AuthData>> auths = new HashMap<>();
+    private static Map<String, List<AuthData>> auths = new HashMap<>();
 
     @Override
     public void clear() throws DataAccessException {

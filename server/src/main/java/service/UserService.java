@@ -18,12 +18,11 @@ public class UserService {
             userMem.clear();
             return new Result("");
         } catch (dataaccess.DataAccessException e) {
-            //figure out how exceptions work!!!
             return new Result("Error: unable to clear users");
         }
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
+    public MostBasicResult register(RegisterRequest registerRequest) {
         UserData newUser = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
         String newAuthToken = generateToken();
         AuthData newAuth = new AuthData(newAuthToken, registerRequest.username());
@@ -32,21 +31,18 @@ public class UserService {
         try {
             userMem.getUser(registerRequest.username());
         } catch (AlreadyTakenException e) {
-            //figure out how exceptions work!!!
-            return new RegisterResult("", "", "Error: already taken");
+            return new ErrorResult("Error: already taken");
         }
         try {
             userMem.createUser(registerRequest.username(), newUser);
         } catch (dataaccess.DataAccessException e) {
-            //figure out how exceptions work!!!
-            return new RegisterResult("", "", "Error: unable to create user");
+            return new ErrorResult("Error: bad request");
         }
         try {
             authMem.createAuth(registerRequest.username(), newAuth);
         } catch (dataaccess.DataAccessException e) {
-            //figure out how exceptions work!!!
-            return new RegisterResult("", "", "Error: unable to create authToken");
+            return new ErrorResult("Error: bad request");
         }
-        return new RegisterResult(registerRequest.username(), newAuthToken, "");
+        return new RegisterResult(registerRequest.username(), newAuthToken);
     }
 }

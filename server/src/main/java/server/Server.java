@@ -63,16 +63,18 @@ public class Server {
         var serializer = new Gson();
         RegisterRequest request = serializer.fromJson(context.body(), RegisterRequest.class);
         UserService inst = new UserService();
-        RegisterResult result = inst.register(request);
+        MostBasicResult result = inst.register(request);
+        var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
-            var json = serializer.toJson(result);
             context.status(200);
-            context.json(json);
         } else if (result.message().equals("Error: already taken")){
-            var json = serializer.toJson(result);
             context.status(403);
-            context.json(json);
+        } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else {
+            context.status(500);
         }
+        context.json(json);
     }
 
     public void stop() {
