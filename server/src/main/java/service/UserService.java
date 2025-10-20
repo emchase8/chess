@@ -1,9 +1,6 @@
 package service;
 
-import dataaccess.AlreadyTakenException;
-import dataaccess.MemoryUserDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.NotAuthException;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import service.requests.LoginRequest;
@@ -82,7 +79,12 @@ public class UserService {
         MemoryAuthDAO authMem = new MemoryAuthDAO();
         try {
             authMem.checkAuth(logoutRequest.authToken());
-            return new LogoutResult();
+            try {
+                authMem.deleteAuth(logoutRequest.authToken());
+                return new LogoutResult();
+            } catch (DataAccessException e) {
+                return new ErrorResult("Error:");
+            }
         } catch (NotAuthException n) {
             return new ErrorResult("Error: unauthorized");
         }

@@ -49,5 +49,16 @@ public class MemoryAuthDAO implements AuthDAO {
             throw new NotAuthException("Error: unauthorized");
         }
     }
+
+    @Override
+    public void deleteAuth(String authToken) throws DataAccessException {
+        for (Map.Entry mapElement : auths.entrySet()) {
+            String username = (String)mapElement.getKey();
+            AuthData current = new AuthData(authToken, username);
+            if (auths.get(username).contains(current)) {
+                auths.get(username).remove(current);
+            }
+        }
+    }
 }
 

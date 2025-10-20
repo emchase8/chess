@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.*;
 import service.*;
-import service.requests.ListRequest;
-import service.requests.LoginRequest;
-import service.requests.LogoutRequest;
-import service.requests.RegisterRequest;
+import service.requests.*;
 import service.results.ListResult;
 import service.results.MostBasicResult;
 import service.results.Result;
@@ -78,7 +75,6 @@ public class Server {
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);
-            context.sessionAttribute("auth", result.authToken());
         } else if (result.message().equals("Error: already taken")){
             context.status(403);
         } else if (result.message().equals("Error: bad request")) {
@@ -97,7 +93,6 @@ public class Server {
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);
-            context.sessionAttribute("auth", result.authToken());
         } else if (result.message().equals("Error: bad request")) {
             context.status(400);
         } else if (result.message().equals("Error: unauthorized")) {
@@ -110,16 +105,14 @@ public class Server {
 
     private void logoutHandler(Context context) {
         var serializer = new Gson();
-        //doesn't work in normal server test?????
-        String currentAuth = context.sessionAttribute("auth");
-//        String currentAuth = context.header();
+        String currentAuth = context.header("authorization");
         LogoutRequest request = new LogoutRequest(currentAuth);
         UserService inst = new UserService();
         MostBasicResult result = inst.logout(request);
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
+            //clear out singluar auth token
             context.status(200);
-            context.sessionAttribute("auth", "");
         } else if (result.message().equals("Error: unauthorized")) {
             context.status(401);
         } else {
@@ -130,7 +123,7 @@ public class Server {
 
     private void listHandler(Context context) {
         var serializer = new Gson();
-        String currentAuth = context.sessionAttribute("auth");
+        String currentAuth = context.header("authorization");
         ListRequest request = new ListRequest(currentAuth);
         GameService inst = new GameService();
         MostBasicResult result = inst.listGames(request);
@@ -143,6 +136,15 @@ public class Server {
             context.status(500);
         }
         context.json(json);
+    }
+
+    private void createHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.header("authorization");
+        String gameName = context.body();
+        CreateRequest request = new CreateRequest(currentAuth, gameName);
+        GameService inst = new GameService();
+        MostBasicResult result = inst.createGame(gameName);
     }
 
     public void stop() {

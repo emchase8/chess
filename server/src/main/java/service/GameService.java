@@ -21,7 +21,6 @@ public class GameService {
             gameMem.clear();
             return new Result("");
         } catch (DataAccessException e) {
-            //figure out how exceptions work
             return new Result("Error: unable to clear games");
         }
     }
