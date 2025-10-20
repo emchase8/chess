@@ -1,6 +1,15 @@
 package dataaccess;
 
+import model.GameListData;
+
+import java.util.List;
+
 public class SQLGameDAO implements GameDAO {
     @Override
-    public void clear() throws DataAccessException {}
+    public void clear() throws DataAccessException {};
+
+    @Override
+    public List<GameListData> listGames() throws DataAccessException {
+        return List.of();
+    }
 }

@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.*;
 import service.*;
+import service.requests.ListRequest;
 import service.requests.LoginRequest;
 import service.requests.LogoutRequest;
 import service.requests.RegisterRequest;
+import service.results.ListResult;
 import service.results.MostBasicResult;
 import service.results.Result;
 
@@ -27,6 +29,8 @@ public class Server {
         javalin.post("/user", context -> registerHandler(context));
         javalin.post("/session", context -> loginHandler(context));
         javalin.delete("/session", context -> logoutHandler(context));
+        javalin.get("/game", context -> listHandler(context));
+        javalin.post("/game", context-> createHandler(context));
         return javalin.port();
     }
 
@@ -74,7 +78,6 @@ public class Server {
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);
-            //don't need this if register doesn't login
             context.sessionAttribute("auth", result.authToken());
         } else if (result.message().equals("Error: already taken")){
             context.status(403);
@@ -109,6 +112,7 @@ public class Server {
         var serializer = new Gson();
         //doesn't work in normal server test?????
         String currentAuth = context.sessionAttribute("auth");
+//        String currentAuth = context.header();
         LogoutRequest request = new LogoutRequest(currentAuth);
         UserService inst = new UserService();
         MostBasicResult result = inst.logout(request);
@@ -116,6 +120,23 @@ public class Server {
         if (result.message().isEmpty()) {
             context.status(200);
             context.sessionAttribute("auth", "");
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void listHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.sessionAttribute("auth");
+        ListRequest request = new ListRequest(currentAuth);
+        GameService inst = new GameService();
+        MostBasicResult result = inst.listGames(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
         } else if (result.message().equals("Error: unauthorized")) {
             context.status(401);
         } else {
