@@ -15,4 +15,9 @@ public record LogoutResult() implements MostBasicResult {
     public String message() {
         return "";
     }
+
+    @Override
+    public int gameID() {
+        return 0;
+    }
 }

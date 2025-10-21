@@ -34,7 +34,7 @@ public class MemoryGameDAO implements GameDAO {
                 throw new DataAccessException("Game name already taken");
             }
         }
-        GameData newGame = new GameData(gameIDCounter, "", "", gameName, new ChessGame());
+        GameData newGame = new GameData(gameIDCounter, null, null, gameName, new ChessGame());
         games.add(newGame);
         gameIDCounter++;
         return newGame.gameID();
@@ -44,9 +44,9 @@ public class MemoryGameDAO implements GameDAO {
     public void joinGame(String user, ChessGame.TeamColor team, int gameID) throws DataAccessException {
         for (int i = 0; i < games.size(); i++) {
             if (games.get(i).gameID() == gameID) {
-                if (team == ChessGame.TeamColor.WHITE && games.get(i).whiteUsername().isEmpty()) {
+                if (team == ChessGame.TeamColor.WHITE && games.get(i).whiteUsername() == null) {
                     games.set(i, new GameData(gameID, user, games.get(i).blackUsername(), games.get(i).gameName(), games.get(i).game()));
-                } else if (team == ChessGame.TeamColor.BLACK && games.get(i).blackUsername().isEmpty()) {
+                } else if (team == ChessGame.TeamColor.BLACK && games.get(i).blackUsername() == null) {
                     games.set(i, new GameData(gameID, games.get(i).whiteUsername(), user, games.get(i).gameName(), games.get(i).game()));
                 } else {
                     throw new DataAccessException("Error: already taken");

@@ -24,4 +24,9 @@ public record ListResult(List<GameListData> games) implements MostBasicResult {
     public List<GameListData> games() {
         return games;
     }
+
+    @Override
+    public int gameID() {
+        return 0;
+    }
 }

@@ -15,4 +15,9 @@ public record JoinResult() implements MostBasicResult{
     public String username() {
         return "";
     }
+
+    @Override
+    public int gameID() {
+        return 0;
+    }
 }

@@ -10,4 +10,14 @@ public record ErrorResult(String message) implements MostBasicResult {
     public String username() {
         return "";
     }
+
+    @Override
+    public int gameID() {
+        return 0;
+    }
+
+    @Override
+    public String message() {
+        return message;
+    }
 }

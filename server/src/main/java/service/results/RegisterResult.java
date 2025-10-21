@@ -15,4 +15,9 @@ public record RegisterResult(String username, String authToken) implements MostB
     public String authToken() {
         return authToken;
     }
+
+    @Override
+    public int gameID() {
+        return 0;
+    }
 }

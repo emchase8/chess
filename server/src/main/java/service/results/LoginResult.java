@@ -13,4 +13,9 @@ public record LoginResult(String username, String authToken) implements MostBasi
     public String authToken() {
         return authToken;
     }
+
+    @Override
+    public int gameID() {
+        return 0;
+    }
 }
