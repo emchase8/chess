@@ -63,6 +63,7 @@ public class GameService {
         MemoryAuthDAO authMem = new MemoryAuthDAO();
         try {
             authMem.checkAuth(request.authToken());
+            //for some reason always null for some tests???
             if (request.team() == null) {
                 return new ErrorResult("Error: bad request");
             }

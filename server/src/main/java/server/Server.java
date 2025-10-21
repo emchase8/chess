@@ -165,6 +165,7 @@ public class Server {
         var serializer = new Gson();
         String currentAuth = context.header("authorization");
         JoinData joinData = serializer.fromJson(context.body(), JoinData.class);
+        //for some reason, team is always null on some of the tests???
         JoinRequest request = new JoinRequest(currentAuth, joinData.teamColor(), joinData.gameID());
         GameService inst = new GameService();
         MostBasicResult result = inst.joinGame(request);
