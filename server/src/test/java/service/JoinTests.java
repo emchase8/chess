@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.requests.CreateRequest;
 import service.requests.JoinRequest;
@@ -10,6 +11,16 @@ import service.results.MostBasicResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JoinTests {
+    @BeforeEach
+    public void clearEverything() {
+        UserService uService = new UserService();
+        GameService gService = new GameService();
+        AuthService aService = new AuthService();
+        uService.clear();
+        gService.clear();
+        aService.clear();
+    }
+
     @Test
     public void positiveJoin() {
         RegisterRequest newUser = new RegisterRequest("Percy", "Jackson", "seaweedbrain@chb.org");

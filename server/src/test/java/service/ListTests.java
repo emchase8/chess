@@ -1,6 +1,7 @@
 package service;
 
 import model.GameListData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.requests.CreateRequest;
 import service.requests.ListRequest;
@@ -10,7 +11,19 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+//WRITE BEFORE THINGS FOR ALL MY UNIT TESTS TO CLEAR EVERYTHING!!!
+
 public class ListTests {
+    @BeforeEach
+    public void clearEverything() {
+        UserService uService = new UserService();
+        GameService gService = new GameService();
+        AuthService aService = new AuthService();
+        uService.clear();
+        gService.clear();
+        aService.clear();
+    }
+
     @Test
     public void positiveList() {
         RegisterRequest newUser = new RegisterRequest("Gimli", "sonOfGloin", "hammer@fellow.ship");

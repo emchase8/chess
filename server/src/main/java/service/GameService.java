@@ -64,7 +64,7 @@ public class GameService {
         try {
             authMem.checkAuth(request.authToken());
             //for some reason always null for some tests???
-            if (request.team() == null) {
+            if (request.team() == null || request.gameID() < 1) {
                 return new ErrorResult("Error: bad request");
             }
             String user = authMem.getUser(request.authToken());

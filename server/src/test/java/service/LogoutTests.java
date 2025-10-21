@@ -1,5 +1,6 @@
 package service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.requests.LoginRequest;
 import service.requests.LogoutRequest;
@@ -9,6 +10,16 @@ import service.results.MostBasicResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LogoutTests {
+    @BeforeEach
+    public void clearEverything() {
+        UserService uService = new UserService();
+        GameService gService = new GameService();
+        AuthService aService = new AuthService();
+        uService.clear();
+        gService.clear();
+        aService.clear();
+    }
+
     @Test
     public void positiveLogout() {
         RegisterRequest newUser = new RegisterRequest("Ahsoka", "Tano", "snips@jedi.org");

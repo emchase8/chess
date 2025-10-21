@@ -24,4 +24,17 @@ public class ClearTest {
         assertEquals("", clearGames.message());
         assertEquals("", clearUsers.message());
     }
+
+    @Test
+    public void allClearClear() {
+        UserService service = new UserService();
+        Result clearUsers = service.clear();
+        GameService gameService = new GameService();
+        Result clearGames = gameService.clear();
+        AuthService authService = new AuthService();
+        Result clearAuth = authService.clear();
+        assertEquals("", clearAuth.message());
+        assertEquals("", clearGames.message());
+        assertEquals("", clearUsers.message());
+    }
 }

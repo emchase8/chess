@@ -7,7 +7,6 @@ import model.GameName;
 import model.JoinData;
 import service.*;
 import service.requests.*;
-import service.results.ListResult;
 import service.results.MostBasicResult;
 import service.results.Result;
 
@@ -165,8 +164,7 @@ public class Server {
         var serializer = new Gson();
         String currentAuth = context.header("authorization");
         JoinData joinData = serializer.fromJson(context.body(), JoinData.class);
-        //for some reason, team is always null on some of the tests???
-        JoinRequest request = new JoinRequest(currentAuth, joinData.teamColor(), joinData.gameID());
+        JoinRequest request = new JoinRequest(currentAuth, joinData.playerColor(), joinData.gameID());
         GameService inst = new GameService();
         MostBasicResult result = inst.joinGame(request);
         var json = serializer.toJson(result);

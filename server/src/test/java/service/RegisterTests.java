@@ -1,5 +1,6 @@
 package service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.requests.RegisterRequest;
 import service.results.MostBasicResult;
@@ -7,6 +8,16 @@ import service.results.MostBasicResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RegisterTests {
+    @BeforeEach
+    public void clearEverything() {
+        UserService uService = new UserService();
+        GameService gService = new GameService();
+        AuthService aService = new AuthService();
+        uService.clear();
+        gService.clear();
+        aService.clear();
+    }
+
     @Test
     public void positiveRegister() {
         RegisterRequest newUser = new RegisterRequest("Caleb", "Widogast", "frumpkin@sol.edu");
