@@ -1,5 +1,8 @@
 package service.results;
 
+import model.GameListData;
+import java.util.List;
+
 public record CreateResult(int gameID) implements MostBasicResult{
     @Override
     public String authToken() {
@@ -19,5 +22,10 @@ public record CreateResult(int gameID) implements MostBasicResult{
     @Override
     public int gameID() {
         return gameID;
+    }
+
+    @Override
+    public List<GameListData> games() {
+        return List.of();
     }
 }

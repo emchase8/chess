@@ -1,5 +1,8 @@
 package service.results;
 
+import model.GameListData;
+import java.util.List;
+
 public record JoinResult() implements MostBasicResult{
     @Override
     public String message() {
@@ -19,5 +22,10 @@ public record JoinResult() implements MostBasicResult{
     @Override
     public int gameID() {
         return 0;
+    }
+
+    @Override
+    public List<GameListData> games() {
+        return List.of();
     }
 }
