@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LoginTests {
     @BeforeEach
-    public void clearEverything() {
+    public void clearEverythingLogin() {
         UserService uService = new UserService();
         GameService gService = new GameService();
         AuthService aService = new AuthService();

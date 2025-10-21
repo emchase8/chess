@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RegisterTests {
     @BeforeEach
-    public void clearEverything() {
+    public void clearEverythingRegister() {
         UserService uService = new UserService();
         GameService gService = new GameService();
         AuthService aService = new AuthService();

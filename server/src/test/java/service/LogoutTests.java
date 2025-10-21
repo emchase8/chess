@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LogoutTests {
     @BeforeEach
-    public void clearEverything() {
+    public void clearEverythingLogout() {
         UserService uService = new UserService();
         GameService gService = new GameService();
         AuthService aService = new AuthService();

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JoinTests {
     @BeforeEach
-    public void clearEverything() {
+    public void clearEverythingJoin() {
         UserService uService = new UserService();
         GameService gService = new GameService();
         AuthService aService = new AuthService();

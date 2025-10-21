@@ -11,11 +11,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//WRITE BEFORE THINGS FOR ALL MY UNIT TESTS TO CLEAR EVERYTHING!!!
-
 public class ListTests {
     @BeforeEach
-    public void clearEverything() {
+    public void clearEverythingList() {
         UserService uService = new UserService();
         GameService gService = new GameService();
         AuthService aService = new AuthService();
