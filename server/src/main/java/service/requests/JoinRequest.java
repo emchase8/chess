@@ -2,4 +2,4 @@ package service.requests;
 
 import chess.ChessGame;
 
-public record JoinRequest(String authToken, ChessGame.TeamColor team, String gameID) {}
+public record JoinRequest(String authToken, ChessGame.TeamColor team, int gameID) {}

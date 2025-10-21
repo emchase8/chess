@@ -60,5 +60,17 @@ public class MemoryAuthDAO implements AuthDAO {
             }
         }
     }
+
+    @Override
+    public String getUser(String authToken) {
+        for (Map.Entry mapElement : auths.entrySet()) {
+            String username = (String)mapElement.getKey();
+            AuthData current = new AuthData(authToken, username);
+            if (auths.get(username).contains(current)) {
+                return username;
+            }
+        }
+        return "";
+    }
 }
 

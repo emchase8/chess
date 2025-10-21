@@ -8,4 +8,5 @@ public interface AuthDAO {
     void updateAuth(String username, String authToken) throws NotAuthException;
     void checkAuth(String authToken) throws NotAuthException;
     void deleteAuth(String authToken) throws DataAccessException;
+    String getUser(String authToken);
 }

@@ -39,4 +39,19 @@ public class MemoryGameDAO implements GameDAO {
         gameIDCounter++;
         return newGame.gameID();
     }
+
+    @Override
+    public void joinGame(String user, ChessGame.TeamColor team, int gameID) throws DataAccessException {
+        for (int i = 0; i < games.size(); i++) {
+            if (games.get(i).gameID() == gameID) {
+                if (team == ChessGame.TeamColor.WHITE && games.get(i).whiteUsername().isEmpty()) {
+                    games.set(i, new GameData(gameID, user, games.get(i).blackUsername(), games.get(i).gameName(), games.get(i).game()));
+                } else if (team == ChessGame.TeamColor.BLACK && games.get(i).blackUsername().isEmpty()) {
+                    games.set(i, new GameData(gameID, games.get(i).whiteUsername(), user, games.get(i).gameName(), games.get(i).game()));
+                } else {
+                    throw new DataAccessException("Error: already taken");
+                }
+            }
+        }
+    }
 }

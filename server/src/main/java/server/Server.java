@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.*;
 import model.GameName;
+import model.JoinData;
 import service.*;
 import service.requests.*;
 import service.results.ListResult;
@@ -29,6 +30,7 @@ public class Server {
         javalin.delete("/session", context -> logoutHandler(context));
         javalin.get("/game", context -> listHandler(context));
         javalin.post("/game", context-> createHandler(context));
+        javalin.put("/game", context -> joinHandler(context));
         return javalin.port();
     }
 
@@ -153,6 +155,28 @@ public class Server {
             context.status(401);
         } else if (result.message().equals("Error: bad request")) {
             context.status(400);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void joinHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.header("authorization");
+        JoinData joinData = serializer.fromJson(context.body(), JoinData.class);
+        JoinRequest request = new JoinRequest(currentAuth, joinData.teamColor(), joinData.gameID());
+        GameService inst = new GameService();
+        MostBasicResult result = inst.joinGame(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else if (result.message().equals("Error: already taken")) {
+            context.status(403);
         } else {
             context.status(500);
         }

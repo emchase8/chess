@@ -1,3 +1,18 @@
 package service.results;
 
-public record JoinResult() {}
+public record JoinResult() implements MostBasicResult{
+    @Override
+    public String message() {
+        return "";
+    }
+
+    @Override
+    public String authToken() {
+        return "";
+    }
+
+    @Override
+    public String username() {
+        return "";
+    }
+}

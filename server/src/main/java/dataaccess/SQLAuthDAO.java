@@ -17,4 +17,9 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {};
+
+    @Override
+    public String getUser(String authToken) {
+        return "";
+    }
 }
