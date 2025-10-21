@@ -6,11 +6,9 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.NotAuthException;
 import model.GameListData;
+import service.requests.CreateRequest;
 import service.requests.ListRequest;
-import service.results.ErrorResult;
-import service.results.ListResult;
-import service.results.MostBasicResult;
-import service.results.Result;
+import service.results.*;
 
 import java.util.List;
 
@@ -35,6 +33,25 @@ public class GameService {
                 return new ListResult(list);
             } catch (DataAccessException e) {
                 return new ErrorResult("Error:");
+            }
+        } catch (NotAuthException n) {
+            return new ErrorResult("Error: unauthorized");
+        }
+    }
+
+    public MostBasicResult createGame(CreateRequest request) {
+        MemoryAuthDAO authMem = new MemoryAuthDAO();
+        try {
+            authMem.checkAuth(request.authToken());
+            if (request.gameName() == null) {
+                return new ErrorResult("Error: bad request");
+            }
+            MemoryGameDAO gameMem = new MemoryGameDAO();
+            try {
+                int gameID = gameMem.createGame(request.gameName());
+                return new CreateResult(gameID);
+            } catch (DataAccessException e) {
+                return new ErrorResult("Error: bad request");
             }
         } catch (NotAuthException n) {
             return new ErrorResult("Error: unauthorized");

@@ -12,4 +12,9 @@ public class SQLGameDAO implements GameDAO {
     public List<GameListData> listGames() throws DataAccessException {
         return List.of();
     }
+
+    @Override
+    public int createGame(String gameName) throws DataAccessException {
+        return 0;
+    }
 }

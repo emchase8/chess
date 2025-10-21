@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.*;
+import model.GameName;
 import service.*;
 import service.requests.*;
 import service.results.ListResult;
@@ -141,10 +142,21 @@ public class Server {
     private void createHandler(Context context) {
         var serializer = new Gson();
         String currentAuth = context.header("authorization");
-        String gameName = context.body();
-        CreateRequest request = new CreateRequest(currentAuth, gameName);
+        GameName gameName = serializer.fromJson(context.body(), GameName.class);
+        CreateRequest request = new CreateRequest(currentAuth, gameName.gameName());
         GameService inst = new GameService();
-        MostBasicResult result = inst.createGame(gameName);
+        MostBasicResult result = inst.createGame(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
     }
 
     public void stop() {
