@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.requests.LoginRequest;
 import service.requests.LogoutRequest;
 import service.requests.RegisterRequest;
@@ -20,34 +21,41 @@ public class UserService {
             SQLUserDAO userSQL = new SQLUserDAO();
             userSQL.clear();
             return new Result("");
-        } catch (dataaccess.DataAccessException e) {
+        } catch (DataAccessException e) {
             return new Result("Error: unable to clear users");
         }
     }
 
     public MostBasicResult register(RegisterRequest registerRequest) {
         //UPDATE TO DEAL WITH HASH PASSWORDS
-        UserData newUser = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
+        String hashedPassword = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
+        UserData newUser = new UserData(registerRequest.username(), hashedPassword, registerRequest.email());
         String newAuthToken = generateToken();
         AuthData newAuth = new AuthData(newAuthToken, registerRequest.username());
-        MemoryUserDAO userMem = new MemoryUserDAO();
-        MemoryAuthDAO authMem = new MemoryAuthDAO();
         try {
-            userMem.getUser(registerRequest.username());
-        } catch (AlreadyTakenException e) {
-            return new ErrorResult("Error: already taken");
+            SQLUserDAO userSQL = new SQLUserDAO();
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            try {
+                userSQL.getUser(registerRequest.username());
+            } catch (AlreadyTakenException e) {
+                return new ErrorResult("Error: already taken");
+            } catch (DataAccessException e) {
+                return new ErrorResult("Error: database error");
+            }
+            try {
+                userSQL.createUser(registerRequest.username(), newUser);
+            } catch (dataaccess.DataAccessException e) {
+                return new ErrorResult("Error: bad request");
+            }
+            try {
+                authSQL.createAuth(registerRequest.username(), newAuth);
+            } catch (dataaccess.DataAccessException e) {
+                return new ErrorResult("Error: bad request");
+            }
+            return new RegisterResult(registerRequest.username(), newAuthToken);
+        } catch (DataAccessException e) {
+            return new ErrorResult("Error: database error");
         }
-        try {
-            userMem.createUser(registerRequest.username(), newUser);
-        } catch (dataaccess.DataAccessException e) {
-            return new ErrorResult("Error: bad request");
-        }
-        try {
-            authMem.createAuth(registerRequest.username(), newAuth);
-        } catch (dataaccess.DataAccessException e) {
-            return new ErrorResult("Error: bad request");
-        }
-        return new RegisterResult(registerRequest.username(), newAuthToken);
     }
 
     public MostBasicResult login(LoginRequest loginRequest) {

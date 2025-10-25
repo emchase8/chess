@@ -13,10 +13,9 @@ public class SQLAuthDAO implements AuthDAO {
     private final String[] createStatements = {
         """
         CREATE TABLE IF NOT EXISTS auths (
-        id INT NOT NULL AUTO_INCREMENT,
+        auth VARCHAR(255) NOT NULL,
         username VARCHAR(255) NOT NULL,
-        auth_list ??????????????????????????????????????????????????????????????????????????,
-        PRIMARY KEY (id)
+        PRIMARY KEY (auth)
         )
        """
     };
@@ -35,10 +34,26 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void createAuth(String username, AuthData auth) throws DataAccessException {};
+    public void createAuth(String username, AuthData auth) throws DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("INSERT INTO auths (auth, username) VALUES (?, ?)")) {
+            preparedStatement.setString(1, auth.authToken());
+            preparedStatement.setString(2, username);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    };
 
     @Override
-    public void clear() throws DataAccessException {};
+    public void clear() throws DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("TRUNCATE TABLE auths")) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    };
 
     @Override
     public void updateAuth(String username, String authToken) throws NotAuthException {};
