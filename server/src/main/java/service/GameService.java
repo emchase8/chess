@@ -1,10 +1,7 @@
 package service;
 
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.NotAuthException;
+import dataaccess.*;
 import model.GameListData;
 import service.requests.CreateRequest;
 import service.requests.JoinRequest;
@@ -15,9 +12,9 @@ import java.util.List;
 
 public class GameService {
     public Result clear() {
-        MemoryGameDAO gameMem = new MemoryGameDAO();
         try {
-            gameMem.clear();
+            SQLGameDAO gameSQL = new SQLGameDAO();
+            gameSQL.clear();
             return new Result("");
         } catch (DataAccessException e) {
             return new Result("Error: unable to clear games");

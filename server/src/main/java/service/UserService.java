@@ -16,9 +16,9 @@ public class UserService {
     }
 
     public Result clear() {
-        MemoryUserDAO userMem = new MemoryUserDAO();
         try {
-            userMem.clear();
+            SQLUserDAO userSQL = new SQLUserDAO();
+            userSQL.clear();
             return new Result("");
         } catch (dataaccess.DataAccessException e) {
             return new Result("Error: unable to clear users");
@@ -26,6 +26,7 @@ public class UserService {
     }
 
     public MostBasicResult register(RegisterRequest registerRequest) {
+        //UPDATE TO DEAL WITH HASH PASSWORDS
         UserData newUser = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
         String newAuthToken = generateToken();
         AuthData newAuth = new AuthData(newAuthToken, registerRequest.username());
@@ -50,6 +51,7 @@ public class UserService {
     }
 
     public MostBasicResult login(LoginRequest loginRequest) {
+        //UPDATE TO DEAL WITH HASH PASSWORDS
         MemoryUserDAO userMem = new MemoryUserDAO();
         try {
             if (loginRequest.username() != null && loginRequest.password() != null) {

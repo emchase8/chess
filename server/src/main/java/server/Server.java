@@ -47,26 +47,27 @@ public class Server {
         AuthService authInst = new AuthService();
         GameService gameInst = new GameService();
         Result uResult = userInst.clear();
+        Result aResult = authInst.clear();
+        Result gResult = gameInst.clear();
         if (uResult.message().equals("Error: unable to clear users")) {
             var json = serializer.toJson(uResult);
             context.status(500);
             context.json(json);
         }
-        Result aResult = authInst.clear();
-        if (aResult.message().equals("Error: unable to clear authTokens")) {
+        else if (aResult.message().equals("Error: unable to clear authTokens")) {
             var json = serializer.toJson(aResult);
             context.status(500);
             context.json(json);
         }
-        Result gResult = gameInst.clear();
-        if (gResult.message().equals("Error: unable to clear games")) {
+        else if (gResult.message().equals("Error: unable to clear games")) {
             var json = serializer.toJson(gResult);
             context.status(500);
             context.json(json);
+        } else {
+            var json = serializer.toJson(aResult);
+            context.status(200);
+            context.json(json);
         }
-        var json = serializer.toJson(aResult);
-        context.status(200);
-        context.json(json);
     }
 
     private void registerHandler(Context context) {
