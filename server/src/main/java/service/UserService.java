@@ -84,6 +84,8 @@ public class UserService {
                     return new LoginResult(loginRequest.username(), newAuthToken);
                 } catch (NotAuthException n) {
                     return new ErrorResult("Error: unauthorized");
+                } catch (DataAccessException d) {
+                    return new ErrorResult("Error: database error");
                 }
             }
             return new ErrorResult("Error: unauthorized");
@@ -93,19 +95,23 @@ public class UserService {
     }
 
     public MostBasicResult logout(LogoutRequest logoutRequest) {
-        MemoryAuthDAO authMem = new MemoryAuthDAO();
         try {
-            authMem.checkAuth(logoutRequest.authToken());
+            SQLAuthDAO authSQL = new SQLAuthDAO();
             try {
-                authMem.deleteAuth(logoutRequest.authToken());
-                return new LogoutResult();
+                authSQL.checkAuth(logoutRequest.authToken());
+                try {
+                    authSQL.deleteAuth(logoutRequest.authToken());
+                    return new LogoutResult();
+                } catch (DataAccessException e) {
+                    return new ErrorResult("Error: unauthorized");
+                }
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult("Error:");
+                return new ErrorResult("Error: database error");
             }
-        } catch (NotAuthException n) {
-            return new ErrorResult("Error: unauthorized");
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            return new ErrorResult("Error: database error");
         }
     }
 }

@@ -58,9 +58,9 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public void updateAuth(String username, String authToken) throws NotAuthException, DataAccessException {
         var conn = DatabaseManager.getConnection();
-        try (var preperedStatement = conn.prepareStatement("SELECT auth, username FROM auths WHERE auth=?")) {
-            preperedStatement.setString(1, authToken);
-            try (var rs = preperedStatement.executeQuery()) {
+        try (var preparedStatement = conn.prepareStatement("SELECT auth, username FROM auths WHERE auth=?")) {
+            preparedStatement.setString(1, authToken);
+            try (var rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
                     var dbUsername = rs.getString("username");
                     if (!dbUsername.equals(username)) {
@@ -75,10 +75,34 @@ public class SQLAuthDAO implements AuthDAO {
     };
 
     @Override
-    public void checkAuth(String authToken) throws NotAuthException, DataAccessException {};
+    public void checkAuth(String authToken) throws NotAuthException, DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("SELECT auth FROM auths WHERE auth=?")) {
+            preparedStatement.setString(1, authToken);
+            try (var rs = preparedStatement.executeQuery()) {
+                while (rs.next()) {
+                    var dbAuth = rs.getString("auth");
+                    if (!dbAuth.equals(authToken)) {
+                        throw new NotAuthException("Error: unauthorized");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    };
 
     @Override
-    public void deleteAuth(String authToken) throws DataAccessException {};
+    public void deleteAuth(String authToken) throws DataAccessException {
+        //fails the double logout and not sure why???
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("DELETE FROM auths WHERE auth=?")) {
+            preparedStatement.setString(1, authToken);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    };
 
     @Override
     public String getUser(String authToken) {

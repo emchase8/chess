@@ -114,7 +114,6 @@ public class Server {
         MostBasicResult result = inst.logout(request);
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
-            //clear out singluar auth token
             context.status(200);
         } else if (result.message().equals("Error: unauthorized")) {
             context.status(401);
