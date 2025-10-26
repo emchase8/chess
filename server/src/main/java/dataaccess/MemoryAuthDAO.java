@@ -36,7 +36,7 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void checkAuth(String authToken) throws NotAuthException {
+    public void checkAuth(String authToken) throws NotAuthException, DataAccessException {
         int found = 0;
         for (Map.Entry mapElement : auths.entrySet()) {
             String username = (String)mapElement.getKey();

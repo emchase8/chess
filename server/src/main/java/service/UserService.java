@@ -28,7 +28,10 @@ public class UserService {
 
     public MostBasicResult register(RegisterRequest registerRequest) {
         //UPDATE TO DEAL WITH HASH PASSWORDS
-        String hashedPassword = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
+        String hashedPassword = registerRequest.password();
+        if (registerRequest.password() != null) {
+            hashedPassword = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
+        }
         UserData newUser = new UserData(registerRequest.username(), hashedPassword, registerRequest.email());
         String newAuthToken = generateToken();
         AuthData newAuth = new AuthData(newAuthToken, registerRequest.username());
@@ -60,29 +63,33 @@ public class UserService {
 
     public MostBasicResult login(LoginRequest loginRequest) {
         //UPDATE TO DEAL WITH HASH PASSWORDS
-        MemoryUserDAO userMem = new MemoryUserDAO();
         try {
-            if (loginRequest.username() != null && loginRequest.password() != null) {
-                userMem.getUser(loginRequest.username());
-            } else {
-                return new ErrorResult("Error: bad request");
-            }
-        } catch (AlreadyTakenException e) {
+            SQLUserDAO userSQL = new SQLUserDAO();
+            SQLAuthDAO authMem = new SQLAuthDAO();
             try {
-                userMem.checkPassword(loginRequest.username(), loginRequest.password());
-            } catch (NotAuthException n) {
-                return new ErrorResult("Error: unauthorized");
+                if (loginRequest.username() != null && loginRequest.password() != null) {
+                    userSQL.getUser(loginRequest.username());
+                } else {
+                    return new ErrorResult("Error: bad request");
+                }
+            } catch (AlreadyTakenException e) {
+                try {
+                    userSQL.checkPassword(loginRequest.username(), loginRequest.password());
+                } catch (NotAuthException n) {
+                    return new ErrorResult("Error: unauthorized");
+                }
+                String newAuthToken = generateToken();
+                try {
+                    authMem.updateAuth(loginRequest.username(), newAuthToken);
+                    return new LoginResult(loginRequest.username(), newAuthToken);
+                } catch (NotAuthException n) {
+                    return new ErrorResult("Error: unauthorized");
+                }
             }
-            MemoryAuthDAO authMem = new MemoryAuthDAO();
-            String newAuthToken = generateToken();
-            try {
-                authMem.updateAuth(loginRequest.username(), newAuthToken);
-                return new LoginResult(loginRequest.username(), newAuthToken);
-            } catch (NotAuthException n) {
-                return new ErrorResult("Error: unauthorized");
-            }
+            return new ErrorResult("Error: unauthorized");
+        } catch (DataAccessException e) {
+            return new ErrorResult("Error: database error");
         }
-        return new ErrorResult("Error: unauthorized");
     }
 
     public MostBasicResult logout(LogoutRequest logoutRequest) {
@@ -97,6 +104,8 @@ public class UserService {
             }
         } catch (NotAuthException n) {
             return new ErrorResult("Error: unauthorized");
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }

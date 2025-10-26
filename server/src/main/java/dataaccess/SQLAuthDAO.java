@@ -56,10 +56,26 @@ public class SQLAuthDAO implements AuthDAO {
     };
 
     @Override
-    public void updateAuth(String username, String authToken) throws NotAuthException {};
+    public void updateAuth(String username, String authToken) throws NotAuthException, DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        try (var preperedStatement = conn.prepareStatement("SELECT auth, username FROM auths WHERE auth=?")) {
+            preperedStatement.setString(1, authToken);
+            try (var rs = preperedStatement.executeQuery()) {
+                while (rs.next()) {
+                    var dbUsername = rs.getString("username");
+                    if (!dbUsername.equals(username)) {
+                        throw new NotAuthException("Error: unauthorized");
+                    }
+                }
+                createAuth(username, new AuthData(authToken, username));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    };
 
     @Override
-    public void checkAuth(String authToken) throws NotAuthException {};
+    public void checkAuth(String authToken) throws NotAuthException, DataAccessException {};
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {};

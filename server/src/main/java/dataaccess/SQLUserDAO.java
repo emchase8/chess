@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
@@ -80,5 +81,25 @@ public class SQLUserDAO implements UserDAO {
         }
     };
     @Override
-    public void checkPassword(String username, String password) throws NotAuthException {}
+    public void checkPassword(String username, String password) throws NotAuthException, DataAccessException {
+        try {
+            var conn = DatabaseManager.getConnection();
+            try (var preparedStatement = conn.prepareStatement("SELECT username, password FROM users WHERE username=?")) {
+                preparedStatement.setString(1, username);
+                try(var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        var dbPassword = rs.getString("password");
+                        boolean match = BCrypt.checkpw(password, dbPassword);
+                        if (!match) {
+                            throw new NotAuthException("Error: unauthorized");
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException("Error: database error");
+            }
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    }
 }

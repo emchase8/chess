@@ -34,6 +34,8 @@ public class GameService {
             }
         } catch (NotAuthException n) {
             return new ErrorResult("Error: unauthorized");
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -53,6 +55,8 @@ public class GameService {
             }
         } catch (NotAuthException n) {
             return new ErrorResult("Error: unauthorized");
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -74,6 +78,8 @@ public class GameService {
             }
         } catch (NotAuthException n) {
             return new ErrorResult("Error: unauthorized");
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }
