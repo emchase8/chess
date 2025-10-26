@@ -9,10 +9,10 @@ import java.util.List;
 public class SQLGameDAO implements GameDAO {
 
     public SQLGameDAO() throws DataAccessException {
-        configureDatabase();
+        configureDatabaseForGames();
     }
 
-    private final String[] createStatements = {
+    private final String[] createGameTable = {
             """
         CREATE TABLE IF NOT EXISTS games (
         id INT NOT NULL AUTO_INCREMENT,
@@ -22,10 +22,10 @@ public class SQLGameDAO implements GameDAO {
        """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabaseForGames() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
+            for (var statement : createGameTable) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }

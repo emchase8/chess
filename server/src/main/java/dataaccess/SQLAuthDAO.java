@@ -7,10 +7,10 @@ import java.sql.SQLException;
 public class SQLAuthDAO implements AuthDAO {
 
     public SQLAuthDAO() throws DataAccessException {
-        configureDatabase();
+        configureDatabaseForAuth();
     }
 
-    private final String[] createStatements = {
+    private final String[] createAuthTable = {
         """
         CREATE TABLE IF NOT EXISTS auths (
         auth VARCHAR(255) NOT NULL,
@@ -20,10 +20,10 @@ public class SQLAuthDAO implements AuthDAO {
        """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabaseForAuth() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
+            for (var statement : createAuthTable) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }

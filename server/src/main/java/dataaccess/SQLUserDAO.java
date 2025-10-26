@@ -8,10 +8,10 @@ import java.sql.SQLException;
 public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO() throws DataAccessException {
-        configureDatabase();
+        configureDatabaseForUsers();
     }
 
-    private final String[] createStatements = {
+    private final String[] createUserTable = {
         """
         CREATE TABLE IF NOT EXISTS users (
         username VARCHAR(255) NOT NULL,
@@ -22,10 +22,10 @@ public class SQLUserDAO implements UserDAO {
        """
     };
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureDatabaseForUsers() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
+            for (var statement : createUserTable) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
@@ -42,11 +42,12 @@ public class SQLUserDAO implements UserDAO {
             try (var preparedStatement = conn.prepareStatement("SELECT username FROM users WHERE username=?")) {
                 preparedStatement.setString(1, username);
                 try(var rs = preparedStatement.executeQuery()) {
+                    var dbUser = "";
                     while (rs.next()) {
-                        var dbUser = rs.getString("username");
-                        if (dbUser.equals(username)) {
-                            throw new AlreadyTakenException("Error: username already taken");
-                        }
+                        dbUser = rs.getString("username");
+                    }
+                    if (dbUser.equals(username)) {
+                        throw new AlreadyTakenException("Error: username already taken");
                     }
                 }
             } catch (SQLException e) {
@@ -87,12 +88,13 @@ public class SQLUserDAO implements UserDAO {
             try (var preparedStatement = conn.prepareStatement("SELECT username, password FROM users WHERE username=?")) {
                 preparedStatement.setString(1, username);
                 try(var rs = preparedStatement.executeQuery()) {
+                    boolean match = false;
                     while (rs.next()) {
                         var dbPassword = rs.getString("password");
-                        boolean match = BCrypt.checkpw(password, dbPassword);
-                        if (!match) {
-                            throw new NotAuthException("Error: unauthorized");
-                        }
+                        match = BCrypt.checkpw(password, dbPassword);
+                    }
+                    if (!match) {
+                        throw new NotAuthException("Error: unauthorized");
                     }
                 }
             } catch (SQLException e) {
