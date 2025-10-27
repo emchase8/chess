@@ -100,7 +100,29 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void joinGame(String user, ChessGame.TeamColor team, int gameID) throws DataAccessException {
-
+    public void joinGame(String user, ChessGame.TeamColor team, int gameID) throws DataAccessException, AlreadyTakenException {
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("SELECT game_id, white_user, black_user FROM real_games WHERE game_id=?")) {
+            preparedStatement.setInt(1, gameID);
+            try (var rs = preparedStatement.executeQuery()) {
+                if (rs.next() && rs.getString("white_user") == null && team == ChessGame.TeamColor.WHITE) {
+                    try (var joinWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
+                        joinWhite.setString(1, user);
+                        joinWhite.setInt(2, gameID);
+                        joinWhite.executeUpdate();
+                    }
+                } else if (rs.next() && rs.getString("black_user") == null && team == ChessGame.TeamColor.BLACK) {
+                    try (var joinBlack = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
+                        joinBlack.setString(1, user);
+                        joinBlack.setInt(2, gameID);
+                        joinBlack.executeUpdate();
+                    }
+                } else {
+                    throw new AlreadyTakenException("Error: already taken");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
     };
 }

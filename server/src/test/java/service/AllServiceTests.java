@@ -193,7 +193,7 @@ public class AllServiceTests {
         MostBasicResult createResult = gameService.createGame(createRequest);
         RegisterRequest newUser2 = new RegisterRequest("Shallan", "Davar", "pattern@knight.rad");
         MostBasicResult registerResult2 = service.register(newUser2);
-        CreateRequest createRequest2 = new CreateRequest(registerResult2.authToken(), "Bridge4");
+        CreateRequest createRequest2 = new CreateRequest(registerResult2.authToken(), null);
         MostBasicResult createResult2 = gameService.createGame(createRequest2);
         assertEquals("Error: bad request", createResult2.message());
     }

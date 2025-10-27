@@ -81,13 +81,15 @@ public class GameService {
                 try {
                     gameSQL.joinGame(user, request.team(), request.gameID());
                     return new JoinResult();
-                } catch (DataAccessException e) {
+                } catch (AlreadyTakenException e) {
                     return new ErrorResult("Error: already taken");
+                } catch (DataAccessException n) {
+                    return new ErrorResult("Error: database error");
                 }
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                throw new RuntimeException(e);
+                return new ErrorResult("Error: database error");
             }
         } catch (DataAccessException e) {
             return new ErrorResult("Error: database error");
