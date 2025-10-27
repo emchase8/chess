@@ -97,7 +97,6 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        //fails the double logout and not sure why???
         var conn = DatabaseManager.getConnection();
         try (var preparedStatement = conn.prepareStatement("DELETE FROM auths WHERE auth=?")) {
             preparedStatement.setString(1, authToken);

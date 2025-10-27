@@ -22,41 +22,50 @@ public class GameService {
     }
 
     public MostBasicResult listGames(ListRequest request) {
-        MemoryAuthDAO authMem = new MemoryAuthDAO();
+        //COME BACK TO THIS AFTER THERE ARE SOME GAMES IN DB
         try {
-            authMem.checkAuth(request.authToken());
-            MemoryGameDAO gameMem = new MemoryGameDAO();
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameSQL = new SQLGameDAO();
             try {
-                List<GameListData> list = gameMem.listGames();
-                return new ListResult(list);
+                authSQL.checkAuth(request.authToken());
+                try {
+                    List<GameListData> list = gameSQL.listGames();
+                    return new ListResult(list);
+                } catch (DataAccessException e) {
+                    return new ErrorResult("Error:");
+                }
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult("Error:");
+                throw new RuntimeException(e);
             }
-        } catch (NotAuthException n) {
-            return new ErrorResult("Error: unauthorized");
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            return new ErrorResult("Error: database error");
         }
     }
 
     public MostBasicResult createGame(CreateRequest request) {
-        MemoryAuthDAO authMem = new MemoryAuthDAO();
         try {
-            authMem.checkAuth(request.authToken());
-            if (request.gameName() == null) {
-                return new ErrorResult("Error: bad request");
-            }
-            MemoryGameDAO gameMem = new MemoryGameDAO();
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameSQL = new SQLGameDAO();
             try {
-                int gameID = gameMem.createGame(request.gameName());
-                return new CreateResult(gameID);
+                authSQL.checkAuth(request.authToken());
+                if (request.gameName() == null) {
+                    return new ErrorResult("Error: bad request");
+                }
+                try {
+                    int gameID = gameSQL.createGame(request.gameName());
+                    return new CreateResult(gameID);
+                } catch (DataAccessException e) {
+                    return new ErrorResult("Error: database error");
+                }
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult("Error: bad request");
+                return new ErrorResult("Error: database error");
             }
-        } catch (NotAuthException n) {
-            return new ErrorResult("Error: unauthorized");
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            return new ErrorResult("Error: database error");
         }
     }
 
