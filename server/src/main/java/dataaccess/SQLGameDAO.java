@@ -105,20 +105,26 @@ public class SQLGameDAO implements GameDAO {
         try (var preparedStatement = conn.prepareStatement("SELECT game_id, white_user, black_user FROM real_games WHERE game_id=?")) {
             preparedStatement.setInt(1, gameID);
             try (var rs = preparedStatement.executeQuery()) {
-                if (rs.next() && rs.getString("white_user") == null && team == ChessGame.TeamColor.WHITE) {
-                    try (var joinWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
-                        joinWhite.setString(1, user);
-                        joinWhite.setInt(2, gameID);
-                        joinWhite.executeUpdate();
+                String whiteUser = null;
+                String blackUser = null;
+                if (rs.next()) {
+                    whiteUser = rs.getString("white_user");
+                    blackUser = rs.getString("black_user");
+                    if (whiteUser == null && team == ChessGame.TeamColor.WHITE) {
+                        try (var joinWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
+                            joinWhite.setString(1, user);
+                            joinWhite.setInt(2, gameID);
+                            joinWhite.executeUpdate();
+                        }
+                    } else if (blackUser == null && team == ChessGame.TeamColor.BLACK) {
+                        try (var joinBlack = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
+                            joinBlack.setString(1, user);
+                            joinBlack.setInt(2, gameID);
+                            joinBlack.executeUpdate();
+                        }
+                    } else {
+                        throw new AlreadyTakenException("Error: already taken");
                     }
-                } else if (rs.next() && rs.getString("black_user") == null && team == ChessGame.TeamColor.BLACK) {
-                    try (var joinBlack = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
-                        joinBlack.setString(1, user);
-                        joinBlack.setInt(2, gameID);
-                        joinBlack.executeUpdate();
-                    }
-                } else {
-                    throw new AlreadyTakenException("Error: already taken");
                 }
             }
         } catch (SQLException e) {
