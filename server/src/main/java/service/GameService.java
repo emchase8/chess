@@ -22,7 +22,6 @@ public class GameService {
     }
 
     public MostBasicResult listGames(ListRequest request) {
-        //COME BACK TO THIS AFTER THERE ARE SOME GAMES IN DB
         try {
             SQLAuthDAO authSQL = new SQLAuthDAO();
             SQLGameDAO gameSQL = new SQLGameDAO();
@@ -32,7 +31,7 @@ public class GameService {
                     List<GameListData> list = gameSQL.listGames();
                     return new ListResult(list);
                 } catch (DataAccessException e) {
-                    return new ErrorResult("Error:");
+                    return new ErrorResult("Error: database error");
                 }
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
@@ -70,25 +69,28 @@ public class GameService {
     }
 
     public MostBasicResult joinGame(JoinRequest request) {
-        MemoryAuthDAO authMem = new MemoryAuthDAO();
         try {
-            authMem.checkAuth(request.authToken());
-            //for some reason always null for some tests???
-            if (request.team() == null || request.gameID() < 1) {
-                return new ErrorResult("Error: bad request");
-            }
-            String user = authMem.getUser(request.authToken());
-            MemoryGameDAO gameMem = new MemoryGameDAO();
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameSQL = new SQLGameDAO();
             try {
-                gameMem.joinGame(user, request.team(), request.gameID());
-                return new JoinResult();
+                authSQL.checkAuth(request.authToken());
+                if (request.team() == null || request.gameID() < 1) {
+                    return new ErrorResult("Error: bad request");
+                }
+                String user = authSQL.getUser(request.authToken());
+                try {
+                    gameSQL.joinGame(user, request.team(), request.gameID());
+                    return new JoinResult();
+                } catch (DataAccessException e) {
+                    return new ErrorResult("Error: already taken");
+                }
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult("Error: already taken");
+                throw new RuntimeException(e);
             }
-        } catch (NotAuthException n) {
-            return new ErrorResult("Error: unauthorized");
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            return new ErrorResult("Error: database error");
         }
     }
 }

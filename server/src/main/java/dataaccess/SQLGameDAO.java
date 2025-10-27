@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import model.GameListData;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
@@ -51,7 +52,22 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public List<GameListData> listGames() throws DataAccessException {
-        return List.of();
+        List<GameListData> gameList = new ArrayList<>();
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("SELECT game_id, white_user, black_user, game_name FROM real_games")) {
+            try (var rs = preparedStatement.executeQuery()) {
+                while (rs.next()) {
+                    int gameId = rs.getInt("game_id");
+                    String whiteUser = rs.getString("white_user");
+                    String blackUser = rs.getString("black_user");
+                    String gameName = rs.getString("game_name");
+                    gameList.add(new GameListData(gameId, whiteUser, blackUser, gameName));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+        return gameList;
     }
 
     @Override
@@ -84,5 +100,7 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public void joinGame(String user, ChessGame.TeamColor team, int gameID) throws DataAccessException {};
+    public void joinGame(String user, ChessGame.TeamColor team, int gameID) throws DataAccessException {
+
+    };
 }
