@@ -102,6 +102,8 @@ public class SQLGameDAO implements GameDAO {
     @Override
     public void joinGame(String user, ChessGame.TeamColor team, int gameID) throws DataAccessException, AlreadyTakenException {
         var conn = DatabaseManager.getConnection();
+        boolean joinGameWhite = false;
+        boolean joinGameBlack = false;
         try (var preparedStatement = conn.prepareStatement("SELECT game_id, white_user, black_user FROM real_games WHERE game_id=?")) {
             preparedStatement.setInt(1, gameID);
             try (var rs = preparedStatement.executeQuery()) {
@@ -111,17 +113,9 @@ public class SQLGameDAO implements GameDAO {
                     whiteUser = rs.getString("white_user");
                     blackUser = rs.getString("black_user");
                     if (whiteUser == null && team == ChessGame.TeamColor.WHITE) {
-                        try (var joinWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
-                            joinWhite.setString(1, user);
-                            joinWhite.setInt(2, gameID);
-                            joinWhite.executeUpdate();
-                        }
+                        joinGameWhite = true;
                     } else if (blackUser == null && team == ChessGame.TeamColor.BLACK) {
-                        try (var joinBlack = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
-                            joinBlack.setString(1, user);
-                            joinBlack.setInt(2, gameID);
-                            joinBlack.executeUpdate();
-                        }
+                        joinGameBlack = true;
                     } else {
                         throw new AlreadyTakenException("Error: already taken");
                     }
@@ -129,6 +123,23 @@ public class SQLGameDAO implements GameDAO {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error: database error");
+        }
+        if (joinGameWhite) {
+            try (var joinWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
+                joinWhite.setString(1, user);
+                joinWhite.setInt(2, gameID);
+                joinWhite.executeUpdate();
+            } catch (SQLException e) {
+                throw new DataAccessException("Error: database error");
+            }
+        } else if (joinGameBlack) {
+            try (var joinBlack = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
+                joinBlack.setString(1, user);
+                joinBlack.setInt(2, gameID);
+                joinBlack.executeUpdate();
+            } catch (SQLException e) {
+                throw new DataAccessException("Error: database error");
+            }
         }
     };
 }
