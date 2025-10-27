@@ -80,6 +80,9 @@ public class SQLAuthDAO implements AuthDAO {
         try (var preparedStatement = conn.prepareStatement("SELECT auth FROM auths WHERE auth=?")) {
             preparedStatement.setString(1, authToken);
             try (var rs = preparedStatement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new NotAuthException("Error: unauthorized");
+                }
                 while (rs.next()) {
                     var dbAuth = rs.getString("auth");
                     if (!dbAuth.equals(authToken)) {

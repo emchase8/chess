@@ -103,6 +103,8 @@ public class UserService {
                     authSQL.deleteAuth(logoutRequest.authToken());
                     return new LogoutResult();
                 } catch (DataAccessException e) {
+                    return new ErrorResult("Error: database error");
+                } catch (NotAuthException n) {
                     return new ErrorResult("Error: unauthorized");
                 }
             } catch (NotAuthException n) {
