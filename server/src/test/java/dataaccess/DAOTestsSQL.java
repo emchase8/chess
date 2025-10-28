@@ -37,8 +37,22 @@ public class DAOTestsSQL {
     @BeforeEach
     public void setup() {
         UserService uService = new UserService();
-        GameService gService = new GameService();
         MostBasicResult register = uService.register(new RegisterRequest("Padme", "Amidala", "naboo@senate.gov"));
+    }
+
+    @Test
+    public void initializeUsersPositive() {
+        assertDoesNotThrow(() -> {new SQLUserDAO();});
+    }
+
+    @Test
+    public void initializeGamesPositive() {
+        assertDoesNotThrow(() -> {new SQLGameDAO();});
+    }
+
+    @Test
+    public void initializeAuthPositive() {
+        assertDoesNotThrow(() -> {new SQLAuthDAO();});
     }
 
     @Test
