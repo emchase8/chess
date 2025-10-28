@@ -36,7 +36,6 @@ public class DAOTestsSQL {
         UserService uService = new UserService();
         GameService gService = new GameService();
         MostBasicResult register = uService.register(new RegisterRequest("Padme", "Amidala", "naboo@senate.gov"));
-        MostBasicResult create = gService.createGame(new CreateRequest(register.authToken(), "aggressiveNegotiations"));
     }
 
     @Test
@@ -144,7 +143,12 @@ public class DAOTestsSQL {
     //ASK HOW TO DO NEGATIVE TEST WHEN ONLY ERROR THROWN IS WHEN DATABASE DOESN'T WORK
     @Test
     public void createAuthNegative() {
-        assertEquals(1,2);
+        try {
+            SQLAuthDAO authDAO = new SQLAuthDAO();
+            assertThrows(DataAccessException.class, () -> {authDAO.createAuth(null, new AuthData("nabooSenator", "Padme"));});
+        } catch (DataAccessException e) {
+            assertEquals("Error: unable to setup database", e.getMessage());
+        }
     }
 
     @Test
@@ -233,7 +237,12 @@ public class DAOTestsSQL {
     //ANOTHER TO ASK TAS ABOUT
     @Test
     public void deleteAuthNegative() {
-        assertEquals(1,2);
+        try {
+            SQLAuthDAO authDAO = new SQLAuthDAO();
+            assertThrows(DataAccessException.class, () -> {authDAO.deleteAuth(null);});
+        } catch (DataAccessException e) {
+            assertEquals("Error: unable to setup database", e.getMessage());
+        }
     }
 
     @Test
@@ -272,6 +281,7 @@ public class DAOTestsSQL {
     public void listGamesPositive() {
         try {
             SQLGameDAO gameDAO = new SQLGameDAO();
+            gameDAO.createGame("aggressiveNegotiations");
             List<GameListData> list = gameDAO.listGames();
             List<GameListData> expectedList = new ArrayList<>();
             expectedList.add(new GameListData(1, null, null, "aggressiveNegotiations"));
@@ -283,7 +293,15 @@ public class DAOTestsSQL {
 
     @Test
     public void listGamesNegative() {
-        assertEquals(1,2);
+        //this is what a TA recommened for this one, as it takes no args and the only way it fails is if the database breaks
+        try {
+            SQLGameDAO gameDAO = new SQLGameDAO();
+            List<GameListData> list = gameDAO.listGames();
+            List<GameListData> expectedList = new ArrayList<>();
+            assertEquals(expectedList, list);
+        } catch (DataAccessException e) {
+            assertEquals("Error: unable to setup database", e.getMessage());
+        }
     }
 
     @Test
@@ -307,13 +325,19 @@ public class DAOTestsSQL {
 
     @Test
     public void createGameNegative() {
-        assertEquals(1,2);
+        try {
+            SQLGameDAO gameDAO = new SQLGameDAO();
+            assertThrows(DataAccessException.class, () -> {gameDAO.createGame(null);});
+        } catch (DataAccessException e) {
+            assertEquals("Error: unable to setup database", e.getMessage());
+        }
     }
 
     @Test
     public void joinGamePositive() {
         try {
             SQLGameDAO gameDAO = new SQLGameDAO();
+            gameDAO.createGame("aggressiveNegotiations");
             gameDAO.joinGame("Anakin", ChessGame.TeamColor.WHITE, 1);
             var conn = DatabaseManager.getConnection();
             try (var checkGame = conn.prepareStatement("SELECT white_user FROM real_games WHERE game_id=?")) {
@@ -336,6 +360,7 @@ public class DAOTestsSQL {
     public void joinGameNegative() {
         try {
             SQLGameDAO gameDAO = new SQLGameDAO();
+            gameDAO.createGame("aggressiveNegotiations");
             gameDAO.joinGame("Anakin", ChessGame.TeamColor.WHITE, 1);
             assertThrows(AlreadyTakenException.class, () -> {gameDAO.joinGame("Padme", ChessGame.TeamColor.WHITE, 1);});
         } catch (DataAccessException e) {
