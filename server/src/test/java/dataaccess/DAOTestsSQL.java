@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
-import service.requests.CreateRequest;
 import service.requests.RegisterRequest;
 import service.results.MostBasicResult;
 
@@ -22,13 +21,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DAOTestsSQL {
     @AfterEach
-    public void clearEverything() {
-        UserService uService = new UserService();
-        GameService gService = new GameService();
-        AuthService aService = new AuthService();
-        uService.clear();
-        gService.clear();
-        aService.clear();
+    public void clearEverythingSQL() {
+        try {
+            SQLUserDAO userDAO = new SQLUserDAO();
+            SQLAuthDAO authDAO = new SQLAuthDAO();
+            SQLGameDAO gameDAO = new SQLGameDAO();
+            userDAO.clear();
+            authDAO.clear();
+            gameDAO.clear();
+        } catch (DataAccessException e) {
+            assertEquals("Error: unable to setup database", e.getMessage());
+        }
     }
 
     @BeforeEach
