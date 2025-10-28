@@ -15,7 +15,7 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public void getUser(String username) throws AlreadyTakenException {
+    public void checkUser(String username) throws AlreadyTakenException {
         if (users.containsKey(username)) {
             throw new AlreadyTakenException("Error: username already taken");
         }

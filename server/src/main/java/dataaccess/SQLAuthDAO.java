@@ -115,7 +115,7 @@ public class SQLAuthDAO implements AuthDAO {
                 if (rs.next()) {
                     return rs.getString("username");
                 } else {
-                    return "";
+                    throw new NotAuthException("Error: bad request");
                 }
             }
         } catch (SQLException e) {

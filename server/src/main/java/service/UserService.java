@@ -39,7 +39,7 @@ public class UserService {
             SQLUserDAO userSQL = new SQLUserDAO();
             SQLAuthDAO authSQL = new SQLAuthDAO();
             try {
-                userSQL.getUser(registerRequest.username());
+                userSQL.checkUser(registerRequest.username());
             } catch (AlreadyTakenException e) {
                 return new ErrorResult("Error: already taken");
             } catch (DataAccessException e) {
@@ -68,7 +68,7 @@ public class UserService {
             SQLAuthDAO authMem = new SQLAuthDAO();
             try {
                 if (loginRequest.username() != null && loginRequest.password() != null) {
-                    userSQL.getUser(loginRequest.username());
+                    userSQL.checkUser(loginRequest.username());
                 } else {
                     return new ErrorResult("Error: bad request");
                 }

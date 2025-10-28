@@ -36,7 +36,7 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public void getUser(String username) throws AlreadyTakenException, DataAccessException {
+    public void checkUser(String username) throws AlreadyTakenException, DataAccessException {
         try {
             var conn = DatabaseManager.getConnection();
             try (var preparedStatement = conn.prepareStatement("SELECT username FROM users WHERE username=?")) {
