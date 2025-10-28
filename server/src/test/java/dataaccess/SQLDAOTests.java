@@ -7,8 +7,6 @@ import model.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.AuthService;
-import service.GameService;
 import service.UserService;
 import service.requests.RegisterRequest;
 import service.results.MostBasicResult;
@@ -19,7 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DAOTestsSQL {
+public class SQLDAOTests {
     @AfterEach
     public void clearEverythingSQL() {
         try {
