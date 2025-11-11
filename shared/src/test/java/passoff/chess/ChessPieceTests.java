@@ -39,7 +39,7 @@ public class ChessPieceTests extends EqualsTestingUtility<ChessPiece> {
     public void pieceMoveAllPieces() {
         var board = new ChessBoard();
 
-        // 6 piece types * 2 team colors = 12 different pieces
+        // 6 piece types * 2 playerColor colors = 12 different pieces
         Collection<ChessPiece> allPossiblePieces =
                 Arrays.stream(ChessPiece.PieceType.values())
                 .flatMap(pieceType -> Arrays.stream(ChessGame.TeamColor.values())

@@ -23,46 +23,54 @@ public class ServerFacade {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws Exception {
-        var request = buildRequest("POST", "/user", registerRequest);
+        boolean needAuth = false;
+        var request = buildRequest("POST", "/user", registerRequest, needAuth);
         var response = sendRequest(request);
-        //might have to change to basic result version, in theory you are fine
         return handleRequest(response, RegisterResult.class);
     }
 
     public LoginResult login(LoginRequest loginRequest) throws Exception {
-        var request = buildRequest("POST", "/session", loginRequest);
+        boolean needAuth = false;
+        var request = buildRequest("POST", "/session", loginRequest, needAuth);
         var response = sendRequest(request);
         return handleRequest(response, LoginResult.class);
     }
 
     public LogoutResult logout(LogoutRequest logoutRequest) throws Exception {
-        var request = buildRequest("DELETE", "/session", logoutRequest);
+        boolean needAuth = true;
+        var request = buildRequest("DELETE", "/session", logoutRequest, needAuth);
         var response = sendRequest(request);
         return handleRequest(response, LogoutResult.class);
     }
 
     public ListResult listGames(ListRequest listRequest) throws Exception {
-        var request = buildRequest("GET", "/game", listRequest);
+        boolean needAuth = true;
+        var request = buildRequest("GET", "/game", listRequest, needAuth);
         var response = sendRequest(request);
         return handleRequest(response, ListResult.class);
     }
 
     public CreateResult create(CreateRequest createRequest) throws Exception {
-        var request = buildRequest("POST", "/game", createRequest);
+        boolean needAuth = true;
+        var request = buildRequest("POST", "/game", createRequest, needAuth);
         var response = sendRequest(request);
         return handleRequest(response, CreateResult.class);
     }
 
     public JoinResult join(JoinRequest joinRequest) throws Exception {
-        var request = buildRequest("PUT", "/game", joinRequest);
+        boolean needAuth = true;
+        var request = buildRequest("PUT", "/game", joinRequest, needAuth);
         var response = sendRequest(request);
         return handleRequest(response, JoinResult.class);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, BasicRequest body, boolean needAuth) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
+        if (needAuth) {
+            request.setHeader("authorization", body.authToken());
+        }
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
         }

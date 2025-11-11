@@ -74,12 +74,12 @@ public class GameService {
             SQLGameDAO gameSQL = new SQLGameDAO();
             try {
                 authSQL.checkAuth(request.authToken());
-                if (request.team() == null || request.gameID() < 1) {
+                if (request.playerColor() == null || request.gameID() < 1) {
                     return new ErrorResult("Error: bad request");
                 }
                 String user = authSQL.getUser(request.authToken());
                 try {
-                    gameSQL.joinGame(user, request.team(), request.gameID());
+                    gameSQL.joinGame(user, request.playerColor(), request.gameID());
                     return new JoinResult();
                 } catch (AlreadyTakenException e) {
                     return new ErrorResult("Error: already taken");

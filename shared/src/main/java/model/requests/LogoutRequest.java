@@ -1,3 +1,3 @@
 package model.requests;
 
-public record LogoutRequest(String authToken) {}
+public record LogoutRequest(String authToken) implements BasicRequest {}

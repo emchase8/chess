@@ -22,7 +22,7 @@ public class ChessGame {
 
 
     /**
-     * @return Which team's turn it is
+     * @return Which playerColor's turn it is
      */
     public TeamColor getTeamTurn() {
         return whoseTurn;
@@ -31,7 +31,7 @@ public class ChessGame {
     /**
      * Set's which teams turn it is
      *
-     * @param team the team whose turn it is
+     * @param team the playerColor whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
         whoseTurn = team;
@@ -179,10 +179,10 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in check
+     * Determines if the given playerColor is in check
      *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
+     * @param teamColor which playerColor to check for check
+     * @return True if the specified playerColor is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = getKingPosition(teamColor);
@@ -206,10 +206,10 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in checkmate
+     * Determines if the given playerColor is in checkmate
      *
-     * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
+     * @param teamColor which playerColor to check for checkmate
+     * @return True if the specified playerColor is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessPosition kingPosition = getKingPosition(teamColor);
@@ -232,11 +232,11 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in stalemate, which here is defined as having
+     * Determines if the given playerColor is in stalemate, which here is defined as having
      * no valid moves while not in check.
      *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
+     * @param teamColor which playerColor to check for stalemate
+     * @return True if the specified playerColor is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheckmate(teamColor)) {

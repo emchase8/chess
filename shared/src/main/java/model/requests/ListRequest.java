@@ -1,3 +1,3 @@
 package model.requests;
 
-public record ListRequest(String authToken) {}
+public record ListRequest(String authToken) implements BasicRequest {}

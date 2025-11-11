@@ -80,7 +80,7 @@ public class ChessPiece {
     }
 
     /**
-     * @return Which team this chess piece belongs to
+     * @return Which playerColor this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
         return color;

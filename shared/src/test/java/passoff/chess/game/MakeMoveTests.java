@@ -348,7 +348,7 @@ public class MakeMoveTests {
         String pieceAtStart = "After move, a piece is still present in the start position";
         String noPieceAtEnd = "After move, no piece found at the end position";
         String incorrectType = "Found piece at end position is not the correct piece type";
-        String incorrectColor = "Found piece at end position is the wrong team color";
+        String incorrectColor = "Found piece at end position is the wrong playerColor color";
 
         game.setBoard(TestUtilities.loadBoard("""
                 | | | | | | | | |
