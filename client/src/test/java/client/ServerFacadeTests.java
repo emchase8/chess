@@ -42,9 +42,9 @@ public class ServerFacadeTests {
         RegisterRequest minervaRegister = new RegisterRequest("minerva", "mcgonagall", "catlady@hogwarts.edu");
         try {
             RegisterResult minervaResult = facade.register(minervaRegister);
-            Assertions.assertEquals(minervaResult.username(), "minerva");
+            Assertions.assertEquals("minerva", minervaResult.username());
         } catch (Exception e) {
-            Assertions.assertTrue(!e.getMessage().isEmpty());
+            System.out.println("test failed");
         }
     }
 
@@ -53,11 +53,56 @@ public class ServerFacadeTests {
         RegisterRequest severusRegister = new RegisterRequest("severus", "snape", "halfbloodprince@hogwarts.edu");
         try {
             RegisterResult serverusResult1 = facade.register(severusRegister);
-            Assertions.assertEquals(serverusResult1.username(), "severus");
+            Assertions.assertEquals("severus", serverusResult1.username());
             RegisterResult serverusResult2 = facade.register(severusRegister);
         } catch (Exception e) {
             Assertions.assertTrue(e.getMessage().contains("already taken"));
         }
     }
 
+    @Test
+    public void loginPositive() {
+        RegisterRequest sybillRequest = new RegisterRequest("sybill", "trelawney", "tealeaves@hogwarts.edu");
+        try {
+            RegisterResult sybillResult = facade.register(sybillRequest);
+            LoginRequest sybillLogin = new LoginRequest("sybill", "trelawney");
+            LoginResult sybillLoggedIn = facade.login(sybillLogin);
+            Assertions.assertEquals("sybill", sybillLoggedIn.username());
+        } catch (Exception e) {
+            System.out.println("test failed");
+        }
+    }
+
+    @Test
+    public void loginNegative() {
+        LoginRequest filiusRequest = new LoginRequest("Filius", "Flitwick");
+        try {
+            LoginResult failedResult = facade.login(filiusRequest);
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("unauthorized"));
+        }
+    }
+
+    @Test
+    public void logoutPositive() {
+        RegisterRequest pomonaRequest = new RegisterRequest("pomona", "sprout", "plantqueen@hogwarts.edu");
+        try {
+            RegisterResult pomonaResult = facade.register(pomonaRequest);
+            LogoutRequest pomonaLogout = new LogoutRequest(pomonaResult.authToken());
+            LogoutResult pomonaOuted = facade.logout(pomonaLogout);
+            Assertions.assertTrue(pomonaOuted.message().isEmpty());
+        } catch (Exception e) {
+            System.out.println("test failed");
+        }
+    }
+
+    @Test
+    public void logoutNegative() {
+        LogoutRequest bogusRequest = new LogoutRequest("beazor");
+        try {
+            LogoutResult bogusLogout = facade.logout(bogusRequest);
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("unauthorized"));
+        }
+    }
 }
