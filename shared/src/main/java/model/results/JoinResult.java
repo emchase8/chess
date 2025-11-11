@@ -1,20 +1,22 @@
-package service.results;
+package model.results;
 
 import model.GameListData;
 import java.util.List;
 
-public record LoginResult(String username, String authToken) implements MostBasicResult {
+public record JoinResult() implements MostBasicResult{
     @Override
     public String message() {
         return "";
     }
-    @Override
-    public String username() {
-        return username;
-    }
+
     @Override
     public String authToken() {
-        return authToken;
+        return "";
+    }
+
+    @Override
+    public String username() {
+        return "";
     }
 
     @Override

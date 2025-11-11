@@ -2,11 +2,11 @@ package service;
 
 import chess.ChessGame;
 import model.GameListData;
+import model.requests.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.requests.*;
-import service.results.MostBasicResult;
-import service.results.Result;
+import model.results.MostBasicResult;
+import model.results.Result;
 
 import java.util.List;
 

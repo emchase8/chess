@@ -3,10 +3,10 @@ package service;
 
 import dataaccess.*;
 import model.GameListData;
-import service.requests.CreateRequest;
-import service.requests.JoinRequest;
-import service.requests.ListRequest;
-import service.results.*;
+import model.results.*;
+import model.requests.CreateRequest;
+import model.requests.JoinRequest;
+import model.requests.ListRequest;
 
 import java.util.List;
 

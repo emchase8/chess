@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.SQLAuthDAO;
-import service.results.Result;
+import model.results.Result;
 
 public class AuthService {
     public Result clear() {

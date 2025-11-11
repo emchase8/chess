@@ -5,10 +5,10 @@ import io.javalin.*;
 import io.javalin.http.*;
 import model.GameName;
 import model.JoinData;
+import model.requests.*;
 import service.*;
-import service.requests.*;
-import service.results.MostBasicResult;
-import service.results.Result;
+import model.results.MostBasicResult;
+import model.results.Result;
 
 public class Server {
 

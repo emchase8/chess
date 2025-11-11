@@ -10,8 +10,9 @@ import java.util.HashMap;
 
 //how to import these, and do I even have to?
 //also ask how to set up tests? i'm guessing we also have to initalize the serverFacade?
-import service.results.*;
-import service.requests.*;
+import model.results.*;
+import model.requests.*;
+
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -55,11 +56,13 @@ public class ServerFacade {
     public JoinResult join(JoinRequest joinRequest) throws Exception {
         var request = buildRequest("PUT", "/game", joinRequest);
         var response = sendRequest(request);
-        return handleRequest(response, JoinRequest.class);
+        return handleRequest(response, JoinResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
-        var request = HttpRequest.newBuilder().uri(URI.create(serverUrl + path)).method(method, makeRequestBody(body));
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + path))
+                .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
         }
