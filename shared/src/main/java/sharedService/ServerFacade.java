@@ -1,4 +1,4 @@
-package server;
+package sharedService;
 
 import com.google.gson.Gson;
 
@@ -8,12 +8,54 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 
+//how to import these, and do I even have to?
+//also ask how to set up tests? i'm guessing we also have to initalize the serverFacade?
+import service.results.*;
+import service.requests.*;
+
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
 
     public ServerFacade(String url) {
         serverUrl = url;
+    }
+
+    public RegisterResult register(RegisterRequest registerRequest) throws Exception {
+        var request = buildRequest("POST", "/user", registerRequest);
+        var response = sendRequest(request);
+        //might have to change to basic result version, in theory you are fine
+        return handleRequest(response, RegisterResult.class);
+    }
+
+    public LoginResult login(LoginRequest loginRequest) throws Exception {
+        var request = buildRequest("POST", "/session", loginRequest);
+        var response = sendRequest(request);
+        return handleRequest(response, LoginResult.class);
+    }
+
+    public LogoutResult logout(LogoutRequest logoutRequest) throws Exception {
+        var request = buildRequest("DELETE", "/session", logoutRequest);
+        var response = sendRequest(request);
+        return handleRequest(response, LogoutResult.class);
+    }
+
+    public ListResult listGames(ListRequest listRequest) throws Exception {
+        var request = buildRequest("GET", "/game", listRequest);
+        var response = sendRequest(request);
+        return handleRequest(response, ListResult.class);
+    }
+
+    public CreateResult create(CreateRequest createRequest) throws Exception {
+        var request = buildRequest("POST", "/game", createRequest);
+        var response = sendRequest(request);
+        return handleRequest(response, CreateResult.class);
+    }
+
+    public JoinResult join(JoinRequest joinRequest) throws Exception {
+        var request = buildRequest("PUT", "/game", joinRequest);
+        var response = sendRequest(request);
+        return handleRequest(response, JoinRequest.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
