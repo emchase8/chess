@@ -1,5 +1,3 @@
-import chess.*;
-import sharedService.ServerFacade;
 import ui.ChessClient;
 
 //make sure to make it able to run multiple clients

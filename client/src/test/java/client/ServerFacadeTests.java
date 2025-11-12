@@ -6,7 +6,7 @@ import server.Server;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
-import sharedService.ServerFacade;
+import sharedservice.ServerFacade;
 import model.results.*;
 import model.requests.*;
 
@@ -30,12 +30,12 @@ public class ServerFacadeTests {
 
     @BeforeEach
     public void clear() {
-        UserService uService = new UserService();
-        GameService gService = new GameService();
-        AuthService aService = new AuthService();
-        uService.clear();
-        gService.clear();
-        aService.clear();
+        UserService user = new UserService();
+        GameService game = new GameService();
+        AuthService auth = new AuthService();
+        user.clear();
+        game.clear();
+        auth.clear();
     }
 
     @Test

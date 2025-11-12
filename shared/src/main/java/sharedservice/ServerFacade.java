@@ -1,4 +1,4 @@
-package sharedService;
+package sharedservice;
 
 import com.google.gson.Gson;
 

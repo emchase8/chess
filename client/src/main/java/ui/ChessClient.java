@@ -1,7 +1,6 @@
 package ui;
 
-import sharedService.ServerFacade;
-import ui.ClientState;
+import sharedservice.ServerFacade;
 
 import java.util.Scanner;
 
@@ -19,8 +18,9 @@ public class ChessClient {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-
+            //do magic loop
         }
+        System.out.println();
     }
     public String help() {
         if (currentState == ClientState.PRELOGIN) {
