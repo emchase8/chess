@@ -1,7 +1,12 @@
 package ui;
 
+import model.requests.LoginRequest;
+import model.requests.RegisterRequest;
+import model.results.LoginResult;
+import model.results.RegisterResult;
 import sharedservice.ServerFacade;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ChessClient {
@@ -18,10 +23,76 @@ public class ChessClient {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
-            //do magic loop
+            System.out.print("\n>>>");
+            String line = scanner.nextLine();
+            try {
+                result = eval(line);
+                System.out.print(result);
+            } catch (Throwable e) {
+                System.out.print(e.getMessage());
+            }
         }
         System.out.println();
     }
+
+    public String eval(String line) {
+        try {
+            String[] params = line.toLowerCase().split(" ");
+            String myCmd;
+            if (params.length > 0) {
+                myCmd = params[0];
+            } else {
+                myCmd = "help";
+            }
+            String[] neededParams = Arrays.copyOfRange(params, 1, params.length);
+            return switch (myCmd) {
+                case "register" -> register(neededParams);
+                case "login" -> login(neededParams);
+                case "quit" -> "quit";
+                case "create" -> create(neededParams);
+                case "list" -> listGames();
+                case "join" -> join(neededParams);
+                case "observe" -> observe(neededParams);
+                case "quitGame" -> quitGame();
+                default -> help();
+            };
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+    public String register(String[] params) throws Exception {
+        if (params.length == 3 && currentState == ClientState.PRELOGIN) {
+            RegisterRequest myRequest = new RegisterRequest(params[0], params[1], params[2]);
+            try {
+                RegisterResult success = facade.register(myRequest);
+                currentState = ClientState.POSTLOGIN;
+                return String.format("You are now registered as %s and are logged in.", success.username());
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+        } else if (currentState != ClientState.PRELOGIN) {
+            throw new Exception("You cannot register a new user while logged in. Please logout and try again.");
+        }
+        throw new Exception("Expected: register <username> <password> <email>");
+    }
+
+    public String login(String[] params) throws Exception {
+        if (params.length == 2 && currentState == ClientState.PRELOGIN) {
+            LoginRequest myRequest = new LoginRequest(params[0], params[1]);
+            try {
+                LoginResult success = facade.login(myRequest);
+                currentState = ClientState.POSTLOGIN;
+                return String.format("You are now logged in as %s.", success.username());
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+        } else if (currentState != ClientState.PRELOGIN) {
+            throw new Exception("You are already logged in and do not need to do so again until you log out.");
+        }
+        throw new Exception("Expected: login <username> <password>");
+    }
+
     public String help() {
         if (currentState == ClientState.PRELOGIN) {
             return """
