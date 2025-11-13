@@ -17,63 +17,88 @@ public class ChessClient {
     private ClientState currentState = ClientState.PRELOGIN;
     private String clientAuth;
 
+    private String printBlackSquare(ChessPiece piece) {
+        if (piece == null) {
+            return EscapeSequences.SET_BG_COLOR_BLACK + "   ";
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+        } else {
+            return EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+        }
+    }
+
+    private String printWhiteSquare(ChessPiece piece) {
+        if (piece == null) {
+            return EscapeSequences.SET_BG_COLOR_WHITE + "   ";
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+        } else {
+            return EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+        }
+    }
+
     private String printBlackBoard(ChessBoard board) {
-        String strBoard = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        String blackBoardStr = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
         String[] letters = {"H", "G", "F", "E", "D", "C", "B", "A"};
         for (String letter : letters) {
-            strBoard += " " + letter + " ";
+            blackBoardStr += " " + letter + " ";
         }
-        strBoard += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        blackBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         for (int i = 1; i <= 8; i++) {
             String temp = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
-            for (int j = 1; j <= 8; j++) {
+            for (int j = 8; j >= 1; j--) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                if (j%2 == 0 && i%2 != 0) {
-                    if (piece == null) {
-                        temp += EscapeSequences.SET_BG_COLOR_BLACK + "   ";
-                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-                    } else {
-                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-                    }
-                } else if (j%2 == 0 && i%2 == 0) {
-                    if (piece == null) {
-                        temp += EscapeSequences.SET_BG_COLOR_WHITE + "   ";
-                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-                    } else {
-                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-                    }
-                } else if (j%2 != 0 && i%2 != 0) {
-                    if (piece == null) {
-                        temp += EscapeSequences.SET_BG_COLOR_WHITE + "   ";
-                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-                    } else {
-                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-                    }
+                if (j%2 == 0 && i%2 == 0) {
+                    temp += printBlackSquare(piece);
+                } else if (j%2 == 0 && i%2 != 0) {
+                    temp += printWhiteSquare(piece);
+                } else if (j%2 != 0 && i%2 == 0) {
+                    temp += printWhiteSquare(piece);
                 } else {
-                    if (piece == null) {
-                        temp += EscapeSequences.SET_BG_COLOR_BLACK + "   ";
-                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-                    } else {
-                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-                    }
+                    temp += printBlackSquare(piece);
                 }
             }
-            strBoard += temp + EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+            blackBoardStr += temp + EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
+                    + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         }
-        strBoard += EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        blackBoardStr += EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
         for (String letter : letters) {
-            strBoard += " " + letter + " ";
+            blackBoardStr += " " + letter + " ";
         }
-        strBoard += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
-        return strBoard;
+        blackBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        return blackBoardStr;
     }
 
     private String printWhiteBoard(ChessBoard board) {
-        return "";
+        String whiteBoardStr = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H"};
+        for (String letter : letters) {
+            whiteBoardStr += " " + letter + " ";
+        }
+        whiteBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        for (int i = 8; i >= 1; i--) {
+            String temp = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i,j));
+                if (i%2 == 0 && j%2 != 0) {
+                    temp += printWhiteSquare(piece);
+                } else if (i%2 == 0 && j%2 == 0) {
+                    temp += printBlackSquare(piece);
+                } else if (i%2 != 0 && j%2 != 0) {
+                    temp += printBlackSquare(piece);
+                } else {
+                    temp += printWhiteSquare(piece);
+                }
+            }
+            whiteBoardStr += temp + EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
+                    + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        }
+        whiteBoardStr += EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        for (String letter : letters) {
+            whiteBoardStr += " " + letter + " ";
+        }
+        whiteBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        return whiteBoardStr;
     }
 
     public ChessClient(String serverURL) {
@@ -85,7 +110,7 @@ public class ChessClient {
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("\nThanks for coming, hope to see you again soon :)\n")) {
+        while (!result.equals("Thanks for coming, hope to see you again soon :)\n")) {
             System.out.print(">>> ");
             String line = scanner.nextLine();
             try {
@@ -113,18 +138,29 @@ public class ChessClient {
             return switch (myCmd) {
                 case "register" -> register(neededParams);
                 case "login" -> login(neededParams);
-                case "quit" -> "\nThanks for coming, hope to see you again soon :)\n";
-                case "logout" -> logout();
+                case "quit" -> quit(neededParams);
+                case "logout" -> logout(neededParams);
                 case "create" -> create(neededParams);
-                case "list" -> listGames();
-//                case "join" -> join(neededParams);
+                case "list" -> listGames(neededParams);
+                case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
-                case "quitgame" -> quitGame();
+                case "quitgame" -> quitGame(neededParams);
                 default -> help();
             };
         } catch (Exception e) {
             return e.getMessage() + "\n";
         }
+    }
+
+    public String quit(String[] params) throws Exception {
+        if (currentState == ClientState.PRELOGIN && params.length == 0) {
+            return "Thanks for coming, hope to see you again soon :)\n";
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("Please log out before quitting the program.\n");
+        } else if (currentState == ClientState.GAMEPLAY) {
+            throw new Exception("Please leave game play and log out before quitting.\n");
+        }
+        throw new Exception("Expected: quit");
     }
 
     public String register(String[] params) throws Exception {
@@ -161,8 +197,8 @@ public class ChessClient {
         throw new Exception("Expected: login <username> <password>\n");
     }
 
-    public String logout() throws Exception {
-        if (currentState == ClientState.POSTLOGIN) {
+    public String logout(String[] params) throws Exception {
+        if (currentState == ClientState.POSTLOGIN && params.length == 0) {
             LogoutRequest myRequest = new LogoutRequest(clientAuth);
             try {
                 LogoutResult success = facade.logout(myRequest);
@@ -197,8 +233,8 @@ public class ChessClient {
         throw new Exception("Expected: create <game name>\n");
     }
 
-    public String listGames() throws Exception {
-        if (currentState == ClientState.POSTLOGIN) {
+    public String listGames(String[] params) throws Exception {
+        if (currentState == ClientState.POSTLOGIN && params.length == 0) {
             ListRequest myRequest = new ListRequest(clientAuth);
             try {
                 ListResult success = facade.listGames(myRequest);
@@ -229,8 +265,8 @@ public class ChessClient {
         throw new Exception("Expected: list\n");
     }
 
-    public String quitGame() throws Exception {
-        if (currentState == ClientState.GAMEPLAY) {
+    public String quitGame(String[] params) throws Exception {
+        if (currentState == ClientState.GAMEPLAY && params.length == 0) {
             currentState = ClientState.POSTLOGIN;
             return "Thank you for visiting game play. See you again soon :)\n";
         } else if (currentState == ClientState.POSTLOGIN) {
@@ -241,24 +277,34 @@ public class ChessClient {
         throw new Exception("Expected: quitGame\n");
     }
 
-//    public String join(String[] params) throws Exception {
-//        if (params.length == 2 && currentState == ClientState.POSTLOGIN) {
-//            ChessGame.TeamColor teamColor = ChessGame.TeamColor.BLACK;
-//            if (params[1].equals("white")) {
-//                teamColor = ChessGame.TeamColor.WHITE;
-//            }
-//            JoinRequest myRequest = new JoinRequest(clientAuth, teamColor, Integer.parseInt(params[0]));
-//            try {
-//                JoinResult success = facade.join(myRequest);
-//                currentState = ClientState.GAMEPLAY;
-//                ChessBoard placeholder = new ChessBoard();
-//                placeholder.resetBoard();
-//                //finish this after I figure out how the board is configured
-//            } catch (Exception e) {
-//                return e.getMessage()  + "\n";
-//            }
-//        }
-//    }
+    public String join(String[] params) throws Exception {
+        if (params.length == 2 && currentState == ClientState.POSTLOGIN) {
+            ChessGame.TeamColor teamColor = ChessGame.TeamColor.BLACK;
+            if (params[1].equals("white")) {
+                teamColor = ChessGame.TeamColor.WHITE;
+            }
+            JoinRequest myRequest = new JoinRequest(clientAuth, teamColor, Integer.parseInt(params[0]));
+            try {
+                JoinResult success = facade.join(myRequest);
+                currentState = ClientState.GAMEPLAY;
+                //write functionality in phase 6 to get the correct chess board
+                ChessBoard placeholder = new ChessBoard();
+                placeholder.resetBoard();
+                if (teamColor == ChessGame.TeamColor.WHITE) {
+                    return printWhiteBoard(placeholder);
+                } else {
+                    return printBlackBoard(placeholder);
+                }
+            } catch (Exception e) {
+                return e.getMessage()  + "\n";
+            }
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logger in to join a chess game.\n");
+        } else if (currentState == ClientState.GAMEPLAY) {
+            throw new Exception("You are already in game play mode and cannot join a game, exit with quitGame then try again.\n");
+        }
+        throw new Exception("Expected: join <game id> <WHITE or BLACK>\n");
+    }
 
     public String observe(String[] params) throws Exception {
         if (params.length == 1 && currentState == ClientState.POSTLOGIN) {
@@ -266,13 +312,13 @@ public class ChessClient {
             currentState = ClientState.GAMEPLAY;
             ChessBoard placeholder = new ChessBoard();
             placeholder.resetBoard();
-            return printWhiteBoard(placeholder);
+            return printBlackBoard(placeholder);
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in to observe a chess game.\n");
         } else if (currentState == ClientState.GAMEPLAY) {
-            throw new Exception("You are already viewing a game, exit with quitGame and then try again");
+            throw new Exception("You are already viewing a game, exit with quitGame and then try again\n");
         }
-        throw new Exception("Expected: observe <game id>");
+        throw new Exception("Expected: observe <game id>\n");
     }
 
     public String help() {
