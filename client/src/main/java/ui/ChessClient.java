@@ -1,9 +1,8 @@
 package ui;
 
-import model.requests.LoginRequest;
-import model.requests.RegisterRequest;
-import model.results.LoginResult;
-import model.results.RegisterResult;
+import model.GameListData;
+import model.requests.*;
+import model.results.*;
 import sharedservice.ServerFacade;
 
 import java.util.Arrays;
@@ -12,6 +11,7 @@ import java.util.Scanner;
 public class ChessClient {
     private final ServerFacade facade;
     private ClientState currentState = ClientState.PRELOGIN;
+    private String clientAuth;
 
     public ChessClient(String serverURL) {
         facade = new ServerFacade(serverURL);
@@ -48,7 +48,8 @@ public class ChessClient {
             return switch (myCmd) {
                 case "register" -> register(neededParams);
                 case "login" -> login(neededParams);
-                case "quit" -> "quit";
+                case "quit" -> "Thanks for coming, hope to see you again soon :)";
+                case "logout" -> logout();
                 case "create" -> create(neededParams);
                 case "list" -> listGames();
                 case "join" -> join(neededParams);
@@ -67,6 +68,7 @@ public class ChessClient {
             try {
                 RegisterResult success = facade.register(myRequest);
                 currentState = ClientState.POSTLOGIN;
+                clientAuth = success.authToken();
                 return String.format("You are now registered as %s and are logged in.", success.username());
             } catch (Exception e) {
                 return e.getMessage();
@@ -83,6 +85,7 @@ public class ChessClient {
             try {
                 LoginResult success = facade.login(myRequest);
                 currentState = ClientState.POSTLOGIN;
+                clientAuth = success.authToken();
                 return String.format("You are now logged in as %s.", success.username());
             } catch (Exception e) {
                 return e.getMessage();
@@ -91,6 +94,77 @@ public class ChessClient {
             throw new Exception("You are already logged in and do not need to do so again until you log out.");
         }
         throw new Exception("Expected: login <username> <password>");
+    }
+
+    public String logout() throws Exception {
+        if (currentState == ClientState.POSTLOGIN) {
+            LogoutRequest myRequest = new LogoutRequest(clientAuth);
+            try {
+                LogoutResult success = facade.logout(myRequest);
+                currentState = ClientState.PRELOGIN;
+                clientAuth = "";
+                return String.format("You are now logged out. We hope to see you again soon :)");
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in in order to log out.");
+        } else if (currentState == ClientState.GAMEPLAY) {
+            throw new Exception("You must first exit game play in order to logout. Use the quitGame command.");
+        }
+        throw new Exception("Expected: logout");
+    }
+
+    public String create(String[] params) throws Exception {
+        if (params.length == 1 && currentState == ClientState.POSTLOGIN) {
+            CreateRequest myRequest = new CreateRequest(clientAuth, params[0]);
+            try {
+                CreateResult success = facade.create(myRequest);
+                return String.format("You have now created a game named %s (game id: %d)", params[0], success.gameID());
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in to create a game.");
+        } else if (currentState == ClientState.GAMEPLAY) {
+            throw new Exception("You cannot create a game from within gameplay. Please quitGame if you wish to make a game.");
+        }
+        throw new Exception("Expected: create <game name>");
+    }
+
+    public String listGames() throws Exception {
+        if (currentState == ClientState.POSTLOGIN) {
+            ListRequest myRequest = new ListRequest(clientAuth);
+            try {
+                ListResult success = facade.listGames(myRequest);
+                String myStr = "Here are all the current games:\n";
+                for (int i = 0; i < success.games().size(); i++) {
+                    GameListData game = success.games().get(i);
+                    String temp = (i+1) + ". game name: " + game.gameName() + " white player: " + game.whiteUsername() + " black player: " + game.blackUsername() + "\n";
+                    myStr += temp;
+                }
+                return myStr;
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in to see the games.");
+        } else if (currentState == ClientState.GAMEPLAY) {
+            throw new Exception("You cannot list the possible games from within gameplay. Please quitGame if you wish to see the list.");
+        }
+        throw new Exception("Expected: list");
+    }
+
+    public String quitGame() throws Exception {
+        if (currentState == ClientState.GAMEPLAY) {
+            currentState = ClientState.POSTLOGIN;
+            return "Thank you for visiting game play. See you again soon :)";
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("You must be in game play in order to exit game play.");
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must first be logged in and then in game play in order to exit game play.");
+        }
+        throw new Exception("Expected: quitGame");
     }
 
     public String help() {
