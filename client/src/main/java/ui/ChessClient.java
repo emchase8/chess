@@ -1,5 +1,9 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.GameListData;
 import model.requests.*;
 import model.results.*;
@@ -13,6 +17,36 @@ public class ChessClient {
     private ClientState currentState = ClientState.PRELOGIN;
     private String clientAuth;
 
+    private String printWhiteBoard(ChessBoard board) {
+        //ACTUALLY PRINTS THE BLACK BOARD, FIX THIS AFTER YOU GET PRINTING TO WORK!!!!!
+        String strBoard = "";
+        for (int i = 1; i <= 8; i++) {
+            String temp = "";
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                if (j%2 == 0) {
+                    if (piece == null) {
+                        temp += ui.EscapeSequences.SET_BG_COLOR_BLACK + "   ";
+                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        temp += ui.EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+                    } else {
+                        temp += ui.EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+                    }
+                } else {
+                    if (piece == null) {
+                        temp += EscapeSequences.SET_BG_COLOR_WHITE + "   ";
+                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+                    } else {
+                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+                    }
+                }
+            }
+            strBoard += temp + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        }
+        return strBoard;
+    }
+
     public ChessClient(String serverURL) {
         facade = new ServerFacade(serverURL);
     }
@@ -22,12 +56,14 @@ public class ChessClient {
         System.out.print(help());
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
-            System.out.print("\n>>>");
+        while (!result.equals("\nThanks for coming, hope to see you again soon :)\n")) {
+            System.out.print(">>> ");
             String line = scanner.nextLine();
             try {
                 result = eval(line);
                 System.out.print(result);
+                System.out.print(ui.EscapeSequences.RESET_TEXT_COLOR);
+                System.out.print(EscapeSequences.RESET_BG_COLOR);
             } catch (Throwable e) {
                 System.out.print(e.getMessage());
             }
@@ -48,17 +84,17 @@ public class ChessClient {
             return switch (myCmd) {
                 case "register" -> register(neededParams);
                 case "login" -> login(neededParams);
-                case "quit" -> "Thanks for coming, hope to see you again soon :)";
+                case "quit" -> "\nThanks for coming, hope to see you again soon :)\n";
                 case "logout" -> logout();
                 case "create" -> create(neededParams);
                 case "list" -> listGames();
-                case "join" -> join(neededParams);
+//                case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
-                case "quitGame" -> quitGame();
+                case "quitgame" -> quitGame();
                 default -> help();
             };
         } catch (Exception e) {
-            return e.getMessage();
+            return e.getMessage() + "\n";
         }
     }
 
@@ -69,14 +105,14 @@ public class ChessClient {
                 RegisterResult success = facade.register(myRequest);
                 currentState = ClientState.POSTLOGIN;
                 clientAuth = success.authToken();
-                return String.format("You are now registered as %s and are logged in.", success.username());
+                return String.format("You are now registered as %s and are logged in.\n", success.username());
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState != ClientState.PRELOGIN) {
-            throw new Exception("You cannot register a new user while logged in. Please logout and try again.");
+            throw new Exception("You cannot register a new user while logged in. Please logout and try again.\n");
         }
-        throw new Exception("Expected: register <username> <password> <email>");
+        throw new Exception("Expected: register <username> <password> <email>\n");
     }
 
     public String login(String[] params) throws Exception {
@@ -86,14 +122,14 @@ public class ChessClient {
                 LoginResult success = facade.login(myRequest);
                 currentState = ClientState.POSTLOGIN;
                 clientAuth = success.authToken();
-                return String.format("You are now logged in as %s.", success.username());
+                return String.format("You are now logged in as %s.\n", success.username());
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState != ClientState.PRELOGIN) {
-            throw new Exception("You are already logged in and do not need to do so again until you log out.");
+            throw new Exception("You are already logged in and do not need to do so again until you log out.\n");
         }
-        throw new Exception("Expected: login <username> <password>");
+        throw new Exception("Expected: login <username> <password>\n");
     }
 
     public String logout() throws Exception {
@@ -103,16 +139,16 @@ public class ChessClient {
                 LogoutResult success = facade.logout(myRequest);
                 currentState = ClientState.PRELOGIN;
                 clientAuth = "";
-                return String.format("You are now logged out. We hope to see you again soon :)");
+                return "You are now logged out. We hope to see you again soon :)\n";
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.PRELOGIN) {
-            throw new Exception("You must be logged in in order to log out.");
+            throw new Exception("You must be logged in in order to log out.\n");
         } else if (currentState == ClientState.GAMEPLAY) {
-            throw new Exception("You must first exit game play in order to logout. Use the quitGame command.");
+            throw new Exception("You must first exit game play in order to logout. Use the quitGame command.\n");
         }
-        throw new Exception("Expected: logout");
+        throw new Exception("Expected: logout\n");
     }
 
     public String create(String[] params) throws Exception {
@@ -120,16 +156,16 @@ public class ChessClient {
             CreateRequest myRequest = new CreateRequest(clientAuth, params[0]);
             try {
                 CreateResult success = facade.create(myRequest);
-                return String.format("You have now created a game named %s (game id: %d)", params[0], success.gameID());
+                return String.format("You have now created a game named %s (game id: %d)\n", params[0], success.gameID());
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.PRELOGIN) {
-            throw new Exception("You must be logged in to create a game.");
+            throw new Exception("You must be logged in to create a game.\n");
         } else if (currentState == ClientState.GAMEPLAY) {
-            throw new Exception("You cannot create a game from within gameplay. Please quitGame if you wish to make a game.");
+            throw new Exception("You cannot create a game from within gameplay. Please quitGame if you wish to make a game.\n");
         }
-        throw new Exception("Expected: create <game name>");
+        throw new Exception("Expected: create <game name>\n");
     }
 
     public String listGames() throws Exception {
@@ -140,31 +176,74 @@ public class ChessClient {
                 String myStr = "Here are all the current games:\n";
                 for (int i = 0; i < success.games().size(); i++) {
                     GameListData game = success.games().get(i);
-                    String temp = (i+1) + ". game name: " + game.gameName() + " white player: " + game.whiteUsername() + " black player: " + game.blackUsername() + "\n";
+                    String temp = (i+1)
+                            + ". game name: "
+                            + game.gameName()
+                            + " white player: "
+                            + game.whiteUsername()
+                            + " black player: "
+                            + game.blackUsername()
+                            + " game id: "
+                            + game.gameID()
+                            + "\n";
                     myStr += temp;
                 }
                 return myStr;
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.PRELOGIN) {
-            throw new Exception("You must be logged in to see the games.");
+            throw new Exception("You must be logged in to see the games.\n");
         } else if (currentState == ClientState.GAMEPLAY) {
-            throw new Exception("You cannot list the possible games from within gameplay. Please quitGame if you wish to see the list.");
+            throw new Exception("You cannot list the possible games from within gameplay. Please quitGame if you wish to see the list.\n");
         }
-        throw new Exception("Expected: list");
+        throw new Exception("Expected: list\n");
     }
 
     public String quitGame() throws Exception {
         if (currentState == ClientState.GAMEPLAY) {
             currentState = ClientState.POSTLOGIN;
-            return "Thank you for visiting game play. See you again soon :)";
+            return "Thank you for visiting game play. See you again soon :)\n";
         } else if (currentState == ClientState.POSTLOGIN) {
-            throw new Exception("You must be in game play in order to exit game play.");
+            throw new Exception("You must be in game play in order to exit game play.\n");
         } else if (currentState == ClientState.PRELOGIN) {
-            throw new Exception("You must first be logged in and then in game play in order to exit game play.");
+            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
         }
-        throw new Exception("Expected: quitGame");
+        throw new Exception("Expected: quitGame\n");
+    }
+
+//    public String join(String[] params) throws Exception {
+//        if (params.length == 2 && currentState == ClientState.POSTLOGIN) {
+//            ChessGame.TeamColor teamColor = ChessGame.TeamColor.BLACK;
+//            if (params[1].equals("white")) {
+//                teamColor = ChessGame.TeamColor.WHITE;
+//            }
+//            JoinRequest myRequest = new JoinRequest(clientAuth, teamColor, Integer.parseInt(params[0]));
+//            try {
+//                JoinResult success = facade.join(myRequest);
+//                currentState = ClientState.GAMEPLAY;
+//                ChessBoard placeholder = new ChessBoard();
+//                placeholder.resetBoard();
+//                //finish this after I figure out how the board is configured
+//            } catch (Exception e) {
+//                return e.getMessage()  + "\n";
+//            }
+//        }
+//    }
+
+    public String observe(String[] params) throws Exception {
+        if (params.length == 1 && currentState == ClientState.POSTLOGIN) {
+            //write functionality in phase 6 to get the correct chess board
+            currentState = ClientState.GAMEPLAY;
+            ChessBoard placeholder = new ChessBoard();
+            placeholder.resetBoard();
+            return printWhiteBoard(placeholder);
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in to observe a chess game.\n");
+        } else if (currentState == ClientState.GAMEPLAY) {
+            throw new Exception("You are already viewing a game, exit with quitGame and then try again");
+        }
+        throw new Exception("Expected: observe <game id>");
     }
 
     public String help() {
@@ -196,6 +275,6 @@ public class ChessClient {
                     - to quit the program: quit
                     """;
         }
-        return "I'm not sure how you got here. Please contact the dev";
+        return "I'm not sure how you got here. Please contact the dev\n";
     }
 }
