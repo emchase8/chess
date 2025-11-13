@@ -17,22 +17,26 @@ public class ChessClient {
     private ClientState currentState = ClientState.PRELOGIN;
     private String clientAuth;
 
-    private String printWhiteBoard(ChessBoard board) {
-        //ACTUALLY PRINTS THE BLACK BOARD, FIX THIS AFTER YOU GET PRINTING TO WORK!!!!!
-        String strBoard = "";
+    private String printBlackBoard(ChessBoard board) {
+        String strBoard = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        String[] letters = {"H", "G", "F", "E", "D", "C", "B", "A"};
+        for (String letter : letters) {
+            strBoard += " " + letter + " ";
+        }
+        strBoard += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         for (int i = 1; i <= 8; i++) {
-            String temp = "";
+            String temp = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
             for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                if (j%2 == 0) {
+                if (j%2 == 0 && i%2 != 0) {
                     if (piece == null) {
-                        temp += ui.EscapeSequences.SET_BG_COLOR_BLACK + "   ";
+                        temp += EscapeSequences.SET_BG_COLOR_BLACK + "   ";
                     } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        temp += ui.EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
                     } else {
-                        temp += ui.EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
                     }
-                } else {
+                } else if (j%2 == 0 && i%2 == 0) {
                     if (piece == null) {
                         temp += EscapeSequences.SET_BG_COLOR_WHITE + "   ";
                     } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
@@ -40,11 +44,36 @@ public class ChessClient {
                     } else {
                         temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
                     }
+                } else if (j%2 != 0 && i%2 != 0) {
+                    if (piece == null) {
+                        temp += EscapeSequences.SET_BG_COLOR_WHITE + "   ";
+                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+                    } else {
+                        temp += EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+                    }
+                } else {
+                    if (piece == null) {
+                        temp += EscapeSequences.SET_BG_COLOR_BLACK + "   ";
+                    } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+                    } else {
+                        temp += EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+                    }
                 }
             }
-            strBoard += temp + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+            strBoard += temp + EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         }
+        strBoard += EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        for (String letter : letters) {
+            strBoard += " " + letter + " ";
+        }
+        strBoard += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         return strBoard;
+    }
+
+    private String printWhiteBoard(ChessBoard board) {
+        return "";
     }
 
     public ChessClient(String serverURL) {
