@@ -172,7 +172,7 @@ public class ChessClient {
                 clientAuth = success.authToken();
                 return String.format("You are now registered as %s and are logged in.\n", success.username());
             } catch (Exception e) {
-                return e.getMessage() + "\n";
+                return e.getMessage();
             }
         } else if (currentState != ClientState.PRELOGIN) {
             throw new Exception("You cannot register a new user while logged in. Please logout and try again.\n");
@@ -189,7 +189,7 @@ public class ChessClient {
                 clientAuth = success.authToken();
                 return String.format("You are now logged in as %s.\n", success.username());
             } catch (Exception e) {
-                return e.getMessage() + "\n";
+                return e.getMessage();
             }
         } else if (currentState != ClientState.PRELOGIN) {
             throw new Exception("You are already logged in and do not need to do so again until you log out.\n");
@@ -206,7 +206,7 @@ public class ChessClient {
                 clientAuth = "";
                 return "You are now logged out. We hope to see you again soon :)\n";
             } catch (Exception e) {
-                return e.getMessage() + "\n";
+                return e.getMessage();
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in in order to log out.\n");
@@ -221,9 +221,9 @@ public class ChessClient {
             CreateRequest myRequest = new CreateRequest(clientAuth, params[0]);
             try {
                 CreateResult success = facade.create(myRequest);
-                return String.format("You have now created a game named %s (game id: %d)\n", params[0], success.gameID());
+                return String.format("You have now created a game named %s\n", params[0]);
             } catch (Exception e) {
-                return e.getMessage() + "\n";
+                return e.getMessage();
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in to create a game.\n");
@@ -248,14 +248,12 @@ public class ChessClient {
                             + game.whiteUsername()
                             + " black player: "
                             + game.blackUsername()
-                            + " game id: "
-                            + game.gameID()
                             + "\n";
                     myStr += temp;
                 }
                 return myStr;
             } catch (Exception e) {
-                return e.getMessage() + "\n";
+                return e.getMessage();
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in to see the games.\n");
@@ -283,7 +281,18 @@ public class ChessClient {
             if (params[1].equals("white")) {
                 teamColor = ChessGame.TeamColor.WHITE;
             }
-            JoinRequest myRequest = new JoinRequest(clientAuth, teamColor, Integer.parseInt(params[0]));
+            int publicGameID = Integer.parseInt(params[0]);
+            ListRequest myRequest2 = new ListRequest(clientAuth);
+            try {
+                ListResult success = facade.listGames(myRequest2);
+                if (publicGameID <= 0 || publicGameID > success.games().size()) {
+                    throw new Exception("Invalid game ID, please list games and try again.\n");
+                }
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+            //get list lenght of games and makes sure we don't go out of that list (same as private game id), alex pedersen
+            JoinRequest myRequest = new JoinRequest(clientAuth, teamColor, publicGameID);
             try {
                 JoinResult success = facade.join(myRequest);
                 currentState = ClientState.GAMEPLAY;
@@ -296,14 +305,14 @@ public class ChessClient {
                     return printBlackBoard(placeholder);
                 }
             } catch (Exception e) {
-                return e.getMessage()  + "\n";
+                return e.getMessage();
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logger in to join a chess game.\n");
         } else if (currentState == ClientState.GAMEPLAY) {
             throw new Exception("You are already in game play mode and cannot join a game, exit with quitGame then try again.\n");
         }
-        throw new Exception("Expected: join <game id> <WHITE or BLACK>\n");
+        throw new Exception("Expected: join <game number> <WHITE or BLACK>\n");
     }
 
     public String observe(String[] params) throws Exception {
@@ -312,13 +321,13 @@ public class ChessClient {
             currentState = ClientState.GAMEPLAY;
             ChessBoard placeholder = new ChessBoard();
             placeholder.resetBoard();
-            return printBlackBoard(placeholder);
+            return printWhiteBoard(placeholder);
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in to observe a chess game.\n");
         } else if (currentState == ClientState.GAMEPLAY) {
             throw new Exception("You are already viewing a game, exit with quitGame and then try again\n");
         }
-        throw new Exception("Expected: observe <game id>\n");
+        throw new Exception("Expected: observe <game number>\n");
     }
 
     public String help() {
@@ -336,8 +345,8 @@ public class ChessClient {
                     - to logout: logout
                     - to create a chess game: create <game name>
                     - to list all current chess games: list
-                    - to join a current game: join <game id> <WHITE or BLACK>
-                    - to observe a current game: observe <game id>
+                    - to join a current game: join <game number> <WHITE or BLACK>
+                    - to observe a current game: observe <game number>
                     - to list all possible options: help
                     - to quit the program: quit
                     """;
