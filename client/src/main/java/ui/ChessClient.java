@@ -286,7 +286,7 @@ public class ChessClient {
             try {
                 ListResult success = facade.listGames(myRequest2);
                 if (publicGameID <= 0 || publicGameID > success.games().size()) {
-                    throw new Exception("Invalid game ID, please list games and try again.\n");
+                    throw new Exception("Invalid game number, please list games and try again.\n");
                 }
             } catch (Exception e) {
                 return e.getMessage();
@@ -317,6 +317,16 @@ public class ChessClient {
 
     public String observe(String[] params) throws Exception {
         if (params.length == 1 && currentState == ClientState.POSTLOGIN) {
+            int publicGameNum = Integer.parseInt(params[0]);
+            ListRequest myRequest = new ListRequest(clientAuth);
+            try {
+                ListResult lst = facade.listGames(myRequest);
+                if (publicGameNum <= 0 || publicGameNum > lst.games().size()) {
+                    throw new Exception("Invalid game number, please list games and try again.\n");
+                }
+            } catch (Exception e) {
+                return e.getMessage();
+            }
             //write functionality in phase 6 to get the correct chess board
             currentState = ClientState.GAMEPLAY;
             ChessBoard placeholder = new ChessBoard();
