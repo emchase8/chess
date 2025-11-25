@@ -9,13 +9,24 @@ import model.requests.*;
 import service.*;
 import model.results.MostBasicResult;
 import model.results.Result;
+import websocket.WebSocketHandler;
 
 public class Server {
 
     private final Javalin javalin;
 
+    private final WebSocketHandler webSocketHandler;
+
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+
+        webSocketHandler = new WebSocketHandler();
+
+        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
 
         // Register your endpoints and exception handlers here.
 

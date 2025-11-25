@@ -145,6 +145,11 @@ public class ChessClient {
                 case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
                 case "quitgame" -> quitGame(neededParams);
+                case "redraw" -> redrawBoard(neededParams);
+                case "leave" -> leaveGame(neededParams);
+                case "move" -> makeMove(neededParams);
+                case "resign" -> resign(neededParams);
+                case "highlight" -> highlightLegal(neededParams);
                 default -> help();
             };
         } catch (Exception e) {
@@ -291,7 +296,6 @@ public class ChessClient {
             } catch (Exception e) {
                 return e.getMessage();
             }
-            //get list lenght of games and makes sure we don't go out of that list (same as private game id), alex pedersen
             JoinRequest myRequest = new JoinRequest(clientAuth, teamColor, publicGameID);
             try {
                 JoinResult success = facade.join(myRequest);
@@ -366,6 +370,11 @@ public class ChessClient {
                     Here is what you can currently do:
                     - to list all possible options: help
                     - to leave gameplay: quitGame
+                    - to redraw the gameboard: redraw
+                    - to leave the game: leave
+                    - to make a chess move: move <starting position> <ending position>
+                    - to resign from a game: resign
+                    - to highlight legal moves: highlight <piece position>
                     - to quit the program: quit
                     """;
         }
