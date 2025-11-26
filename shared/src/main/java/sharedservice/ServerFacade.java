@@ -64,6 +64,13 @@ public class ServerFacade {
         return handleRequest(response, JoinResult.class);
     }
 
+    public LeaveResult leave(LeaveRequest leaveRequest) throws Exception {
+        boolean needAuth = true;
+        var request = buildRequest("PUT", "/leavegame", leaveRequest, needAuth);
+        var response = sendRequest(request);
+        return handleRequest(response, LeaveResult.class);
+    }
+
     private HttpRequest buildRequest(String method, String path, BasicRequest body, boolean needAuth) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))

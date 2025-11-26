@@ -3,6 +3,7 @@ package service;
 
 import dataaccess.*;
 import model.GameListData;
+import model.requests.LeaveRequest;
 import model.results.*;
 import model.requests.CreateRequest;
 import model.requests.JoinRequest;
@@ -80,12 +81,36 @@ public class GameService {
                 String user = authSQL.getUser(request.authToken());
                 try {
                     gameSQL.joinGame(user, request.playerColor(), request.gameID());
-                    return new JoinResult();
+                    String jsonGame = gameSQL.getJsonGame(request.gameID());
+                    return new JoinResult(jsonGame);
                 } catch (AlreadyTakenException e) {
                     return new ErrorResult("Error: already taken");
                 } catch (DataAccessException n) {
                     return new ErrorResult("Error: database error");
                 }
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
+            } catch (DataAccessException e) {
+                return new ErrorResult("Error: database error");
+            }
+        } catch (DataAccessException e) {
+            return new ErrorResult("Error: database error");
+        }
+    }
+
+    public MostBasicResult leaveGameService(LeaveRequest request) {
+        try {
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameDAO = new SQLGameDAO();
+            try {
+                authSQL.checkAuth(request.authToken());
+                if (request.gameID() < 1) {
+                    return new ErrorResult("Error: bad request");
+                }
+                String user = authSQL.getUser(request.authToken());
+                String team = gameDAO.getPlayerTeam(request.gameID(), user);
+                gameDAO.removePlayer(request.gameID(), team);
+                return new LeaveResult();
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {

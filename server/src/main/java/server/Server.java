@@ -5,6 +5,7 @@ import io.javalin.*;
 import io.javalin.http.*;
 import model.GameName;
 import model.JoinData;
+import model.LeaveData;
 import model.requests.*;
 import service.*;
 import model.results.MostBasicResult;
@@ -41,6 +42,7 @@ public class Server {
         javalin.get("/game", context -> listHandler(context));
         javalin.post("/game", context-> createHandler(context));
         javalin.put("/game", context -> joinHandler(context));
+        javalin.put("/leavegame", context -> leaveHandler(context));
         return javalin.port();
     }
 
@@ -187,6 +189,26 @@ public class Server {
             context.status(401);
         } else if (result.message().equals("Error: already taken")) {
             context.status(403);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void leaveHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.header("authorization");
+        LeaveData leaveData = serializer.fromJson(context.body(), LeaveData.class);
+        LeaveRequest request = new LeaveRequest(currentAuth, leaveData.gameID());
+        GameService inst = new GameService();
+        MostBasicResult result = inst.leaveGameService(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
         } else {
             context.status(500);
         }

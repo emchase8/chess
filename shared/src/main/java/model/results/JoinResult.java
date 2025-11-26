@@ -3,7 +3,11 @@ package model.results;
 import model.GameListData;
 import java.util.List;
 
-public record JoinResult() implements MostBasicResult{
+public record JoinResult(String jsonGame) implements MostBasicResult {
+    public String jsonGame() {
+        return jsonGame;
+    }
+
     @Override
     public String message() {
         return "";

@@ -39,11 +39,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 //sends a message to ALL clients in that game
                 case RESIGN -> resign(ctx.session, temp.getUser(command.getAuthToken()), command);
             }
-        } catch (DataAccessException e) {
-            //not quite sure what these are for???
-            sendMessage(ctx.session, gameID, e.getMessage());
         } catch (Exception e) {
-            sendMessage(ctx.session, gameID, "Error: " + e.getMessage());
+            //WATCH FOR THIS ERROR!!!
+            try {
+                sendMessage(ctx.session, gameID, "Error: " + e.getMessage());
+            } catch (IOException ex) {
+                System.out.println("Error: Something is really broken.");
+            }
         }
     }
 
@@ -52,49 +54,58 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed :)");
     }
 
+    private void sendMessage(Session session, int gameID, String msg) throws IOException {
+        var notify = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        notify.setMessage(msg);
+        connections.broadcastOnlyCurrent(gameID, session, notify);
+    }
+
+    //NOTHING in ws handler can touch the DAOs, only server/server facade can do that
     private void connect(Session session, String username, ConnectCommand command) throws IOException {
         connections.add(command.getGameID(), session);
         var msg = "";
-        var notify = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        var notify = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
         if (command.getConnectType().toLowerCase().equals("observe")) {
             msg = String.format("%s is now observing the game.", username);
-            notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
             notify.setMessage(msg);
         } else if (command.getConnectType().toLowerCase().equals("join")) {
-            //MAKE IT NOTIFICATION FOR OBSERVES BUT LOAD GAME FOR PLAYERS? might be just get rid of else statement at the end?
             if (command.getJoinedAs() == ChessGame.TeamColor.WHITE) {
                 msg = String.format("%s joined as the white player.", username);
             } else {
                 msg = String.format("%s joined as the black player.", username);
             }
-            notify.setServerMessageType(ServerMessage.ServerMessageType.LOAD_GAME);
             notify.setMessage(msg);
-            try {
-                SQLGameDAO temp = new SQLGameDAO();
-                notify.setJsonGame(temp.getGame(command.getGameID()));
-            } catch (DataAccessException e) {
-                notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
-                notify.setMessage(e.getMessage());
-            }
         } else {
             notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
             notify.setMessage("Error: I'm not sure how you got here, please contact the dev team.");
         }
         if (notify.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            //THE SERVER FACADE WILL RETURN THE JSON CHESS GAME TO THE CLIENT
+            //THE CLIENT WILL SEND THIS JSON STR IN THE CONNECT_COMMAND SO THAT WE CAN STICK IT IN THE LOAD_GAME NOTIFY
+            //THE WS FACADE WILL TAKE CARE OF THE PRINTING OF THE BOARD?
+            //WILL DELETE THE DAO EVENTUALLY
+            try {
+                SQLGameDAO temp = new SQLGameDAO();
+                notify.setJsonGame(temp.getJsonGame(command.getGameID()));
+            } catch (DataAccessException e) {
+                notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
+                notify.setMessage(e.getMessage());
+            }
             connections.broadcastGameOne(command.getGameID(), session, notify);
             notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
             connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
         } else if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
             connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
-        } else {
-            connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
         }
     }
 
+    //NOTHING in ws handler can touch the DAOs, only server/server facade can do that
     private void leave(Session session, String username, UserGameCommand command) throws IOException {
         var msg = String.format("%s is leaving the game.", username);
         var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         notify.setMessage(msg);
+        //CLIENT WILL CALL SERVER FACADE TO REMOVE THE PLAYER FROM THE GAME IN THE DB
+        //WILL DELETE EVENTUALLY
         try {
             SQLGameDAO temp = new SQLGameDAO();
             String team = temp.getPlayerTeam(command.getGameID(), username);
@@ -111,12 +122,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
+    //NOTHING in ws handler can touch the DAOs, only server/server facade can do that
     private void resign(Session session, String username, UserGameCommand command) throws IOException {
         var msg = String.format("%s is resigning from the game. This game is now over.", username);
         var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        //PUT THIS STUFF IN SERVER!!!!!
         try {
             SQLGameDAO temp = new SQLGameDAO();
-
+            String jsonGame = temp.getJsonGame(command.getGameID());
+            var serializer = new Gson();
+            var game = serializer.fromJson(jsonGame, ChessGame.class);
+            game.setGameActive(false);
+            var newJsonGame = serializer.toJson(game);
+            temp.updateGame(command.getGameID(), newJsonGame);
+            notify.setMessage(msg);
         } catch (DataAccessException e) {
             notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
             notify.setMessage(e.getMessage());

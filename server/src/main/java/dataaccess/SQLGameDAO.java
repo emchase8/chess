@@ -40,7 +40,7 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    public String getGame(int gameID) throws DataAccessException {
+    public String getJsonGame(int gameID) throws DataAccessException {
         var conn = DatabaseManager.getConnection();
         try (var preparedStatement = conn.prepareStatement("SELECT game_id, game FROM real_games WHERE game_id=?")) {
             preparedStatement.setInt(1, gameID);
@@ -51,6 +51,17 @@ public class SQLGameDAO implements GameDAO {
                     throw new DataAccessException("Error: game does not exist");
                 }
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    }
+
+    public void updateGame(int gameID, String jsonGame) throws DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("UPDATE real_games SET game=? WHERE game_id=?")) {
+            preparedStatement.setString(1, jsonGame);
+            preparedStatement.setInt(2, gameID);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Error: database error");
         }
@@ -82,18 +93,18 @@ public class SQLGameDAO implements GameDAO {
     public void removePlayer(int gameID, String team) throws DataAccessException {
         var conn = DatabaseManager.getConnection();
         if (team.equals("white")) {
-            try (var joinWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
-                joinWhite.setString(1, null);
-                joinWhite.setInt(2, gameID);
-                joinWhite.executeUpdate();
+            try (var removeWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
+                removeWhite.setString(1, null);
+                removeWhite.setInt(2, gameID);
+                removeWhite.executeUpdate();
             } catch (SQLException e) {
                 throw new DataAccessException("Error: database error");
             }
         } else {
-            try (var joinWhite = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
-                joinWhite.setString(1, null);
-                joinWhite.setInt(2, gameID);
-                joinWhite.executeUpdate();
+            try (var removeBlack = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
+                removeBlack.setString(1, null);
+                removeBlack.setInt(2, gameID);
+                removeBlack.executeUpdate();
             } catch (SQLException e) {
                 throw new DataAccessException("Error: database error");
             }

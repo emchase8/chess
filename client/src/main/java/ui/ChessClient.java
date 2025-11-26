@@ -301,6 +301,7 @@ public class ChessClient {
                 JoinResult success = facade.join(myRequest);
                 currentState = ClientState.GAMEPLAY;
                 //write functionality in phase 6 to get the correct chess board
+                //joinResult now has a json form of the game in it that we can pass into the ws
                 ChessBoard placeholder = new ChessBoard();
                 placeholder.resetBoard();
                 if (teamColor == ChessGame.TeamColor.WHITE) {

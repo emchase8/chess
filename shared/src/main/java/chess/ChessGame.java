@@ -19,6 +19,7 @@ public class ChessGame {
         myBoard = new ChessBoard();
         myBoard.resetBoard();
         whoseTurn = TeamColor.WHITE;
+        gameActive = true;
     }
 
     public boolean isGameActive() {
