@@ -7,6 +7,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
 public class ConnectionManager {
+
     public final ConcurrentHashMap<Integer, ArrayList<Session>> connection = new ConcurrentHashMap<>();
 
     public void add(int gameID, Session session) {
@@ -33,9 +34,25 @@ public class ConnectionManager {
     }
 
     //make a broadcast method to send the chess board to one person and to the whole session
+    public void broadcastGameOne(int gameID, Session session, ServerMessage notify) throws IOException {
+        String jsonGame = notify.getJsonGame();
+        ArrayList<Session> current = connection.get(gameID);
+        for (Session option : current) {
+            if (option.equals(session)) {
+                session.getRemote().sendString(jsonGame);
+            }
+        }
+    }
 
+    public void broadcastGameAll(int gameID, ServerMessage notify) throws IOException {
+        String jsonGame = notify.getJsonGame();
+        ArrayList<Session> current = connection.get(gameID);
+        for (Session option : current) {
+            option.getRemote().sendString(jsonGame);
+        }
+    }
 
-    public void broadcastCurrentUser(int gameID, ServerMessage notify) throws IOException {
+    public void broadcastIncludingCurrentUser(int gameID, ServerMessage notify) throws IOException {
         String msg = notify.getMessage();
         ArrayList<Session> current = connection.get(gameID);
         for (Session session : current) {

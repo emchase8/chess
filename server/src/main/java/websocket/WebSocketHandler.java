@@ -11,7 +11,6 @@ import dataaccess.SQLAuthDAO;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
-import javax.imageio.IIOException;
 import java.io.IOException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
@@ -33,11 +32,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             SQLAuthDAO temp = new SQLAuthDAO();
             switch (command.getCommandType()) {
                 case CONNECT -> connect(ctx.session, temp.getUser(command.getAuthToken()), (ConnectCommand) command);
+                //sends a message to all OTHER clients in the game
                 case LEAVE -> leave(ctx.session, temp.getUser(command.getAuthToken()), command);
+                //look at specs to see who needs to be notified when
                 case MAKE_MOVE -> makeMove(ctx.session, temp.getUser(command.getAuthToken()), (MakeMoveCommand) command);
+                //sends a message to ALL clients in that game
                 case RESIGN -> resign(ctx.session, temp.getUser(command.getAuthToken()), command);
             }
         } catch (DataAccessException e) {
+            //not quite sure what these are for???
             sendMessage(ctx.session, gameID, e.getMessage());
         } catch (Exception e) {
             sendMessage(ctx.session, gameID, "Error: " + e.getMessage());
@@ -58,6 +61,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
             notify.setMessage(msg);
         } else if (command.getConnectType().toLowerCase().equals("join")) {
+            //MAKE IT NOTIFICATION FOR OBSERVES BUT LOAD GAME FOR PLAYERS? might be just get rid of else statement at the end?
             if (command.getJoinedAs() == ChessGame.TeamColor.WHITE) {
                 msg = String.format("%s joined as the white player.", username);
             } else {
@@ -67,7 +71,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             notify.setMessage(msg);
             try {
                 SQLGameDAO temp = new SQLGameDAO();
-                notify.setGame(temp.getGame(command.getGameID()));
+                notify.setJsonGame(temp.getGame(command.getGameID()));
             } catch (DataAccessException e) {
                 notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
                 notify.setMessage(e.getMessage());
@@ -76,8 +80,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             notify.setMessage("Error: I'm not sure how you got here, please contact the dev team.");
         }
         if (notify.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-            connections.broadcastGameOne(notify);
+            connections.broadcastGameOne(command.getGameID(), session, notify);
+        } else {
+            connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
         }
+    }
+
+    private void leave(Session session, String username, UserGameCommand command) throws IOException {
+        var msg = String.format("%s is leaving the game.", username);
+        var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        notify.setMessage(msg);
         connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
+        connections.remove(command.getGameID(), session);
     }
 }

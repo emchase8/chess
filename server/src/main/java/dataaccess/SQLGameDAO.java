@@ -40,14 +40,13 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    public ChessGame getGame(int gameID) throws DataAccessException {
+    public String getGame(int gameID) throws DataAccessException {
         var conn = DatabaseManager.getConnection();
         try (var preparedStatement = conn.prepareStatement("SELECT game_id, game FROM real_games WHERE game_id=?")) {
             preparedStatement.setInt(1, gameID);
             try (var rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
-                    var serializer = new Gson();
-                    return serializer.fromJson(rs.getString("game"), ChessGame.class);
+                    return rs.getString("game");
                 } else {
                     throw new DataAccessException("Error: game does not exist");
                 }

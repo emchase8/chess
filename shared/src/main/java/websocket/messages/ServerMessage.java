@@ -13,7 +13,7 @@ import java.util.Objects;
 public class ServerMessage {
     ServerMessageType serverMessageType;
     String message;
-    ChessGame game;
+    String jsonGame;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -35,9 +35,9 @@ public class ServerMessage {
 
     public String getMessage() {return this.message;}
 
-    public ChessGame getGame() {return game;}
+    public String getJsonGame() {return jsonGame;}
 
-    public void setGame(ChessGame game) {this.game = game;}
+    public void setJsonGame(String jsonGame) {this.jsonGame = jsonGame;}
 
     @Override
     public boolean equals(Object o) {
