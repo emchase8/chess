@@ -40,6 +40,23 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
+    public ChessGame getGame(int gameID) throws DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("SELECT game_id, game FROM real_games WHERE game_id=?")) {
+            preparedStatement.setInt(1, gameID);
+            try (var rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    var serializer = new Gson();
+                    return serializer.fromJson(rs.getString("game"), ChessGame.class);
+                } else {
+                    throw new DataAccessException("Error: game does not exist");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+    }
+
     @Override
     public void clear() throws DataAccessException {
         var conn = DatabaseManager.getConnection();
@@ -48,7 +65,7 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException("Error: database error");
         }
-    };
+    }
 
     @Override
     public List<GameListData> listGames() throws DataAccessException {
