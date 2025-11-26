@@ -13,6 +13,7 @@ public class ChessGame {
 
     private ChessBoard myBoard;
     private TeamColor whoseTurn;
+    private boolean gameActive;
 
     public ChessGame() {
         myBoard = new ChessBoard();
@@ -20,6 +21,17 @@ public class ChessGame {
         whoseTurn = TeamColor.WHITE;
     }
 
+    public boolean isGameActive() {
+        return gameActive;
+    }
+
+    public void setGameActive(boolean gameActive) {
+        this.gameActive = gameActive;
+    }
+
+    public TeamColor getWhoseTurn() {
+        return whoseTurn;
+    }
 
     /**
      * @return Which playerColor's turn it is

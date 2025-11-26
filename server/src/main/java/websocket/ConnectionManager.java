@@ -33,13 +33,23 @@ public class ConnectionManager {
         }
     }
 
+    public void broadcastOnlyCurrent(int gameID, Session userSession, ServerMessage notify) throws IOException {
+        String msg = notify.getMessage();
+        ArrayList<Session> current = connection.get(gameID);
+        for (Session option : current) {
+            if (option.equals(userSession)) {
+                option.getRemote().sendString(msg);
+            }
+        }
+    }
+
     //make a broadcast method to send the chess board to one person and to the whole session
     public void broadcastGameOne(int gameID, Session session, ServerMessage notify) throws IOException {
         String jsonGame = notify.getJsonGame();
         ArrayList<Session> current = connection.get(gameID);
         for (Session option : current) {
             if (option.equals(session)) {
-                session.getRemote().sendString(jsonGame);
+                option.getRemote().sendString(jsonGame);
             }
         }
     }

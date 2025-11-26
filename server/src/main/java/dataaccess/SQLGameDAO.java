@@ -56,6 +56,50 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
+    public String getPlayerTeam(int gameID, String username) throws DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        try (var preparedStatement = conn.prepareStatement("SELECT game_id, white_user, black_user FROM real_games WHERE game_id=?")) {
+            preparedStatement.setInt(1, gameID);
+            try (var rs = preparedStatement.executeQuery()) {
+                while (rs.next()) {
+                    String whiteUser = rs.getString("white_user");
+                    String blackUser = rs.getString("black_user");
+                    if (whiteUser.equals(username)) {
+                        return "white";
+                    } else if (blackUser.equals(username)) {
+                        return "black";
+                    } else {
+                        throw new DataAccessException("Error: user not in the provided game");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: database error");
+        }
+        throw new DataAccessException("Error: user not in the provided game");
+    }
+
+    public void removePlayer(int gameID, String team) throws DataAccessException {
+        var conn = DatabaseManager.getConnection();
+        if (team.equals("white")) {
+            try (var joinWhite = conn.prepareStatement("UPDATE real_games SET white_user=? WHERE game_id=?")) {
+                joinWhite.setString(1, null);
+                joinWhite.setInt(2, gameID);
+                joinWhite.executeUpdate();
+            } catch (SQLException e) {
+                throw new DataAccessException("Error: database error");
+            }
+        } else {
+            try (var joinWhite = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
+                joinWhite.setString(1, null);
+                joinWhite.setInt(2, gameID);
+                joinWhite.executeUpdate();
+            } catch (SQLException e) {
+                throw new DataAccessException("Error: database error");
+            }
+        }
+    }
+
     @Override
     public void clear() throws DataAccessException {
         var conn = DatabaseManager.getConnection();

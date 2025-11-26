@@ -77,10 +77,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 notify.setMessage(e.getMessage());
             }
         } else {
+            notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
             notify.setMessage("Error: I'm not sure how you got here, please contact the dev team.");
         }
         if (notify.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             connections.broadcastGameOne(command.getGameID(), session, notify);
+            notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
+            connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
+        } else if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
         } else {
             connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
         }
@@ -90,7 +95,36 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var msg = String.format("%s is leaving the game.", username);
         var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         notify.setMessage(msg);
-        connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
-        connections.remove(command.getGameID(), session);
+        try {
+            SQLGameDAO temp = new SQLGameDAO();
+            String team = temp.getPlayerTeam(command.getGameID(), username);
+            temp.removePlayer(command.getGameID(), team);
+            notify.setMessage(msg);
+        } catch (DataAccessException e) {
+            notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
+            notify.setMessage(e.getMessage());
+        }
+        if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
+        } else {
+            connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
+        }
+    }
+
+    private void resign(Session session, String username, UserGameCommand command) throws IOException {
+        var msg = String.format("%s is resigning from the game. This game is now over.", username);
+        var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        try {
+            SQLGameDAO temp = new SQLGameDAO();
+
+        } catch (DataAccessException e) {
+            notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
+            notify.setMessage(e.getMessage());
+        }
+        if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
+        } else {
+            connections.broadcastIncludingCurrentUser(command.getGameID(), notify);
+        }
     }
 }
