@@ -17,6 +17,7 @@ public class ChessClient {
     private ClientState currentState = ClientState.PRELOGIN;
     private String clientAuth;
     private int currentGame;
+    private boolean isPlayer;
 
     private String printBlackSquare(ChessPiece piece) {
         if (piece == null) {
@@ -102,6 +103,19 @@ public class ChessClient {
         return whiteBoardStr;
     }
 
+    private boolean wantToResign() {
+        System.out.println("Are you sure you want to resign from your game? This action will end the game for all players.");
+        System.out.println("Respond with yes or no.");
+        Scanner scanner = new Scanner(System.in);
+        System.out.print(">>> ");
+        String response = scanner.nextLine();
+        if (response.toLowerCase().equals("yes")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public ChessClient(String serverURL) {
         facade = new ServerFacade(serverURL);
     }
@@ -124,6 +138,7 @@ public class ChessClient {
             }
         }
         System.out.println();
+        scanner.close();
     }
 
     public String eval(String line) {
@@ -146,7 +161,7 @@ public class ChessClient {
                 //ALSO A LOT OF THESE NEED USERNAMES FOR WS WHICH IS FUN
                 case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
-                case "quitgame" -> quitGame(neededParams);
+                //case "quitgame" -> quitGame(neededParams);
                 //ANYTHING THAT HAS A GAME ID PASSED IN NEEDS TO HAVE THE CHECK TO SEE IF THAT GAME ID IS VALID
                 case "redraw" -> redrawBoard(neededParams);
                 case "leave" -> leaveGame(neededParams);
@@ -271,17 +286,17 @@ public class ChessClient {
         throw new Exception("Expected: list\n");
     }
 
-    public String quitGame(String[] params) throws Exception {
-        if (currentState == ClientState.GAMEPLAY && params.length == 0) {
-            currentState = ClientState.POSTLOGIN;
-            return "Thank you for visiting game play. See you again soon :)\n";
-        } else if (currentState == ClientState.POSTLOGIN) {
-            throw new Exception("You must be in game play in order to exit game play.\n");
-        } else if (currentState == ClientState.PRELOGIN) {
-            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
-        }
-        throw new Exception("Expected: quitGame\n");
-    }
+//    public String quitGame(String[] params) throws Exception {
+//        if (currentState == ClientState.GAMEPLAY && params.length == 0) {
+//            currentState = ClientState.POSTLOGIN;
+//            return "Thank you for visiting game play. See you again soon :)\n";
+//        } else if (currentState == ClientState.POSTLOGIN) {
+//            throw new Exception("You must be in game play in order to exit game play.\n");
+//        } else if (currentState == ClientState.PRELOGIN) {
+//            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
+//        }
+//        throw new Exception("Expected: quitGame\n");
+//    }
 
     public String join(String[] params) throws Exception {
         if (params.length == 2 && currentState == ClientState.POSTLOGIN) {
@@ -304,6 +319,7 @@ public class ChessClient {
                 JoinResult success = facade.join(myRequest);
                 currentState = ClientState.GAMEPLAY;
                 currentGame = success.gameID();
+                isPlayer = true;
                 //write functionality in phase 6 to get the correct chess board
                 //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
                 ChessBoard placeholder = new ChessBoard();
@@ -346,6 +362,7 @@ public class ChessClient {
                 return e.getMessage();
             }
             currentState = ClientState.GAMEPLAY;
+            isPlayer = false;
             ChessBoard placeholder = new ChessBoard();
             placeholder.resetBoard();
             return printWhiteBoard(placeholder);
@@ -362,14 +379,40 @@ public class ChessClient {
             LeaveRequest myRequest = new LeaveRequest(clientAuth, currentGame);
             try {
                 LeaveResult result = facade.leave(myRequest);
-                //do ws stuff
+                //do WS stuff
                 currentState = ClientState.POSTLOGIN;
+                currentGame = -1;
+                isPlayer = false;
                 return String.format("You have now left game number %d. Hope to see you again soon.", currentGame);
             } catch (Exception e) {
                 return e.getMessage();
             }
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("You must either be a game player or be observing a game in order to leave a game.\n");
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in and in a game to leave a game.\n");
         }
         throw new Exception("Expected: leave\n");
+    }
+
+    public String resignGame(String[] params) throws Exception {
+        //have to prompt the user to make sure they want to resign the game
+        boolean doubleCheck = false;
+        if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
+            doubleCheck = wantToResign();
+            if (doubleCheck) {
+                //check if client is player
+                ResignRequest myRequest = new ResignRequest(clientAuth, currentGame);
+                //finish writing later
+            } else {
+                return "This is why we double check! Go ahead and keep playing!";
+            }
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("You must be a player in a game to resign.\n");
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in and a player in a game in order to resign.\n");
+        }
+        throw new Exception("Expected: resign\n");
     }
 
     public String help() {
@@ -397,7 +440,6 @@ public class ChessClient {
                     Gameplay is still under construction, thank you for your patience.
                     Here is what you can currently do:
                     - to list all possible options: help
-                    - to leave gameplay: quitGame
                     - to redraw the gameboard: redraw
                     - to leave the game: leave
                     - to make a chess move: move <starting position> <ending position>
