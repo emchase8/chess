@@ -3,10 +3,7 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.*;
 import io.javalin.http.*;
-import model.GameName;
-import model.JoinData;
-import model.LeaveData;
-import model.ResignData;
+import model.*;
 import model.requests.*;
 import service.*;
 import model.results.MostBasicResult;
@@ -225,6 +222,26 @@ public class Server {
         ResignRequest request = new ResignRequest(currentAuth, resignData.gameID());
         GameService inst = new GameService();
         MostBasicResult result = inst.resignGameService(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void observeHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.header("authorization");
+        ObserveData observeData = serializer.fromJson(context.body(), ObserveData.class);
+        ObserveRequest request = new ObserveRequest(currentAuth, observeData.gameID());
+        GameService inst = new GameService();
+        MostBasicResult result = inst.observeGame(request);
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);

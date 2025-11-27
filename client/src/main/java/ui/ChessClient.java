@@ -16,6 +16,7 @@ public class ChessClient {
     private final ServerFacade facade;
     private ClientState currentState = ClientState.PRELOGIN;
     private String clientAuth;
+    private int currentGame;
 
     private String printBlackSquare(ChessPiece piece) {
         if (piece == null) {
@@ -302,6 +303,7 @@ public class ChessClient {
             try {
                 JoinResult success = facade.join(myRequest);
                 currentState = ClientState.GAMEPLAY;
+                currentGame = success.gameID();
                 //write functionality in phase 6 to get the correct chess board
                 //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
                 ChessBoard placeholder = new ChessBoard();
@@ -335,6 +337,14 @@ public class ChessClient {
                 return e.getMessage();
             }
             //write functionality in phase 6 to get the correct chess board
+            ObserveRequest myRequest2 = new ObserveRequest(clientAuth, publicGameNum);
+            try {
+                ObserveResult result = facade.observe(myRequest2);
+                currentGame = result.gameID();
+                //result has all the stuff needed for the ws to work
+            } catch (Exception e) {
+                return e.getMessage();
+            }
             currentState = ClientState.GAMEPLAY;
             ChessBoard placeholder = new ChessBoard();
             placeholder.resetBoard();
@@ -349,8 +359,17 @@ public class ChessClient {
 
     public String leaveGame(String[] params) throws Exception {
         if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
-
+            LeaveRequest myRequest = new LeaveRequest(clientAuth, currentGame);
+            try {
+                LeaveResult result = facade.leave(myRequest);
+                //do ws stuff
+                currentState = ClientState.POSTLOGIN;
+                return String.format("You have now left game number %d. Hope to see you again soon.", currentGame);
+            } catch (Exception e) {
+                return e.getMessage();
+            }
         }
+        throw new Exception("Expected: leave\n");
     }
 
     public String help() {

@@ -145,4 +145,26 @@ public class GameService {
             return new ErrorResult("Error: database error");
         }
     }
+
+    public MostBasicResult observeGame(ObserveRequest request) {
+        try {
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameSQL = new SQLGameDAO();
+            try {
+                authSQL.checkAuth(request.authToken());
+                if (request.gameID() < 1) {
+                    return new ErrorResult("Error: bad request");
+                }
+                String user = authSQL.getUser(request.authToken());
+                String jsonGame = gameSQL.getJsonGame(request.gameID());
+                return new ObserveResult(jsonGame, user, request.gameID());
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
+            } catch (DataAccessException e) {
+                return new ErrorResult("Error: database error");
+            }
+        } catch (DataAccessException e) {
+            return new ErrorResult("Error: database error");
+        }
+    }
 }
