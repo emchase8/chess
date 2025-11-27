@@ -1,13 +1,12 @@
 package service;
 
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.*;
 import model.GameListData;
-import model.requests.LeaveRequest;
+import model.requests.*;
 import model.results.*;
-import model.requests.CreateRequest;
-import model.requests.JoinRequest;
-import model.requests.ListRequest;
 
 import java.util.List;
 
@@ -82,7 +81,7 @@ public class GameService {
                 try {
                     gameSQL.joinGame(user, request.playerColor(), request.gameID());
                     String jsonGame = gameSQL.getJsonGame(request.gameID());
-                    return new JoinResult(jsonGame);
+                    return new JoinResult(jsonGame, user, request.gameID());
                 } catch (AlreadyTakenException e) {
                     return new ErrorResult("Error: already taken");
                 } catch (DataAccessException n) {
@@ -111,6 +110,32 @@ public class GameService {
                 String team = gameDAO.getPlayerTeam(request.gameID(), user);
                 gameDAO.removePlayer(request.gameID(), team);
                 return new LeaveResult();
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
+            } catch (DataAccessException e) {
+                return new ErrorResult("Error: database error");
+            }
+        } catch (DataAccessException e) {
+            return new ErrorResult("Error: database error");
+        }
+    }
+
+    public MostBasicResult resignGameService(ResignRequest request) {
+        try {
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameSQL = new SQLGameDAO();
+            try {
+                authSQL.checkAuth(request.authToken());
+                if (request.gameID() < 1) {
+                    return new ErrorResult("Error: bad request");
+                }
+                String jsonGame = gameSQL.getJsonGame(request.gameID());
+                var serializer = new Gson();
+                var game = serializer.fromJson(jsonGame, ChessGame.class);
+                game.setGameActive(false);
+                var newJsonGame = serializer.toJson(game);
+                gameSQL.updateGame(request.gameID(), newJsonGame);
+                return new ResignResult();
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {

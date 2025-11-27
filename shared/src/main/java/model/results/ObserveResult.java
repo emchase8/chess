@@ -1,9 +1,10 @@
 package model.results;
 
 import model.GameListData;
+
 import java.util.List;
 
-public record JoinResult(String jsonGame, String username, int gameID) implements MostBasicResult {
+public record ObserveResult(String jsonGame, String username, int gameID) implements MostBasicResult {
     public String jsonGame() {
         return jsonGame;
     }

@@ -142,13 +142,15 @@ public class ChessClient {
                 case "logout" -> logout(neededParams);
                 case "create" -> create(neededParams);
                 case "list" -> listGames(neededParams);
+                //ALSO A LOT OF THESE NEED USERNAMES FOR WS WHICH IS FUN
                 case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
                 case "quitgame" -> quitGame(neededParams);
+                //ANYTHING THAT HAS A GAME ID PASSED IN NEEDS TO HAVE THE CHECK TO SEE IF THAT GAME ID IS VALID
                 case "redraw" -> redrawBoard(neededParams);
                 case "leave" -> leaveGame(neededParams);
                 case "move" -> makeMove(neededParams);
-                case "resign" -> resign(neededParams);
+                case "resign" -> resignGame(neededParams);
                 case "highlight" -> highlightLegal(neededParams);
                 default -> help();
             };
@@ -301,7 +303,7 @@ public class ChessClient {
                 JoinResult success = facade.join(myRequest);
                 currentState = ClientState.GAMEPLAY;
                 //write functionality in phase 6 to get the correct chess board
-                //joinResult now has a json form of the game in it that we can pass into the ws
+                //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
                 ChessBoard placeholder = new ChessBoard();
                 placeholder.resetBoard();
                 if (teamColor == ChessGame.TeamColor.WHITE) {
@@ -343,6 +345,12 @@ public class ChessClient {
             throw new Exception("You are already viewing a game, exit with quitGame and then try again\n");
         }
         throw new Exception("Expected: observe <game number>\n");
+    }
+
+    public String leaveGame(String[] params) throws Exception {
+        if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
+
+        }
     }
 
     public String help() {

@@ -64,11 +64,25 @@ public class ServerFacade {
         return handleRequest(response, JoinResult.class);
     }
 
+    public ObserveResult observe(ObserveRequest observeRequest) throws Exception {
+        boolean needAuth = true;
+        var request = buildRequest("GET", "/observegame", observeRequest, needAuth);
+        var response = sendRequest(request);
+        return handleRequest(response, ObserveResult.class);
+    }
+
     public LeaveResult leave(LeaveRequest leaveRequest) throws Exception {
         boolean needAuth = true;
         var request = buildRequest("PUT", "/leavegame", leaveRequest, needAuth);
         var response = sendRequest(request);
         return handleRequest(response, LeaveResult.class);
+    }
+
+    public ResignResult resign(ResignRequest resignRequest) throws Exception {
+        boolean needAuth = true;
+        var request = buildRequest("PUT", "/resigngame", resignRequest, needAuth);
+        var response = sendRequest(request);
+        return handleRequest(response, ResignResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, BasicRequest body, boolean needAuth) {

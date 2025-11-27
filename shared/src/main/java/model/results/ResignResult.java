@@ -1,15 +1,17 @@
 package model.results;
 
 import model.GameListData;
+
 import java.util.List;
 
-public record JoinResult(String jsonGame, String username, int gameID) implements MostBasicResult {
-    public String jsonGame() {
-        return jsonGame;
+public record ResignResult() implements MostBasicResult {
+    @Override
+    public String message() {
+        return "";
     }
 
     @Override
-    public String message() {
+    public String username() {
         return "";
     }
 
@@ -19,13 +21,8 @@ public record JoinResult(String jsonGame, String username, int gameID) implement
     }
 
     @Override
-    public String username() {
-        return username;
-    }
-
-    @Override
     public int gameID() {
-        return gameID;
+        return 0;
     }
 
     @Override

@@ -29,6 +29,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             gameID = command.getGameID();
+            //IN MAKING WS FACADE, FIGURE OUT HOW TO PASS THE USERNAME INTO THE COMMAND SO I DON'T CALL THE DAO HERE!!!
             SQLAuthDAO temp = new SQLAuthDAO();
             switch (command.getCommandType()) {
                 case CONNECT -> connect(ctx.session, temp.getUser(command.getAuthToken()), (ConnectCommand) command);
@@ -95,6 +96,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
             connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
         } else if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            //IF THE DAOs ARE NOT ACCESSED IN HERE, WHEN WOULD I HAVE AN ERROR SERVER MESSAGE TYPE
             connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
         }
     }
@@ -116,6 +118,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             notify.setMessage(e.getMessage());
         }
         if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            //IF THE DAOs ARE NOT ACCESSED IN HERE, WHEN WOULD I HAVE AN ERROR SERVER MESSAGE TYPE
             connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
         } else {
             connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
@@ -126,7 +129,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void resign(Session session, String username, UserGameCommand command) throws IOException {
         var msg = String.format("%s is resigning from the game. This game is now over.", username);
         var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        //PUT THIS STUFF IN SERVER!!!!!
+        //CLIENT WILL CALL SERVER FACADE TO RESIGN THE GAME IN THE DB
+        //WILL DELETE EVENTUALLY
         try {
             SQLGameDAO temp = new SQLGameDAO();
             String jsonGame = temp.getJsonGame(command.getGameID());
@@ -141,6 +145,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             notify.setMessage(e.getMessage());
         }
         if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            //IF THE DAOs ARE NOT ACCESSED IN HERE, WHEN WOULD I HAVE AN ERROR SERVER MESSAGE TYPE
             connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
         } else {
             connections.broadcastIncludingCurrentUser(command.getGameID(), notify);

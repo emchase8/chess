@@ -6,6 +6,7 @@ import io.javalin.http.*;
 import model.GameName;
 import model.JoinData;
 import model.LeaveData;
+import model.ResignData;
 import model.requests.*;
 import service.*;
 import model.results.MostBasicResult;
@@ -43,6 +44,8 @@ public class Server {
         javalin.post("/game", context-> createHandler(context));
         javalin.put("/game", context -> joinHandler(context));
         javalin.put("/leavegame", context -> leaveHandler(context));
+        javalin.put("/resigngame", context -> resignHandler(context));
+        javalin.get("/observegame", context -> observeHandler(context));
         return javalin.port();
     }
 
@@ -202,6 +205,26 @@ public class Server {
         LeaveRequest request = new LeaveRequest(currentAuth, leaveData.gameID());
         GameService inst = new GameService();
         MostBasicResult result = inst.leaveGameService(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void resignHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.header("authorization");
+        ResignData resignData = serializer.fromJson(context.body(), ResignData.class);
+        ResignRequest request = new ResignRequest(currentAuth, resignData.gameID());
+        GameService inst = new GameService();
+        MostBasicResult result = inst.resignGameService(request);
         var json = serializer.toJson(result);
         if (result.message().isEmpty()) {
             context.status(200);
