@@ -521,7 +521,6 @@ public class ChessClient {
                 //do WS stuff!!!!!
                 currentState = ClientState.GAMEPLAY;
                 isPlayer = false;
-                //REPLACE WITH THE ACUTAL GAME!!!!
                 ChessGame placeholder = new Gson().fromJson(result.jsonGame(), ChessGame.class);
                 return printWhiteBoard(placeholder.getBoard());
             } catch (Exception e) {
@@ -566,7 +565,7 @@ public class ChessClient {
                 try {
                     ResignResult result = facade.resign(myRequest);
                     //do WS stuff!!!!
-                    currentState = ClientState.POSTLOGIN;
+                    isPlayer = false;
                     String msg = String.format("You have resigned from game number %d and this game is no longer active. Hope to see you again soon.\n", currentGame);
                     currentGame = -1;
                     return msg;
@@ -605,8 +604,8 @@ public class ChessClient {
             ChessMove currentMove = new ChessMove(start, end, promote);
             MoveRequest myRequest = new MoveRequest(clientAuth, currentGame, currentMove);
             try {
-                //WHAT THE HECK IS HAPPENING WHEN I DEBUG WITH A BAD MOVE!!!!
                 MoveResult result = facade.move(myRequest);
+                //FIGURE OUT THE CHECK/CHECKMATE/STALEMATE FUNCTIONALITY!!!
                 ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
                 if (currentTeam == ChessGame.TeamColor.BLACK) {
                     return printBlackBoard(temp.getBoard());
@@ -614,7 +613,8 @@ public class ChessClient {
                     return printWhiteBoard(temp.getBoard());
                 }
                 //do WS stuff!!!!
-                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!! (i'm assuming WS does that but I just hadn't though of that before
+                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!! (i'm assuming WS does that but I just hadn't though of that before)
+                //the real question is how to draw different boards based off of player color
             } catch (Exception e) {
                 return e.getMessage() + "\n";
             }

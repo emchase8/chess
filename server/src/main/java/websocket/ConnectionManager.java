@@ -45,7 +45,7 @@ public class ConnectionManager {
 
     //make a broadcast method to send the chess board to one person and to the whole session
     public void broadcastGameOne(int gameID, Session session, ServerMessage notify) throws IOException {
-        String jsonGame = notify.getJsonGame();
+        String jsonGame = notify.getGame();
         ArrayList<Session> current = connection.get(gameID);
         for (Session option : current) {
             if (option.equals(session)) {
@@ -54,8 +54,18 @@ public class ConnectionManager {
         }
     }
 
+    public void broadcastGameExculdeCurrent(int gameID, Session excludedSession, ServerMessage notify) throws IOException {
+        String jsonGame = notify.getGame();
+        ArrayList<Session> current = connection.get(gameID);
+        for (Session session : current) {
+            if (!session.equals(excludedSession)) {
+                session.getRemote().sendString(jsonGame);
+            }
+        }
+    }
+
     public void broadcastGameAll(int gameID, ServerMessage notify) throws IOException {
-        String jsonGame = notify.getJsonGame();
+        String jsonGame = notify.getGame();
         ArrayList<Session> current = connection.get(gameID);
         for (Session option : current) {
             option.getRemote().sendString(jsonGame);

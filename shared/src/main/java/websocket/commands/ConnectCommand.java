@@ -7,8 +7,8 @@ public class ConnectCommand extends UserGameCommand {
     private final String connectType;
     private final ChessGame.TeamColor joinedAs;
 
-    public ConnectCommand(CommandType commandType, String authToken, Integer gameID, String connectType, ChessGame.TeamColor joinedAs) {
-        super(commandType, authToken, gameID);
+    public ConnectCommand(CommandType commandType, String authToken, Integer gameID, String user, String connectType, ChessGame.TeamColor joinedAs) {
+        super(commandType, authToken, gameID, user);
         this.connectType = connectType;
         this.joinedAs = joinedAs;
     }
