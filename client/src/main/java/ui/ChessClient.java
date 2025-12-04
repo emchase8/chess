@@ -7,9 +7,7 @@ import model.requests.*;
 import model.results.*;
 import sharedservice.ServerFacade;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class ChessClient {
     private final ServerFacade facade;
@@ -49,15 +47,112 @@ public class ChessClient {
         }
     }
 
-    private String printBlackBoard(ChessBoard board) {
-        String blackBoardStr = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+    private String printGreenSquare(ChessPiece piece) {
+        if (piece == null) {
+            return EscapeSequences.SET_BG_COLOR_GREEN + "   ";
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return EscapeSequences.SET_BG_COLOR_GREEN + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+        } else {
+            return EscapeSequences.SET_BG_COLOR_GREEN + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+        }
+    }
+
+    private String printDarkGreenSquare(ChessPiece piece) {
+        if (piece == null) {
+            return EscapeSequences.SET_BG_COLOR_DARK_GREEN + "   ";
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+        } else {
+            return EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+        }
+    }
+
+    private String printYellowSquare(ChessPiece piece) {
+        if (piece == null) {
+            return EscapeSequences.SET_BG_COLOR_YELLOW + "   ";
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return EscapeSequences.SET_BG_COLOR_YELLOW + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+        } else {
+            return EscapeSequences.SET_BG_COLOR_YELLOW + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+        }
+    }
+
+    private boolean isStart(ChessPosition start, int row, int col) {
+        if (start.getRow() == row && start.getColumn() == col) {
+            return true;
+        } return false;
+    }
+
+    private boolean isPossible(List<ChessPosition> possible, int row, int col) {
+        for (ChessPosition item : possible) {
+            if (item.getColumn() == col && item.getRow() == row) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String printBlackHighlightVersion(ChessPiece piece, int row, int col, ChessPosition start, List<ChessPosition> possible) {
+        if (isStart(start, row, col)) {
+            return printYellowSquare(piece);
+        } else if (isPossible(possible, row, col)) {
+            return printDarkGreenSquare(piece);
+        } else {
+            return printBlackSquare(piece);
+        }
+    }
+
+    private String printWhiteHighlightVersion(ChessPiece piece, int row, int col, ChessPosition start, List<ChessPosition> possible) {
+        if (isStart(start, row, col)) {
+            return printYellowSquare(piece);
+        } else if (isPossible(possible, row, col)) {
+            return printGreenSquare(piece);
+        } else {
+            return printWhiteSquare(piece);
+        }
+    }
+
+    private String printBlackHighlighted(ChessBoard board, ChessPosition start, List<ChessPosition> possible) {
+        String blackBoardStr = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
         String[] letters = {"H", "G", "F", "E", "D", "C", "B", "A"};
         for (String letter : letters) {
             blackBoardStr += " " + letter + " ";
         }
         blackBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         for (int i = 1; i <= 8; i++) {
-            String temp = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+            String temp = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+            for (int j = 8; j >= 1; j--) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                if (j%2 == 0 && i%2 == 0) {
+                    temp += printBlackHighlightVersion(piece, i, j, start, possible);
+                } else if (j%2 == 0 && i%2 != 0) {
+                    temp += printWhiteHighlightVersion(piece, i, j, start, possible);
+                } else if (j%2 != 0 && i%2 == 0) {
+                    temp += printWhiteHighlightVersion(piece, i, j, start, possible);
+                } else {
+                    temp += printBlackHighlightVersion(piece, i, j, start, possible);
+                }
+            }
+            blackBoardStr += temp + EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
+                    + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        }
+        blackBoardStr += EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        for (String letter : letters) {
+            blackBoardStr += " " + letter + " ";
+        }
+        blackBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        return blackBoardStr;
+    }
+
+    private String printBlackBoard(ChessBoard board) {
+        String blackBoardStr = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        String[] letters = {"H", "G", "F", "E", "D", "C", "B", "A"};
+        for (String letter : letters) {
+            blackBoardStr += " " + letter + " ";
+        }
+        blackBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        for (int i = 1; i <= 8; i++) {
+            String temp = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
             for (int j = 8; j >= 1; j--) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
                 if (j%2 == 0 && i%2 == 0) {
@@ -70,10 +165,10 @@ public class ChessClient {
                     temp += printBlackSquare(piece);
                 }
             }
-            blackBoardStr += temp + EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
+            blackBoardStr += temp + EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
                     + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         }
-        blackBoardStr += EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        blackBoardStr += EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
         for (String letter : letters) {
             blackBoardStr += " " + letter + " ";
         }
@@ -81,15 +176,47 @@ public class ChessClient {
         return blackBoardStr;
     }
 
-    private String printWhiteBoard(ChessBoard board) {
-        String whiteBoardStr = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+    private String printWhiteHighlighted(ChessBoard board, ChessPosition start, List<ChessPosition> possible) {
+        String whiteBoardStr = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
         String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H"};
         for (String letter : letters) {
             whiteBoardStr += " " + letter + " ";
         }
         whiteBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         for (int i = 8; i >= 1; i--) {
-            String temp = EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+            String temp = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i,j));
+                if (i%2 == 0 && j%2 != 0) {
+                    temp += printWhiteHighlightVersion(piece, i, j, start, possible);
+                } else if (i%2 == 0 && j%2 == 0) {
+                    temp += printBlackHighlightVersion(piece, i, j, start, possible);
+                } else if (i%2 != 0 && j%2 != 0) {
+                    temp += printBlackHighlightVersion(piece, i, j, start, possible);
+                } else {
+                    temp += printWhiteHighlightVersion(piece, i, j, start, possible);
+                }
+            }
+            whiteBoardStr += temp + EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
+                    + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        }
+        whiteBoardStr += EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        for (String letter : letters) {
+            whiteBoardStr += " " + letter + " ";
+        }
+        whiteBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        return whiteBoardStr;
+    }
+
+    private String printWhiteBoard(ChessBoard board) {
+        String whiteBoardStr = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        String[] letters = {"A", "B", "C", "D", "E", "F", "G", "H"};
+        for (String letter : letters) {
+            whiteBoardStr += " " + letter + " ";
+        }
+        whiteBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
+        for (int i = 8; i >= 1; i--) {
+            String temp = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i + " ";
             for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i,j));
                 if (i%2 == 0 && j%2 != 0) {
@@ -102,10 +229,10 @@ public class ChessClient {
                     temp += printWhiteSquare(piece);
                 }
             }
-            whiteBoardStr += temp + EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
+            whiteBoardStr += temp + EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
                     + " " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         }
-        whiteBoardStr += EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
+        whiteBoardStr += EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + "   ";
         for (String letter : letters) {
             whiteBoardStr += " " + letter + " ";
         }
@@ -121,6 +248,14 @@ public class ChessClient {
         } catch (Exception e) {
             throw new Exception("Error: incorrectly formatted position, ex: A1 or F7");
         }
+    }
+
+    private List<ChessPosition> makeNice(Collection<ChessMove> mine) {
+        List<ChessPosition> newList = new ArrayList<ChessPosition>();
+        for (ChessMove item : mine) {
+            newList.add(item.getEndPosition());
+        }
+        return newList;
     }
 
     private boolean wantToResign() {
@@ -501,6 +636,31 @@ public class ChessClient {
             throw new Exception("You must be logged in and either a player or an observer in order to redraw a board.\n");
         }
         throw new Exception("Expected: redraw\n");
+    }
+
+    public String highlightLegal(String[] params) throws Exception {
+        if (params.length == 1 && currentState == ClientState.GAMEPLAY) {
+            ChessPosition mine = strToPosition(params[0]);
+            RedrawRequest myRequest = new RedrawRequest(clientAuth, currentGame);
+            try {
+                RedrawResult result = facade.redraw(myRequest);
+                ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
+                Collection<ChessMove> possible = temp.validMoves(mine);
+                List<ChessPosition> nicerPossible = makeNice(possible);
+                if (currentTeam == ChessGame.TeamColor.BLACK) {
+                    return printBlackHighlighted(temp.getBoard(), mine, nicerPossible);
+                } else {
+                    return printWhiteHighlighted(temp.getBoard(), mine, nicerPossible);
+                }
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("You must be a player or an observer to redraw a board with piece moves highlighted.\n");
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in and either a player or an observer to redraw a board with piece moves highlighted.\n");
+        }
+        throw new Exception("Expected: highlight <piece position>");
     }
 
     public String help() {
