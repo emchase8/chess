@@ -16,14 +16,14 @@ public class ChessClient {
     private int currentGame;
     private boolean isPlayer;
     private final HashMap<String, Integer> colConverter = new HashMap<>() {{
-        put("A", 1);
-        put("B", 2);
-        put("C", 3);
-        put("D", 4);
-        put("E", 5);
-        put("F", 6);
-        put("G", 7);
-        put("H", 8);
+        put("a", 1);
+        put("b", 2);
+        put("c", 3);
+        put("d", 4);
+        put("e", 5);
+        put("f", 6);
+        put("g", 7);
+        put("h", 8);
     }};
     private ChessGame.TeamColor currentTeam;
 
@@ -316,7 +316,7 @@ public class ChessClient {
                 //ALSO A LOT OF THESE NEED USERNAMES FOR WS WHICH IS FUN
                 case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
-                //case "quitgame" -> quitGame(neededParams);
+                case "quitgame" -> quitGame(neededParams);
                 //ANYTHING THAT HAS A GAME ID PASSED IN NEEDS TO HAVE THE CHECK TO SEE IF THAT GAME ID IS VALID
                 case "redraw" -> redrawBoard(neededParams);
                 case "leave" -> leaveGame(neededParams);
@@ -326,7 +326,7 @@ public class ChessClient {
                 default -> help();
             };
         } catch (Exception e) {
-            return e.getMessage() + "\n";
+            return e.getMessage();
         }
     }
 
@@ -338,7 +338,7 @@ public class ChessClient {
         } else if (currentState == ClientState.GAMEPLAY) {
             throw new Exception("Please leave game play and log out before quitting.\n");
         }
-        throw new Exception("Expected: quit");
+        throw new Exception("Expected: quit\n");
     }
 
     public String register(String[] params) throws Exception {
@@ -350,7 +350,7 @@ public class ChessClient {
                 clientAuth = success.authToken();
                 return String.format("You are now registered as %s and are logged in.\n", success.username());
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState != ClientState.PRELOGIN) {
             throw new Exception("You cannot register a new user while logged in. Please logout and try again.\n");
@@ -367,7 +367,8 @@ public class ChessClient {
                 clientAuth = success.authToken();
                 return String.format("You are now logged in as %s.\n", success.username());
             } catch (Exception e) {
-                return e.getMessage();
+                //fix error messages
+                return e.getMessage() + "\n";
             }
         } else if (currentState != ClientState.PRELOGIN) {
             throw new Exception("You are already logged in and do not need to do so again until you log out.\n");
@@ -384,7 +385,7 @@ public class ChessClient {
                 clientAuth = "";
                 return "You are now logged out. We hope to see you again soon :)\n";
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in in order to log out.\n");
@@ -401,7 +402,7 @@ public class ChessClient {
                 CreateResult success = facade.create(myRequest);
                 return String.format("You have now created a game named %s\n", params[0]);
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in to create a game.\n");
@@ -431,7 +432,7 @@ public class ChessClient {
                 }
                 return myStr;
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in to see the games.\n");
@@ -441,17 +442,20 @@ public class ChessClient {
         throw new Exception("Expected: list\n");
     }
 
-//    public String quitGame(String[] params) throws Exception {
-//        if (currentState == ClientState.GAMEPLAY && params.length == 0) {
-//            currentState = ClientState.POSTLOGIN;
-//            return "Thank you for visiting game play. See you again soon :)\n";
-//        } else if (currentState == ClientState.POSTLOGIN) {
-//            throw new Exception("You must be in game play in order to exit game play.\n");
-//        } else if (currentState == ClientState.PRELOGIN) {
-//            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
-//        }
-//        throw new Exception("Expected: quitGame\n");
-//    }
+    public String quitGame(String[] params) throws Exception {
+        if (currentState == ClientState.GAMEPLAY && params.length == 0 && !isPlayer) {
+            //make so you can only quit as an observer!!!!
+            currentState = ClientState.POSTLOGIN;
+            return "Thank you for visiting game play. See you again soon :)\n";
+        } else if (isPlayer) {
+            throw new Exception("You must use the leave or resign command as a player.\n");
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("You must be in game play in order to exit game play.\n");
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
+        }
+        throw new Exception("Expected: quitGame\n");
+    }
 
     public String join(String[] params) throws Exception {
         if (params.length == 2 && currentState == ClientState.POSTLOGIN) {
@@ -467,7 +471,7 @@ public class ChessClient {
                     throw new Exception("Invalid game number, please list games and try again.\n");
                 }
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
             JoinRequest myRequest = new JoinRequest(clientAuth, teamColor, publicGameID);
             try {
@@ -479,15 +483,14 @@ public class ChessClient {
                 //write functionality in phase 6 to get the correct chess board
                 //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
                 //do WS stuff!!!!
-                ChessBoard placeholder = new ChessBoard();
-                placeholder.resetBoard();
+                ChessGame placeholder = new Gson().fromJson(success.jsonGame(), ChessGame.class);
                 if (teamColor == ChessGame.TeamColor.WHITE) {
-                    return printWhiteBoard(placeholder);
+                    return printWhiteBoard(placeholder.getBoard());
                 } else {
-                    return printBlackBoard(placeholder);
+                    return printBlackBoard(placeholder.getBoard());
                 }
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logger in to join a chess game.\n");
@@ -507,7 +510,7 @@ public class ChessClient {
                     throw new Exception("Invalid game number, please list games and try again.\n");
                 }
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
             //write functionality in phase 6 to get the correct chess board
             ObserveRequest myRequest2 = new ObserveRequest(clientAuth, publicGameNum);
@@ -516,14 +519,14 @@ public class ChessClient {
                 currentGame = result.gameID();
                 //result has all the stuff needed for the ws to work
                 //do WS stuff!!!!!
+                currentState = ClientState.GAMEPLAY;
+                isPlayer = false;
+                //REPLACE WITH THE ACUTAL GAME!!!!
+                ChessGame placeholder = new Gson().fromJson(result.jsonGame(), ChessGame.class);
+                return printWhiteBoard(placeholder.getBoard());
             } catch (Exception e) {
                 return e.getMessage();
             }
-            currentState = ClientState.GAMEPLAY;
-            isPlayer = false;
-            ChessBoard placeholder = new ChessBoard();
-            placeholder.resetBoard();
-            return printWhiteBoard(placeholder);
         } else if (currentState == ClientState.PRELOGIN) {
             throw new Exception("You must be logged in to observe a chess game.\n");
         } else if (currentState == ClientState.GAMEPLAY) {
@@ -545,7 +548,7 @@ public class ChessClient {
                 currentTeam = null;
                 return msg;
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.POSTLOGIN) {
             throw new Exception("You must either be a game player or be observing a game in order to leave a game.\n");
@@ -568,7 +571,7 @@ public class ChessClient {
                     currentGame = -1;
                     return msg;
                 } catch (Exception e) {
-                    return e.getMessage();
+                    return e.getMessage() + "\n";
                 }
             } else if (!isPlayer && doubleCheck) {
                 return "You must be a player to resign from the game.\n";
@@ -603,10 +606,16 @@ public class ChessClient {
             MoveRequest myRequest = new MoveRequest(clientAuth, currentGame, currentMove);
             try {
                 MoveResult result = facade.move(myRequest);
+                ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
+                if (currentTeam == ChessGame.TeamColor.BLACK) {
+                    return printBlackBoard(temp.getBoard());
+                } else {
+                    return printWhiteBoard(temp.getBoard());
+                }
                 //do WS stuff!!!!
                 //HOW TO REDRAW THE BOARD FOR EVERYONE!!!! (i'm assuming WS does that but I just hadn't though of that before
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.POSTLOGIN) {
             throw new Exception("You must be a player in a game to make a move.\n");
@@ -628,7 +637,7 @@ public class ChessClient {
                     return printWhiteBoard(temp.getBoard());
                 }
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.POSTLOGIN) {
             throw new Exception("You must be a player or an observer to redraw a board.\n");
@@ -653,7 +662,7 @@ public class ChessClient {
                     return printWhiteHighlighted(temp.getBoard(), mine, nicerPossible);
                 }
             } catch (Exception e) {
-                return e.getMessage();
+                return e.getMessage() + "\n";
             }
         } else if (currentState == ClientState.POSTLOGIN) {
             throw new Exception("You must be a player or an observer to redraw a board with piece moves highlighted.\n");
@@ -684,14 +693,14 @@ public class ChessClient {
                     """;
         } else if (currentState == ClientState.GAMEPLAY){
             return """
-                    Gameplay is still under construction, thank you for your patience.
-                    Here is what you can currently do:
+                    Here are your current options:
                     - to list all possible options: help
                     - to redraw the gameboard: redraw
                     - to leave the game: leave
                     - to make a chess move: move <starting position> <ending position> <promotion piece (if pawn) or n/a>
                     - to resign from a game: resign
                     - to highlight legal moves: highlight <piece position>
+                    - to quit the game: quitgame
                     """;
         }
         return "I'm not sure how you got here. Please contact the dev\n";
