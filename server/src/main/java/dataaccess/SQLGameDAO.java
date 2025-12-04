@@ -42,14 +42,20 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    public String move(int gameID, ChessMove move) throws DataAccessException {
+    public String move(int gameID, ChessMove move, String username) throws DataAccessException {
         String jsonGame = getJsonGame(gameID);
+        String team = getPlayerTeam(gameID, username);
         var serializer = new Gson();
         ChessGame currentGame = serializer.fromJson(jsonGame, ChessGame.class);
-        try {
-            currentGame.makeMove(move);
-        } catch (InvalidMoveException e) {
-            return e.getMessage();
+        if ((team.equals("white") && currentGame.getTeamTurn() == ChessGame.TeamColor.WHITE)
+                || (team.equals("black") && currentGame.getTeamTurn() == ChessGame.TeamColor.BLACK)) {
+            try {
+                currentGame.makeMove(move);
+            } catch (InvalidMoveException e) {
+                throw new DataAccessException(e.getMessage());
+            }
+        } else {
+            throw new DataAccessException("Error: Sorry, you must wait your turn to move. Try again :)");
         }
         String gameState = getGameState(gameID);
         if (gameState.equals("checkmate") || gameState.equals("stalemate")) {
@@ -109,6 +115,7 @@ public class SQLGameDAO implements GameDAO {
                 while (rs.next()) {
                     String whiteUser = rs.getString("white_user");
                     String blackUser = rs.getString("black_user");
+                    //see if they are both players???
                     if (whiteUser.equals(username)) {
                         return "white";
                     } else if (blackUser.equals(username)) {

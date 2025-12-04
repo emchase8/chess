@@ -178,7 +178,7 @@ public class GameService {
                     return new ErrorResult("Error: bad request");
                 }
                 String user = authSQL.getUser(request.authToken());
-                String updatedJsonGame = gameDAO.move(request.gameID(), request.move());
+                String updatedJsonGame = gameDAO.move(request.gameID(), request.move(), user);
                 String gameState = gameDAO.getGameState(request.gameID());
                 boolean inCheck = false;
                 boolean inCheckmate = false;

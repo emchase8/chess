@@ -605,6 +605,7 @@ public class ChessClient {
             ChessMove currentMove = new ChessMove(start, end, promote);
             MoveRequest myRequest = new MoveRequest(clientAuth, currentGame, currentMove);
             try {
+                //WHAT THE HECK IS HAPPENING WHEN I DEBUG WITH A BAD MOVE!!!!
                 MoveResult result = facade.move(myRequest);
                 ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
                 if (currentTeam == ChessGame.TeamColor.BLACK) {
