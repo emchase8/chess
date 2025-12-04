@@ -51,9 +51,27 @@ public class SQLGameDAO implements GameDAO {
         } catch (InvalidMoveException e) {
             return e.getMessage();
         }
+        String gameState = getGameState(gameID);
+        if (gameState.equals("checkmate") || gameState.equals("stalemate")) {
+            currentGame.setGameActive(false);
+        }
         String updatedJsonGame = serializer.toJson(currentGame);
         updateGame(gameID, updatedJsonGame);
         return updatedJsonGame;
+    }
+
+    public String getGameState(int gameID) throws DataAccessException {
+        String jsonGame = getJsonGame(gameID);
+        var serializer = new Gson();
+        ChessGame currentGame = serializer.fromJson(jsonGame, ChessGame.class);
+        if (currentGame.isInCheck(currentGame.getTeamTurn())) {
+            return "check";
+        } else if (currentGame.isInCheckmate(currentGame.getTeamTurn())) {
+            return "checkmate";
+        } else if (currentGame.isInStalemate(currentGame.getTeamTurn())) {
+            return "stalemate";
+        }
+        return "";
     }
 
     public String getJsonGame(int gameID) throws DataAccessException {

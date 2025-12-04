@@ -179,7 +179,39 @@ public class GameService {
                 }
                 String user = authSQL.getUser(request.authToken());
                 String updatedJsonGame = gameDAO.move(request.gameID(), request.move());
-                return new MoveResult(updatedJsonGame, user, request.gameID());
+                String gameState = gameDAO.getGameState(request.gameID());
+                boolean inCheck = false;
+                boolean inCheckmate = false;
+                boolean inStalemate = false;
+                if (gameState.equals("check")) {
+                    inCheck = true;
+                } else if (gameState.equals("checkmate")) {
+                    inCheckmate = true;
+                } else if (gameState.equals("stalemate")) {
+                    inStalemate = true;
+                }
+                return new MoveResult(updatedJsonGame, user, request.gameID(), inCheck, inCheckmate, inStalemate);
+            } catch (NotAuthException n) {
+                return new ErrorResult("Error: unauthorized");
+            } catch (Exception e) {
+                return new ErrorResult(e.getMessage());
+            }
+        } catch (DataAccessException e) {
+            return new ErrorResult(e.getMessage());
+        }
+    }
+
+    public MostBasicResult redraw(RedrawRequest request) {
+        try {
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameDAO = new SQLGameDAO();
+            try {
+                authSQL.checkAuth(request.authToken());
+                if (request.gameID() < 1) {
+                    return new ErrorResult("Error: bad request");
+                }
+                String jsonGame = gameDAO.getJsonGame(request.gameID());
+                return new RedrawResult(jsonGame);
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (Exception e) {

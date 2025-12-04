@@ -1,6 +1,7 @@
 package ui;
 
 import chess.*;
+import com.google.gson.Gson;
 import model.GameListData;
 import model.requests.*;
 import model.results.*;
@@ -26,6 +27,7 @@ public class ChessClient {
         put("G", 7);
         put("H", 8);
     }};
+    private ChessGame.TeamColor currentTeam;
 
     private String printBlackSquare(ChessPiece piece) {
         if (piece == null) {
@@ -338,6 +340,7 @@ public class ChessClient {
                 currentState = ClientState.GAMEPLAY;
                 currentGame = success.gameID();
                 isPlayer = true;
+                currentTeam = teamColor;
                 //write functionality in phase 6 to get the correct chess board
                 //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
                 //do WS stuff!!!!
@@ -401,9 +404,10 @@ public class ChessClient {
                 LeaveResult result = facade.leave(myRequest);
                 //do WS stuff!!!!
                 currentState = ClientState.POSTLOGIN;
-                String msg = String.format("You have now left game number %d. Hope to see you again soon.", currentGame);
+                String msg = String.format("You have now left game number %d. Hope to see you again soon.\n", currentGame);
                 currentGame = -1;
                 isPlayer = false;
+                currentTeam = null;
                 return msg;
             } catch (Exception e) {
                 return e.getMessage();
@@ -425,16 +429,16 @@ public class ChessClient {
                     ResignResult result = facade.resign(myRequest);
                     //do WS stuff!!!!
                     currentState = ClientState.POSTLOGIN;
-                    String msg = String.format("You have resigned from game number %d and this game is no longer active. Hope to see you again soon.", currentGame);
+                    String msg = String.format("You have resigned from game number %d and this game is no longer active. Hope to see you again soon.\n", currentGame);
                     currentGame = -1;
                     return msg;
                 } catch (Exception e) {
                     return e.getMessage();
                 }
             } else if (!isPlayer && doubleCheck) {
-                return "You must be a player to resign from the game.";
+                return "You must be a player to resign from the game.\n";
             } else {
-                return "This is why we double check! Go ahead and keep enjoying the game!";
+                return "This is why we double check! Go ahead and keep enjoying the game!\n";
             }
         } else if (currentState == ClientState.POSTLOGIN) {
             throw new Exception("You must be a player in a game to resign.\n");
@@ -465,16 +469,38 @@ public class ChessClient {
             try {
                 MoveResult result = facade.move(myRequest);
                 //do WS stuff!!!!
-                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!!
+                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!! (i'm assuming WS does that but I just hadn't though of that before
             } catch (Exception e) {
                 return e.getMessage();
             }
         } else if (currentState == ClientState.POSTLOGIN) {
-            throw new Exception("You must be a player in a game to make a move");
+            throw new Exception("You must be a player in a game to make a move.\n");
         } else if (currentState == ClientState.PRELOGIN) {
-            throw new Exception("You must be logged in and a player in a game to make a move");
+            throw new Exception("You must be logged in and a player in a game to make a move.\n");
         }
-        throw new Exception("Expected: move <starting position> <ending position> <promotion piece (if pawn) or n/a>");
+        throw new Exception("Expected: move <starting position> <ending position> <promotion piece (if pawn) or n/a>\n");
+    }
+
+    public String redrawBoard(String[] params) throws Exception {
+        if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
+            RedrawRequest myRequest = new RedrawRequest(clientAuth, currentGame);
+            try {
+                RedrawResult result = facade.redraw(myRequest);
+                ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
+                if (currentTeam == ChessGame.TeamColor.BLACK) {
+                    return printBlackBoard(temp.getBoard());
+                } else {
+                    return printWhiteBoard(temp.getBoard());
+                }
+            } catch (Exception e) {
+                return e.getMessage();
+            }
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("You must be a player or an observer to redraw a board.\n");
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in and either a player or an observer in order to redraw a board.\n");
+        }
+        throw new Exception("Expected: redraw\n");
     }
 
     public String help() {
@@ -495,7 +521,6 @@ public class ChessClient {
                     - to join a current game: join <game number> <WHITE or BLACK>
                     - to observe a current game: observe <game number>
                     - to list all possible options: help
-                    - to quit the program: quit
                     """;
         } else if (currentState == ClientState.GAMEPLAY){
             return """
@@ -507,7 +532,6 @@ public class ChessClient {
                     - to make a chess move: move <starting position> <ending position> <promotion piece (if pawn) or n/a>
                     - to resign from a game: resign
                     - to highlight legal moves: highlight <piece position>
-                    - to quit the program: quit
                     """;
         }
         return "I'm not sure how you got here. Please contact the dev\n";

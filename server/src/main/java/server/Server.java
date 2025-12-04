@@ -44,6 +44,7 @@ public class Server {
         javalin.put("/resigngame", context -> resignHandler(context));
         javalin.get("/observegame", context -> observeHandler(context));
         javalin.put("/makemove", context -> moveHandler(context));
+        javalin.get("/redraw", context -> redrawHandler(context));
         return javalin.port();
     }
 
@@ -267,6 +268,26 @@ public class Server {
         if (result.message().isEmpty()) {
             context.status(200);
         } else if (result.message().equals("Error: bad request") || result.message().equals("Error: Sorry, you can not make that move. Try again :)")) {
+            context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void redrawHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.header("authorization");
+        RedrawData redrawData = serializer.fromJson(context.body(), RedrawData.class);
+        RedrawRequest request = new RedrawRequest(currentAuth, redrawData.gameID());
+        GameService inst = new GameService();
+        MostBasicResult result = inst.redraw(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: bad request")) {
             context.status(400);
         } else if (result.message().equals("Error: unauthorized")) {
             context.status(401);

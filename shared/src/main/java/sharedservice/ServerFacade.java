@@ -92,6 +92,13 @@ public class ServerFacade {
         return handleRequest(response, MoveResult.class);
     }
 
+    public RedrawResult redraw(RedrawRequest redrawRequest) throws Exception {
+        boolean needAuth = true;
+        var request = buildRequest("GET", "/redraw", redrawRequest, needAuth);
+        var response = sendRequest(request);
+        return handleRequest(response, RedrawResult.class);
+    }
+
     private HttpRequest buildRequest(String method, String path, BasicRequest body, boolean needAuth) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
