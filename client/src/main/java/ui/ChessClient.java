@@ -1,15 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import model.GameListData;
 import model.requests.*;
 import model.results.*;
 import sharedservice.ServerFacade;
 
-import java.rmi.server.ExportException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -20,6 +16,16 @@ public class ChessClient {
     private String clientAuth;
     private int currentGame;
     private boolean isPlayer;
+    private final HashMap<String, Integer> colConverter = new HashMap<>() {{
+        put("A", 1);
+        put("B", 2);
+        put("C", 3);
+        put("D", 4);
+        put("E", 5);
+        put("F", 6);
+        put("G", 7);
+        put("H", 8);
+    }};
 
     private String printBlackSquare(ChessPiece piece) {
         if (piece == null) {
@@ -107,11 +113,9 @@ public class ChessClient {
 
     private ChessPosition strToPosition(String posRep) throws Exception {
         try {
-            char col = posRep.charAt(0);
-            char row = posRep.charAt(1);
-            HashMap<String, Integer> colCoverter = new HashMap<>() {{
-                put("A", )
-            }};
+            int col = colConverter.get(String.valueOf(posRep.charAt(0)));
+            int row = Character.getNumericValue(posRep.charAt(1));
+            return new ChessPosition(row, col);
         } catch (Exception e) {
             throw new Exception("Error: incorrectly formatted position, ex: A1 or F7");
         }
@@ -442,11 +446,29 @@ public class ChessClient {
 
     public String makeMove(String[] params) throws Exception {
         if (params.length == 3 && currentState == ClientState.GAMEPLAY) {
-            //translate string reps of positions into actual ChessPositions
-            //turn that into a ChessMove
-            //make MoveRequest object
-            //do server side
-            //do WS stuff!!!!
+            ChessPosition start = strToPosition(params[0]);
+            ChessPosition end = strToPosition(params[1]);
+            //this promote will only be access if the piece at the starting spot is a pawn
+            //the team doesn't matter because the ChessGame will take care of all those checks, IN THEORY!!!!
+            ChessPiece.PieceType promote = null;
+            if (params[2].toLowerCase().equals("queen")) {
+                promote = ChessPiece.PieceType.QUEEN;
+            } else if (params[2].toLowerCase().equals("knight")) {
+                promote = ChessPiece.PieceType.KNIGHT;
+            } else if (params[2].toLowerCase().equals("bishop")) {
+                promote = ChessPiece.PieceType.BISHOP;
+            } else if (params[2].toLowerCase().equals("rook")) {
+                promote = ChessPiece.PieceType.ROOK;
+            }
+            ChessMove currentMove = new ChessMove(start, end, promote);
+            MoveRequest myRequest = new MoveRequest(clientAuth, currentGame, currentMove);
+            try {
+                MoveResult result = facade.move(myRequest);
+                //do WS stuff!!!!
+                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!!
+            } catch (Exception e) {
+                return e.getMessage();
+            }
         } else if (currentState == ClientState.POSTLOGIN) {
             throw new Exception("You must be a player in a game to make a move");
         } else if (currentState == ClientState.PRELOGIN) {
