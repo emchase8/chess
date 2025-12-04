@@ -2,12 +2,9 @@ package websocket;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.SQLGameDAO;
 import io.javalin.websocket.*;
 import websocket.commands.ConnectCommand;
 import websocket.commands.*;
-import dataaccess.SQLAuthDAO;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
@@ -93,6 +90,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void makeMove(Session session, String username, MakeMoveCommand command) throws IOException {
         var msg = String.format("%s has made a move.\n", username);
         var notify = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        if (command.isInCheck()) {
+            msg += "The other team is now in check.\n";
+        } else if (command.isInCheckmate()) {
+            msg += String.format("The other team is in checkmate. %s wins!\n", username);
+        } else if (command.isInStalemate()) {
+            msg += "This game is now in stalemate and is over.\n";
+        }
         notify.setMessage(msg);
         notify.setGame(command.getGame());
         if (notify.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {

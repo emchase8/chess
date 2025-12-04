@@ -109,7 +109,7 @@ public class GameService {
                 String user = authSQL.getUser(request.authToken());
                 String team = gameDAO.getPlayerTeam(request.gameID(), user);
                 gameDAO.removePlayer(request.gameID(), team);
-                return new LeaveResult();
+                return new LeaveResult(user, request.gameID());
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
@@ -135,7 +135,8 @@ public class GameService {
                 game.setGameActive(false);
                 var newJsonGame = serializer.toJson(game);
                 gameSQL.updateGame(request.gameID(), newJsonGame);
-                return new ResignResult();
+                String user = authSQL.getUser(request.authToken());
+                return new ResignResult(user, request.gameID());
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {

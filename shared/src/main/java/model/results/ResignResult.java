@@ -4,7 +4,7 @@ import model.GameListData;
 
 import java.util.List;
 
-public record ResignResult() implements MostBasicResult {
+public record ResignResult(String username, int gameID) implements MostBasicResult {
     @Override
     public String message() {
         return "";

@@ -6,11 +6,15 @@ import model.GameListData;
 import model.requests.*;
 import model.results.*;
 import sharedservice.ServerFacade;
+import websocket.NotificationHandler;
+import websocket.WebsocketFacade;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 
-public class ChessClient {
+public class ChessClient implements NotificationHandler  {
     private final ServerFacade facade;
+    private final WebsocketFacade ws;
     private ClientState currentState = ClientState.PRELOGIN;
     private String clientAuth;
     private int currentGame;
@@ -271,8 +275,9 @@ public class ChessClient {
         }
     }
 
-    public ChessClient(String serverURL) {
+    public ChessClient(String serverURL) throws Exception {
         facade = new ServerFacade(serverURL);
+        ws = new WebsocketFacade(serverURL, this);
     }
 
     public void run() {
@@ -286,7 +291,7 @@ public class ChessClient {
             try {
                 result = eval(line);
                 System.out.print(result);
-                System.out.print(ui.EscapeSequences.RESET_TEXT_COLOR);
+                System.out.print(EscapeSequences.RESET_TEXT_COLOR);
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
             } catch (Throwable e) {
                 System.out.print(e.getMessage());
@@ -327,6 +332,16 @@ public class ChessClient {
             };
         } catch (Exception e) {
             return e.getMessage();
+        }
+    }
+
+    public void notify(ServerMessage notification) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_MAGENTA + notification.getMessage());
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+        if (notification.getGame() != null) {
+            ChessGame temp = new Gson().fromJson(notification.getGame(), ChessGame.class);
+            //HOW TO MAKE IT SO I KNOW WHICH BOARD TO PRINT!!!
+            System.out.print(printWhiteBoard(temp.getBoard()));
         }
     }
 
@@ -483,6 +498,7 @@ public class ChessClient {
                 //write functionality in phase 6 to get the correct chess board
                 //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
                 //do WS stuff!!!!
+                ws.connect(success.gameID(), success.username(), "join", teamColor);
                 ChessGame placeholder = new Gson().fromJson(success.jsonGame(), ChessGame.class);
                 if (teamColor == ChessGame.TeamColor.WHITE) {
                     return printWhiteBoard(placeholder.getBoard());
@@ -521,6 +537,7 @@ public class ChessClient {
                 //do WS stuff!!!!!
                 currentState = ClientState.GAMEPLAY;
                 isPlayer = false;
+                ws.connect(currentGame, result.username(), "observe", ChessGame.TeamColor.WHITE);
                 ChessGame placeholder = new Gson().fromJson(result.jsonGame(), ChessGame.class);
                 return printWhiteBoard(placeholder.getBoard());
             } catch (Exception e) {
@@ -540,6 +557,7 @@ public class ChessClient {
             try {
                 LeaveResult result = facade.leave(myRequest);
                 //do WS stuff!!!!
+                ws.leave(result.gameID(), result.username());
                 currentState = ClientState.POSTLOGIN;
                 String msg = String.format("You have now left game number %d. Hope to see you again soon.\n", currentGame);
                 currentGame = -1;
@@ -565,6 +583,7 @@ public class ChessClient {
                 try {
                     ResignResult result = facade.resign(myRequest);
                     //do WS stuff!!!!
+                    ws.resign(result.gameID(), result.username());
                     isPlayer = false;
                     String msg = String.format("You have resigned from game number %d and this game is no longer active. Hope to see you again soon.\n", currentGame);
                     currentGame = -1;

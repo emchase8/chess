@@ -11,8 +11,8 @@ public class MakeMoveCommand extends UserGameCommand {
     private final boolean inStalemate;
     private final String game;
 
-    public MakeMoveCommand(CommandType commandType, String authToken, Integer gameID, String user, String game, ChessMove move, boolean inCheck, boolean inCheckmate, boolean inStalemate, ChessGame.TeamColor joinedAs) {
-        super(commandType, authToken, gameID, user);
+    public MakeMoveCommand(CommandType commandType, Integer gameID, String user, String game, ChessMove move, boolean inCheck, boolean inCheckmate, boolean inStalemate, ChessGame.TeamColor joinedAs) {
+        super(commandType, gameID, user);
         this.move = move;
         this.inCheck = inCheck;
         this.inCheckmate = inCheckmate;
