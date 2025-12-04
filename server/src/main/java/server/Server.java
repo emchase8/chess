@@ -43,6 +43,7 @@ public class Server {
         javalin.put("/leavegame", context -> leaveHandler(context));
         javalin.put("/resigngame", context -> resignHandler(context));
         javalin.get("/observegame", context -> observeHandler(context));
+        javalin.put("/makemove", context -> moveHandler(context));
         return javalin.port();
     }
 
@@ -246,6 +247,26 @@ public class Server {
         if (result.message().isEmpty()) {
             context.status(200);
         } else if (result.message().equals("Error: bad request")) {
+            context.status(400);
+        } else if (result.message().equals("Error: unauthorized")) {
+            context.status(401);
+        } else {
+            context.status(500);
+        }
+        context.json(json);
+    }
+
+    private void moveHandler(Context context) {
+        var serializer = new Gson();
+        String currentAuth = context.header("authorization");
+        MoveData moveData = serializer.fromJson(context.body(), MoveData.class);
+        MoveRequest request = new MoveRequest(currentAuth, moveData.gameID(), moveData.move());
+        GameService inst = new GameService();
+        MostBasicResult result = inst.move(request);
+        var json = serializer.toJson(result);
+        if (result.message().isEmpty()) {
+            context.status(200);
+        } else if (result.message().equals("Error: bad request") || result.message().equals("Error: Sorry, you can not make that move. Try again :)")) {
             context.status(400);
         } else if (result.message().equals("Error: unauthorized")) {
             context.status(401);

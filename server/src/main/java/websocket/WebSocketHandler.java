@@ -121,6 +121,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             //IF THE DAOs ARE NOT ACCESSED IN HERE, WHEN WOULD I HAVE AN ERROR SERVER MESSAGE TYPE
             connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
         } else {
+            connections.remove(command.getGameID(), session);
             connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
         }
     }
@@ -148,6 +149,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             //IF THE DAOs ARE NOT ACCESSED IN HERE, WHEN WOULD I HAVE AN ERROR SERVER MESSAGE TYPE
             connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
         } else {
+            connections.remove(command.getGameID(), session);
             connections.broadcastIncludingCurrentUser(command.getGameID(), notify);
         }
     }

@@ -169,10 +169,10 @@ public class ChessGame {
                     setTeamTurn(TeamColor.WHITE);
                 }
             } else {
-                throw new InvalidMoveException("Sorry, you can not make that move. Try again :)");
+                throw new InvalidMoveException("Error: Sorry, you can not make that move. Try again :)");
             }
         } else {
-            throw new InvalidMoveException("Sorry, you can not make that move. Try again :)");
+            throw new InvalidMoveException("Error: Sorry, you can not make that move. Try again :)");
         }
     }
 

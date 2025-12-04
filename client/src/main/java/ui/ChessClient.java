@@ -9,7 +9,9 @@ import model.requests.*;
 import model.results.*;
 import sharedservice.ServerFacade;
 
+import java.rmi.server.ExportException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class ChessClient {
@@ -101,6 +103,18 @@ public class ChessClient {
         }
         whiteBoardStr += "   " + EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR + "\n";
         return whiteBoardStr;
+    }
+
+    private ChessPosition strToPosition(String posRep) throws Exception {
+        try {
+            char col = posRep.charAt(0);
+            char row = posRep.charAt(1);
+            HashMap<String, Integer> colCoverter = new HashMap<>() {{
+                put("A", )
+            }};
+        } catch (Exception e) {
+            throw new Exception("Error: incorrectly formatted position, ex: A1 or F7");
+        }
     }
 
     private boolean wantToResign() {
@@ -322,6 +336,7 @@ public class ChessClient {
                 isPlayer = true;
                 //write functionality in phase 6 to get the correct chess board
                 //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
+                //do WS stuff!!!!
                 ChessBoard placeholder = new ChessBoard();
                 placeholder.resetBoard();
                 if (teamColor == ChessGame.TeamColor.WHITE) {
@@ -358,6 +373,7 @@ public class ChessClient {
                 ObserveResult result = facade.observe(myRequest2);
                 currentGame = result.gameID();
                 //result has all the stuff needed for the ws to work
+                //do WS stuff!!!!!
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -379,11 +395,12 @@ public class ChessClient {
             LeaveRequest myRequest = new LeaveRequest(clientAuth, currentGame);
             try {
                 LeaveResult result = facade.leave(myRequest);
-                //do WS stuff
+                //do WS stuff!!!!
                 currentState = ClientState.POSTLOGIN;
+                String msg = String.format("You have now left game number %d. Hope to see you again soon.", currentGame);
                 currentGame = -1;
                 isPlayer = false;
-                return String.format("You have now left game number %d. Hope to see you again soon.", currentGame);
+                return msg;
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -396,16 +413,24 @@ public class ChessClient {
     }
 
     public String resignGame(String[] params) throws Exception {
-        //have to prompt the user to make sure they want to resign the game
-        boolean doubleCheck = false;
         if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
-            doubleCheck = wantToResign();
-            if (doubleCheck) {
-                //check if client is player
+            boolean doubleCheck = wantToResign();
+            if (doubleCheck && isPlayer) {
                 ResignRequest myRequest = new ResignRequest(clientAuth, currentGame);
-                //finish writing later
+                try {
+                    ResignResult result = facade.resign(myRequest);
+                    //do WS stuff!!!!
+                    currentState = ClientState.POSTLOGIN;
+                    String msg = String.format("You have resigned from game number %d and this game is no longer active. Hope to see you again soon.", currentGame);
+                    currentGame = -1;
+                    return msg;
+                } catch (Exception e) {
+                    return e.getMessage();
+                }
+            } else if (!isPlayer && doubleCheck) {
+                return "You must be a player to resign from the game.";
             } else {
-                return "This is why we double check! Go ahead and keep playing!";
+                return "This is why we double check! Go ahead and keep enjoying the game!";
             }
         } else if (currentState == ClientState.POSTLOGIN) {
             throw new Exception("You must be a player in a game to resign.\n");
@@ -413,6 +438,21 @@ public class ChessClient {
             throw new Exception("You must be logged in and a player in a game in order to resign.\n");
         }
         throw new Exception("Expected: resign\n");
+    }
+
+    public String makeMove(String[] params) throws Exception {
+        if (params.length == 3 && currentState == ClientState.GAMEPLAY) {
+            //translate string reps of positions into actual ChessPositions
+            //turn that into a ChessMove
+            //make MoveRequest object
+            //do server side
+            //do WS stuff!!!!
+        } else if (currentState == ClientState.POSTLOGIN) {
+            throw new Exception("You must be a player in a game to make a move");
+        } else if (currentState == ClientState.PRELOGIN) {
+            throw new Exception("You must be logged in and a player in a game to make a move");
+        }
+        throw new Exception("Expected: move <starting position> <ending position> <promotion piece (if pawn) or n/a>");
     }
 
     public String help() {
@@ -442,7 +482,7 @@ public class ChessClient {
                     - to list all possible options: help
                     - to redraw the gameboard: redraw
                     - to leave the game: leave
-                    - to make a chess move: move <starting position> <ending position>
+                    - to make a chess move: move <starting position> <ending position> <promotion piece (if pawn) or n/a>
                     - to resign from a game: resign
                     - to highlight legal moves: highlight <piece position>
                     - to quit the program: quit

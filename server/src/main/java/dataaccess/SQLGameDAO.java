@@ -1,6 +1,8 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.GameListData;
 
@@ -38,6 +40,20 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException("Error: unable to setup database");
         }
+    }
+
+    public String move(int gameID, ChessMove move) throws DataAccessException {
+        String jsonGame = getJsonGame(gameID);
+        var serializer = new Gson();
+        ChessGame currentGame = serializer.fromJson(jsonGame, ChessGame.class);
+        try {
+            currentGame.makeMove(move);
+        } catch (InvalidMoveException e) {
+            return e.getMessage();
+        }
+        String updatedJsonGame = serializer.toJson(currentGame);
+        updateGame(gameID, updatedJsonGame);
+        return updatedJsonGame;
     }
 
     public String getJsonGame(int gameID) throws DataAccessException {

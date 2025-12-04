@@ -85,6 +85,13 @@ public class ServerFacade {
         return handleRequest(response, ResignResult.class);
     }
 
+    public MoveResult move(MoveRequest moveRequest) throws Exception {
+        boolean needAuth = true;
+        var request = buildRequest("PUT", "/makemove", moveRequest, needAuth);
+        var response = sendRequest(request);
+        return handleRequest(response, MoveResult.class);
+    }
+
     private HttpRequest buildRequest(String method, String path, BasicRequest body, boolean needAuth) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
