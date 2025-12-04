@@ -12,6 +12,7 @@ public class ServerMessage {
     ServerMessageType serverMessageType;
     String message;
     String game = null;
+    String errorMessage;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -36,6 +37,12 @@ public class ServerMessage {
     public String getGame() {return game;}
 
     public void setGame(String jsonGame) {this.game = jsonGame;}
+
+    public String getErrorMessage() {return this.errorMessage;}
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 
     @Override
     public boolean equals(Object o) {

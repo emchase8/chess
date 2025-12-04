@@ -121,7 +121,7 @@ public class SQLGameDAO implements GameDAO {
                     } else if (blackUser.equals(username)) {
                         return "black";
                     } else {
-                        throw new DataAccessException("Error: user not in the provided game");
+                        return "observer";
                     }
                 }
             }

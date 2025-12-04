@@ -39,9 +39,9 @@ public class WebsocketFacade extends Endpoint {
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
-    public void connect(Integer gameID, String user, String connectType, ChessGame.TeamColor joinedAs) throws Exception {
+    public void connect(Integer gameID, String authToken) throws Exception {
         try {
-            var connectCommand = new ConnectCommand(UserGameCommand.CommandType.CONNECT, gameID, user, connectType, joinedAs);
+            var connectCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, gameID, authToken);
             this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
         } catch (IOException e) {
             throw new Exception(e.getMessage());
@@ -66,9 +66,9 @@ public class WebsocketFacade extends Endpoint {
         }
     }
 
-    public void move(Integer gameID, String user, String game, ChessMove move, boolean inCheck, boolean inCheckmate, boolean inStalemate, ChessGame.TeamColor joinedAs) throws Exception {
+    public void move(Integer gameID, String authToken, ChessMove move) throws Exception {
         try {
-            var command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, gameID, user, game, move, inCheck, inCheckmate, inStalemate, joinedAs);
+            var command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, gameID, authToken, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException e) {
             throw new Exception(e.getMessage());

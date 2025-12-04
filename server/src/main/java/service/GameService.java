@@ -2,6 +2,7 @@ package service;
 
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.GameListData;
@@ -147,6 +148,40 @@ public class GameService {
         }
     }
 
+    public ConnectResult connectGame(int gameID, String authToken) {
+        try {
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameSQL = new SQLGameDAO();
+            try {
+                authSQL.checkAuth(authToken);
+                if (gameID < 1) {
+                    return new ConnectResult("Error: bad request", null, null, null, null);
+                }
+                String user = authSQL.getUser(authToken);
+                String jsonGame = gameSQL.getJsonGame(gameID);
+                String team = gameSQL.getPlayerTeam(gameID, user);
+                ChessGame.TeamColor officialTeam = null;
+                String connectType = "";
+                if (team.equals("black")) {
+                    officialTeam = ChessGame.TeamColor.BLACK;
+                    connectType = "join";
+                } else if (team.equals("white")) {
+                    officialTeam = ChessGame.TeamColor.WHITE;
+                    connectType = "join";
+                } else {
+                    connectType = "observe";
+                }
+                return new ConnectResult("", jsonGame, user, connectType, officialTeam);
+            } catch (NotAuthException n) {
+                return new ConnectResult("Error: unauthorized", null, null, null, null);
+            } catch (DataAccessException e) {
+                return new ConnectResult(e.getMessage(), null, null, null, null);
+            }
+        } catch (DataAccessException e) {
+            return new ConnectResult(e.getMessage(), null, null, null, null);
+        }
+    }
+
     public MostBasicResult observeGame(ObserveRequest request) {
         try {
             SQLAuthDAO authSQL = new SQLAuthDAO();
@@ -199,6 +234,46 @@ public class GameService {
             }
         } catch (DataAccessException e) {
             return new ErrorResult(e.getMessage());
+        }
+    }
+
+    public ExtraMoveResult extraMoveResult(String authToken, int gameID, ChessMove move) {
+        try {
+            SQLAuthDAO authSQL = new SQLAuthDAO();
+            SQLGameDAO gameDAO = new SQLGameDAO();
+            try {
+                authSQL.checkAuth(authToken);
+                if (gameID < 1) {
+                    return new ExtraMoveResult("Error: bad request", null, null, false, false, false, null);
+                }
+                String user = authSQL.getUser(authToken);
+                String jsonGame = gameDAO.getJsonGame(gameID);
+                String gameState = gameDAO.getGameState(gameID);
+                boolean inCheck = false;
+                boolean inCheckmate = false;
+                boolean inStalemate = false;
+                if (gameState.equals("check")) {
+                    inCheck = true;
+                } else if (gameState.equals("checkmate")) {
+                    inCheckmate = true;
+                } else if (gameState.equals("stalemate")) {
+                    inStalemate = true;
+                }
+                String team = gameDAO.getPlayerTeam(gameID, user);
+                ChessGame.TeamColor officialTeam = null;
+                if (team.equals("black")) {
+                    officialTeam = ChessGame.TeamColor.BLACK;
+                } else {
+                    officialTeam = ChessGame.TeamColor.WHITE;
+                }
+                return new ExtraMoveResult("", user, jsonGame, inCheck, inCheckmate, inStalemate, officialTeam);
+            } catch (NotAuthException n) {
+                return new ExtraMoveResult("Error: unauthorized", null, null, false, false, false, null);
+            } catch (Exception e) {
+                return new ExtraMoveResult(e.getMessage(), null, null, false, false, false, null);
+            }
+        } catch (DataAccessException e) {
+            return new ExtraMoveResult(e.getMessage(), null, null, false, false, false, null);
         }
     }
 

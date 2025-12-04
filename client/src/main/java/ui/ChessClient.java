@@ -340,8 +340,11 @@ public class ChessClient implements NotificationHandler  {
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
         if (notification.getGame() != null) {
             ChessGame temp = new Gson().fromJson(notification.getGame(), ChessGame.class);
-            //HOW TO MAKE IT SO I KNOW WHICH BOARD TO PRINT!!!
-            System.out.print(printWhiteBoard(temp.getBoard()));
+            if (currentTeam == ChessGame.TeamColor.WHITE) {
+                System.out.print(printWhiteBoard(temp.getBoard()));
+            } else {
+                System.out.print(printBlackBoard(temp.getBoard()));
+            }
         }
     }
 
@@ -498,13 +501,13 @@ public class ChessClient implements NotificationHandler  {
                 //write functionality in phase 6 to get the correct chess board
                 //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
                 //do WS stuff!!!!
-                ws.connect(success.gameID(), success.username(), "join", teamColor);
-                ChessGame placeholder = new Gson().fromJson(success.jsonGame(), ChessGame.class);
-                if (teamColor == ChessGame.TeamColor.WHITE) {
-                    return printWhiteBoard(placeholder.getBoard());
-                } else {
-                    return printBlackBoard(placeholder.getBoard());
-                }
+                ws.connect(success.gameID(), clientAuth);
+//                ChessGame placeholder = new Gson().fromJson(success.jsonGame(), ChessGame.class);
+//                if (teamColor == ChessGame.TeamColor.WHITE) {
+//                    return printWhiteBoard(placeholder.getBoard());
+//                } else {
+//                    return printBlackBoard(placeholder.getBoard());
+//                }
             } catch (Exception e) {
                 return e.getMessage() + "\n";
             }
@@ -537,9 +540,10 @@ public class ChessClient implements NotificationHandler  {
                 //do WS stuff!!!!!
                 currentState = ClientState.GAMEPLAY;
                 isPlayer = false;
-                ws.connect(currentGame, result.username(), "observe", ChessGame.TeamColor.WHITE);
-                ChessGame placeholder = new Gson().fromJson(result.jsonGame(), ChessGame.class);
-                return printWhiteBoard(placeholder.getBoard());
+                //set team to white for WS stuff
+                ws.connect(currentGame, clientAuth);
+//                ChessGame placeholder = new Gson().fromJson(result.jsonGame(), ChessGame.class);
+//                return printWhiteBoard(placeholder.getBoard());
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -624,6 +628,7 @@ public class ChessClient implements NotificationHandler  {
             MoveRequest myRequest = new MoveRequest(clientAuth, currentGame, currentMove);
             try {
                 MoveResult result = facade.move(myRequest);
+                ws.move(currentGame, clientAuth, currentMove);
                 //FIGURE OUT THE CHECK/CHECKMATE/STALEMATE FUNCTIONALITY!!!
                 ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
                 if (currentTeam == ChessGame.TeamColor.BLACK) {
