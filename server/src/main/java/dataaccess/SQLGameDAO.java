@@ -70,10 +70,10 @@ public class SQLGameDAO implements GameDAO {
         String jsonGame = getJsonGame(gameID);
         var serializer = new Gson();
         ChessGame currentGame = serializer.fromJson(jsonGame, ChessGame.class);
-        if (currentGame.isInCheck(currentGame.getTeamTurn())) {
-            return "check";
-        } else if (currentGame.isInCheckmate(currentGame.getTeamTurn())) {
+        if (currentGame.isInCheckmate(currentGame.getTeamTurn())) {
             return "checkmate";
+        } else if (currentGame.isInCheck(currentGame.getTeamTurn())) {
+            return "check";
         } else if (currentGame.isInStalemate(currentGame.getTeamTurn())) {
             return "stalemate";
         }
@@ -129,6 +129,40 @@ public class SQLGameDAO implements GameDAO {
             throw new DataAccessException("Error: database error");
         }
         throw new DataAccessException("Error: user not in the provided game");
+    }
+
+    public String getOtherPlayer(int gameID, String currentUser) throws DataAccessException {
+        String currentTeam = getPlayerTeam(gameID, currentUser);
+        if (currentTeam.equals("white")) {
+            var conn = DatabaseManager.getConnection();
+            try (var preparedStatement = conn.prepareStatement("SELECT game_id, black_user FROM real_games WHERE game_id=?")) {
+                preparedStatement.setInt(1, gameID);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        String blackUser = rs.getString("black_user");
+                        return blackUser;
+                    }
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException("Error: database error");
+            }
+        } else if (currentTeam.equals("black")) {
+            var conn = DatabaseManager.getConnection();
+            try (var preparedStatement = conn.prepareStatement("SELECT game_id, white_user FROM real_games WHERE game_id=?")) {
+                preparedStatement.setInt(1, gameID);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        String whiteUser = rs.getString("white_user");
+                        return whiteUser;
+                    }
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException("Error: database error");
+            }
+        } else {
+            return "Error: i'm not sure how you got here";
+        }
+        return "Error: i'm not sure how you got here";
     }
 
     public void removePlayer(int gameID, String team) throws DataAccessException {

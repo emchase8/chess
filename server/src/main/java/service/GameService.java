@@ -232,9 +232,11 @@ public class GameService {
                 boolean inStalemate = false;
                 if (gameState.equals("check")) {
                     inCheck = true;
-                } else if (gameState.equals("checkmate")) {
+                }
+                if (gameState.equals("checkmate")) {
                     inCheckmate = true;
-                } else if (gameState.equals("stalemate")) {
+                }
+                if (gameState.equals("stalemate")) {
                     inStalemate = true;
                 }
                 return new MoveResult("", updatedJsonGame, user, request.gameID(), inCheck, inCheckmate, inStalemate);
@@ -246,6 +248,15 @@ public class GameService {
             }
         } catch (DataAccessException e) {
             return new MoveResult("Error: " + e.getMessage(), null, null, 0, false, false, false);
+        }
+    }
+
+    public String getOtherPlayer(int gameID, String currentUser) {
+        try {
+            SQLGameDAO gameSQL = new SQLGameDAO();
+            return gameSQL.getOtherPlayer(gameID, currentUser);
+        } catch (DataAccessException e) {
+            return "Error: database error";
         }
     }
 

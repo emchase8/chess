@@ -147,6 +147,9 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> valid = validMoves(move.getStartPosition());
+        if (!isGameActive()) {
+            throw new InvalidMoveException("Error: this game has been declared over so you cannot move :)");
+        }
         if (valid != null && valid.contains(move) && isGameActive()) {
             ChessPiece piece = myBoard.getPiece(move.getStartPosition());
             ChessGame.TeamColor team = piece.getTeamColor();

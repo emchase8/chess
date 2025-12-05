@@ -1,6 +1,7 @@
 package websocket;
 
 import chess.ChessGame;
+import chess.ChessPiece;
 import com.google.gson.Gson;
 import dataaccess.NotAuthException;
 import io.javalin.websocket.*;
@@ -116,21 +117,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String username = "";
         try {
             username = getUsername(command.getAuthToken());
-            var msg = String.format("%s has made a move.\n", username);
+            //describe move
             var notify = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             GameService inst = new GameService();
             MoveResult result = inst.move(new MoveRequest(command.getAuthToken(), command.getGameID(), command.getMove()));
+            ChessGame game = new Gson().fromJson(result.jsonGame(), ChessGame.class);
+            ChessPiece myPiece = game.getBoard().getPiece(command.getMove().getEndPosition());
+            String otherPlayer = inst.getOtherPlayer(command.getGameID(), username);
+            var msg = String.format("%s has move a %s.\n", username, myPiece.getPieceType().toString());
             if (!result.message().isEmpty()) {
                 notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
                 notify.setErrorMessage(result.message());
                 connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
             } else {
+                //username of person in check, checkmate not working???
+                String msg2 = "";
                 if (result.inCheck()) {
-                    msg += "The other team is now in check.\n";
-                } else if (result.inCheckmate()) {
-                    msg += String.format("The other team is in checkmate. %s wins!\n", username);
-                } else if (result.inStalemate()) {
-                    msg += "This game is now in stalemate and is over.\n";
+                    msg2 = String.format("%s is now in check.\n", otherPlayer);
+                }
+                if (result.inCheckmate()) {
+                    msg2 = String.format("%s is in checkmate. %s wins!\n", otherPlayer, username);
+                }
+                if (result.inStalemate()) {
+                    msg2 = "This game is now in stalemate and is over.\n";
                 }
                 notify.setGame(result.jsonGame());
                 //set to notify and then back
@@ -138,7 +147,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
                 notify.setGame(null);
                 notify.setMessage(msg);
-                connections.broadcastGameExculdeCurrent(command.getGameID(), session, notify);
+                connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
+                if (result.inCheck() || result.inCheckmate() || result.inStalemate()) {
+                    notify.setMessage(msg2);
+                    connections.broadcastIncludingCurrentUser(command.getGameID(), notify);
+                }
             }
         } catch (NotAuthException n) {
             try {

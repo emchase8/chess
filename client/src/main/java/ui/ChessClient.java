@@ -420,10 +420,19 @@ public class ChessClient implements NotificationHandler  {
                 ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
                 Collection<ChessMove> possible = temp.validMoves(mine);
                 List<ChessPosition> nicerPossible = makeNice(possible);
-                if (currentTeam == ChessGame.TeamColor.BLACK) {
-                    return FancyPrinting.printBlackHighlighted(temp.getBoard(), mine, nicerPossible);
+                //make it so it just prints a normal board
+                if (nicerPossible.size() == 0) {
+                    if (currentTeam == ChessGame.TeamColor.BLACK) {
+                        return "There are no possible moves for that position. \n" + FancyPrinting.printBlackBoard(temp.getBoard());
+                    } else {
+                        return "There are no possible moves for that position. \n" + FancyPrinting.printWhiteBoard(temp.getBoard());
+                    }
                 } else {
-                    return FancyPrinting.printWhiteHighlighted(temp.getBoard(), mine, nicerPossible);
+                    if (currentTeam == ChessGame.TeamColor.BLACK) {
+                        return FancyPrinting.printBlackHighlighted(temp.getBoard(), mine, nicerPossible);
+                    } else {
+                        return FancyPrinting.printWhiteHighlighted(temp.getBoard(), mine, nicerPossible);
+                    }
                 }
             } catch (Exception e) {
                 return e.getMessage() + "\n";
