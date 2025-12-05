@@ -21,7 +21,7 @@ public class ChessClient implements NotificationHandler  {
         put("a", 1); put("b", 2); put("c", 3); put("d", 4); put("e", 5); put("f", 6);put("g", 7); put("h", 8);
     }};
     private ChessGame.TeamColor currentTeam;
-
+    //MAYBE COMBINE ALL THE PRINT SQUARES INTO ONE MEGA FUNCTION (WITH COLOR OF SQUARE PASSED IN)
     private String printBlackSquare(ChessPiece piece) {
         if (piece == null) {
             return EscapeSequences.SET_BG_COLOR_BLACK + "   ";
@@ -257,7 +257,7 @@ public class ChessClient implements NotificationHandler  {
         System.out.println("Are you sure you want to resign from your game? This action will end the game for all players.");
         System.out.println("Respond with yes or no.");
         Scanner scanner = new Scanner(System.in);
-        System.out.print(">>> ");
+        System.out.print(">>> \n");
         String response = scanner.nextLine();
         if (response.toLowerCase().equals("yes")) {
             return true;
@@ -277,13 +277,15 @@ public class ChessClient implements NotificationHandler  {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Thanks for coming, hope to see you again soon :)\n")) {
-            System.out.print(">>> ");
+            System.out.print(">>> \n");
             String line = scanner.nextLine();
             try {
                 result = eval(line);
-                System.out.print(result);
-                System.out.print(EscapeSequences.RESET_TEXT_COLOR);
-                System.out.print(EscapeSequences.RESET_BG_COLOR);
+                if (!result.isEmpty()) {
+                    System.out.print(result);
+                    System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+                    System.out.print(EscapeSequences.RESET_BG_COLOR);
+                }
             } catch (Throwable e) {
                 System.out.print(e.getMessage());
             }
@@ -311,7 +313,6 @@ public class ChessClient implements NotificationHandler  {
                 case "list" -> listGames(neededParams);
                 case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
-                //case "quitgame" -> quitGame(neededParams);
                 case "redraw" -> redrawBoard(neededParams);
                 case "leave" -> leaveGame(neededParams);
                 case "move" -> makeMove(neededParams);
@@ -325,14 +326,22 @@ public class ChessClient implements NotificationHandler  {
     }
 
     public void notify(ServerMessage notification) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_MAGENTA + notification.getMessage());
-        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+        if (notification.getMessage() != null) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_MAGENTA + notification.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.print(">>> \n");
+        }
+        if (notification.getErrorMessage() != null) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_MAGENTA + notification.getErrorMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.print(">>> \n");
+        }
         if (notification.getGame() != null) {
             ChessGame temp = new Gson().fromJson(notification.getGame(), ChessGame.class);
             if (currentTeam == ChessGame.TeamColor.WHITE) {
                 System.out.print(printWhiteBoard(temp.getBoard()));
+                System.out.print(">>> \n");
             } else {
                 System.out.print(printBlackBoard(temp.getBoard()));
+                System.out.print(">>> \n");
             }
         }
     }
@@ -449,21 +458,6 @@ public class ChessClient implements NotificationHandler  {
         throw new Exception("Expected: list\n");
     }
 
-//    public String quitGame(String[] params) throws Exception {
-//        if (currentState == ClientState.GAMEPLAY && params.length == 0 && !isPlayer) {
-//            //make so you can only quit as an observer!!!!
-//            currentState = ClientState.POSTLOGIN;
-//            return "Thank you for visiting game play. See you again soon :)\n";
-//        } else if (isPlayer) {
-//            throw new Exception("You must use the leave or resign command as a player.\n");
-//        } else if (currentState == ClientState.POSTLOGIN) {
-//            throw new Exception("You must be in game play in order to exit game play.\n");
-//        } else if (currentState == ClientState.PRELOGIN) {
-//            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
-//        }
-//        throw new Exception("Expected: quitGame\n");
-//    }
-
     public String join(String[] params) throws Exception {
         if (params.length == 2 && currentState == ClientState.POSTLOGIN) {
             ChessGame.TeamColor teamColor = ChessGame.TeamColor.BLACK;
@@ -488,12 +482,7 @@ public class ChessClient implements NotificationHandler  {
                 isPlayer = true;
                 currentTeam = teamColor;
                 ws.connect(success.gameID(), clientAuth);
-//                ChessGame placeholder = new Gson().fromJson(success.jsonGame(), ChessGame.class);
-//                if (teamColor == ChessGame.TeamColor.WHITE) {
-//                    return printWhiteBoard(placeholder.getBoard());
-//                } else {
-//                    return printBlackBoard(placeholder.getBoard());
-//                }
+                return "";
             } catch (Exception e) {
                 return e.getMessage() + "\n";
             }
@@ -517,17 +506,13 @@ public class ChessClient implements NotificationHandler  {
             } catch (Exception e) {
                 return e.getMessage() + "\n";
             }
-//            ObserveRequest myRequest2 = new ObserveRequest(clientAuth, publicGameNum);
             try {
-//                ObserveResult result = facade.observe(myRequest2);
-//                currentGame = result.gameID();
                 currentGame = publicGameNum;
                 currentState = ClientState.GAMEPLAY;
                 isPlayer = false;
                 currentTeam = ChessGame.TeamColor.WHITE;
                 ws.connect(currentGame, clientAuth);
-//                ChessGame placeholder = new Gson().fromJson(result.jsonGame(), ChessGame.class);
-//                return printWhiteBoard(placeholder.getBoard());
+                return "";
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -541,10 +526,7 @@ public class ChessClient implements NotificationHandler  {
 
     public String leaveGame(String[] params) throws Exception {
         if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
-            //LeaveRequest myRequest = new LeaveRequest(clientAuth, currentGame);
             try {
-                // LeaveResult result = facade.leave(myRequest);
-                //do WS stuff!!!!
                 ws.leave(currentGame, clientAuth);
                 currentState = ClientState.POSTLOGIN;
                 String msg = String.format("You have now left game number %d. Hope to see you again soon.\n", currentGame);
@@ -563,19 +545,18 @@ public class ChessClient implements NotificationHandler  {
         throw new Exception("Expected: leave\n");
     }
 
+
+    //FIGURE OUT RESIGN MOVEMENT STUFF!!!!
     public String resignGame(String[] params) throws Exception {
         if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
             boolean doubleCheck = wantToResign();
             if (doubleCheck && isPlayer) {
-                //ResignRequest myRequest = new ResignRequest(clientAuth, currentGame);
                 try {
-                    //ResignResult result = facade.resign(myRequest);
-                    //do WS stuff!!!!
                     ws.resign(currentGame, clientAuth);
                     isPlayer = false;
                     String msg = String.format("You have resigned from game number %d and this game is no longer active. " +
                             "Hope to see you again soon.\n", currentGame);
-                    currentGame = -1;
+                    //currentGame = -1;
                     return msg;
                 } catch (Exception e) {
                     return e.getMessage() + "\n";
@@ -608,20 +589,9 @@ public class ChessClient implements NotificationHandler  {
                 promote = ChessPiece.PieceType.ROOK;
             }
             ChessMove currentMove = new ChessMove(start, end, promote);
-            MoveRequest myRequest = new MoveRequest(clientAuth, currentGame, currentMove);
             try {
-                MoveResult result = facade.move(myRequest);
                 ws.move(currentGame, clientAuth, currentMove);
-                //FIGURE OUT THE CHECK/CHECKMATE/STALEMATE FUNCTIONALITY!!!
-//                ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
-//                if (currentTeam == ChessGame.TeamColor.BLACK) {
-//                    return printBlackBoard(temp.getBoard());
-//                } else {
-//                    return printWhiteBoard(temp.getBoard());
-//                }
-                //do WS stuff!!!!
-                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!! (I'm assuming WS does that, but I just hadn't though of that before)
-                //the real question is how to draw different boards based off of player color
+                return "";
             } catch (Exception e) {
                 return e.getMessage() + "\n";
             }
