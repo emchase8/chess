@@ -554,9 +554,9 @@ public class ChessClient implements NotificationHandler  {
         if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
             LeaveRequest myRequest = new LeaveRequest(clientAuth, currentGame);
             try {
-                LeaveResult result = facade.leave(myRequest);
+                // LeaveResult result = facade.leave(myRequest);
                 //do WS stuff!!!!
-                ws.leave(result.gameID(), result.username());
+                ws.leave(currentGame, clientAuth);
                 currentState = ClientState.POSTLOGIN;
                 String msg = String.format("You have now left game number %d. Hope to see you again soon.\n", currentGame);
                 currentGame = -1;
@@ -580,9 +580,9 @@ public class ChessClient implements NotificationHandler  {
             if (doubleCheck && isPlayer) {
                 ResignRequest myRequest = new ResignRequest(clientAuth, currentGame);
                 try {
-                    ResignResult result = facade.resign(myRequest);
+                    //ResignResult result = facade.resign(myRequest);
                     //do WS stuff!!!!
-                    ws.resign(result.gameID(), result.username());
+                    ws.resign(currentGame, clientAuth);
                     isPlayer = false;
                     String msg = String.format("You have resigned from game number %d and this game is no longer active. Hope to see you again soon.\n", currentGame);
                     currentGame = -1;

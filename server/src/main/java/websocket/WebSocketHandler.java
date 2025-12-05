@@ -5,10 +5,9 @@ import com.google.gson.Gson;
 import dataaccess.NotAuthException;
 import io.javalin.websocket.*;
 import model.requests.LeaveRequest;
-import model.results.ConnectResult;
-import model.results.ExtraMoveResult;
-import model.results.LeaveResult;
-import model.results.MostBasicResult;
+import model.requests.MoveRequest;
+import model.requests.ResignRequest;
+import model.results.*;
 import service.AuthService;
 import service.GameService;
 import websocket.commands.ConnectCommand;
@@ -121,7 +120,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             var msg = String.format("%s has made a move.\n", username);
             var notify = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             GameService inst = new GameService();
-            ExtraMoveResult result = inst.extraMoveResult(command.getAuthToken(), command.getGameID(), command.getMove());
+            MoveResult result = inst.move(new MoveRequest(command.getAuthToken(), command.getGameID(), command.getMove()));
             if (!result.message().isEmpty()) {
                 notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
                 notify.setErrorMessage(result.message());
@@ -134,7 +133,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 } else if (result.inStalemate()) {
                     msg += "This game is now in stalemate and is over.\n";
                 }
-                notify.setGame(result.game());
+                notify.setGame(result.jsonGame());
                 //set to notify and then back
                 connections.broadcastGameAll(command.getGameID(), notify);
                 notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
@@ -157,11 +156,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             username = getUsername(command.getAuthToken());
             GameService inst = new GameService();
             MostBasicResult result = inst.leaveGameService(new LeaveRequest(command.getAuthToken(), command.getGameID()));
-            var msg = String.format("%s is leaving the game.\n", username);
-            var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            notify.setMessage(msg);
-            connections.remove(command.getGameID(), session);
-            connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
+            if (result.message().isEmpty()) {
+                var msg = String.format("%s is leaving the game.\n", username);
+                var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                notify.setMessage(msg);
+                connections.remove(command.getGameID(), session);
+                connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
+            } else {
+                try {
+                    sendMessage(session, command.getGameID(), "Error: " + result.message());
+                } catch (IOException ex) {
+                    System.out.println("Error: Something is really broken.");
+                }
+            }
         } catch (NotAuthException e) {
             try {
                 sendMessage(session, command.getGameID(), "Error: " + e.getMessage());
@@ -175,11 +182,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String username = "";
         try {
             username = getUsername(command.getAuthToken());
-            var msg = String.format("%s is resigning from the game. This game is now over.\n", username);
-            var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            notify.setMessage(msg);
-            connections.remove(command.getGameID(), session);
-            connections.broadcastIncludingCurrentUser(command.getGameID(), notify);
+            GameService inst = new GameService();
+            MostBasicResult result = inst.resignGameService(new ResignRequest(command.getAuthToken(), command.getGameID()));
+            if (result.message().isEmpty()) {
+                var msg = String.format("%s is resigning from the game. This game is now over.\n", username);
+                var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                notify.setMessage(msg);
+                connections.broadcastIncludingCurrentUser(command.getGameID(), notify);
+                connections.remove(command.getGameID(), session);
+            } else {
+                try {
+                    sendMessage(session, command.getGameID(), "Error: " + result.message());
+                } catch (IOException ex) {
+                    System.out.println("Error: Something is really broken.");
+                }
+            }
         } catch (NotAuthException e) {
             try {
                 sendMessage(session, command.getGameID(), "Error: " + e.getMessage());

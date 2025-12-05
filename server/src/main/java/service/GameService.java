@@ -206,14 +206,14 @@ public class GameService {
         }
     }
 
-    public MostBasicResult move(MoveRequest request) {
+    public MoveResult move(MoveRequest request) {
         try {
             SQLAuthDAO authSQL = new SQLAuthDAO();
             SQLGameDAO gameDAO = new SQLGameDAO();
             try {
                 authSQL.checkAuth(request.authToken());
                 if (request.gameID() < 1) {
-                    return new ErrorResult("Error: bad request");
+                    return new MoveResult("Error: bad request", null, null, 0, false, false, false);
                 }
                 String user = authSQL.getUser(request.authToken());
                 String updatedJsonGame = gameDAO.move(request.gameID(), request.move(), user);
@@ -228,14 +228,15 @@ public class GameService {
                 } else if (gameState.equals("stalemate")) {
                     inStalemate = true;
                 }
-                return new MoveResult(updatedJsonGame, user, request.gameID(), inCheck, inCheckmate, inStalemate);
+                return new MoveResult("", updatedJsonGame, user, request.gameID(), inCheck, inCheckmate, inStalemate);
             } catch (NotAuthException n) {
-                return new ErrorResult("Error: unauthorized");
+                return new MoveResult("Error: unauthorized", null, null, 0, false, false, false);
+
             } catch (Exception e) {
-                return new ErrorResult(e.getMessage());
+                return new MoveResult(e.getMessage(), null, null, 0, false, false, false);
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new MoveResult(e.getMessage(), null, null, 0, false, false, false);
         }
     }
 
