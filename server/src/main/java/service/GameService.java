@@ -18,7 +18,7 @@ public class GameService {
             gameSQL.clear();
             return new Result("");
         } catch (DataAccessException e) {
-            return new Result(e.getMessage());
+            return new Result("Error: " + e.getMessage());
         }
     }
 
@@ -37,10 +37,10 @@ public class GameService {
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult(e.getMessage());
+                return new ErrorResult("Error: " + e.getMessage());
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new ErrorResult("Error: " + e.getMessage());
         }
     }
 
@@ -57,15 +57,15 @@ public class GameService {
                     int gameID = gameSQL.createGame(request.gameName());
                     return new CreateResult(gameID);
                 } catch (DataAccessException e) {
-                    return new ErrorResult(e.getMessage());
+                    return new ErrorResult("Error: " + e.getMessage());
                 }
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult(e.getMessage());
+                return new ErrorResult("Error: " + e.getMessage());
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new ErrorResult("Error: " + e.getMessage());
         }
     }
 
@@ -86,15 +86,15 @@ public class GameService {
                 } catch (AlreadyTakenException e) {
                     return new ErrorResult("Error: already taken");
                 } catch (DataAccessException n) {
-                    return new ErrorResult(n.getMessage());
+                    return new ErrorResult("Error: " + n.getMessage());
                 }
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult(e.getMessage());
+                return new ErrorResult("Error: " + e.getMessage());
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new ErrorResult("Error: " + e.getMessage());
         }
     }
 
@@ -116,10 +116,10 @@ public class GameService {
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult(e.getMessage());
+                return new ErrorResult("Error: " + e.getMessage());
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new ErrorResult("Error: " + e.getMessage());
         }
     }
 
@@ -132,21 +132,30 @@ public class GameService {
                 if (request.gameID() < 1) {
                     return new ErrorResult("Error: bad request");
                 }
-                String jsonGame = gameSQL.getJsonGame(request.gameID());
-                var serializer = new Gson();
-                var game = serializer.fromJson(jsonGame, ChessGame.class);
-                game.setGameActive(false);
-                var newJsonGame = serializer.toJson(game);
-                gameSQL.updateGame(request.gameID(), newJsonGame);
                 String user = authSQL.getUser(request.authToken());
-                return new ResignResult(user, request.gameID());
+                String team = gameSQL.getPlayerTeam(request.gameID(), user);
+                if (!team.equals("observer")) {
+                    String jsonGame = gameSQL.getJsonGame(request.gameID());
+                    var serializer = new Gson();
+                    var game = serializer.fromJson(jsonGame, ChessGame.class);
+                    if (game.isGameActive()) {
+                        game.setGameActive(false);
+                    } else {
+                        return new ErrorResult("Error: this game has already been declared over");
+                    }
+                    var newJsonGame = serializer.toJson(game);
+                    gameSQL.updateGame(request.gameID(), newJsonGame);
+                    return new ResignResult(user, request.gameID());
+                } else {
+                    return new ErrorResult("Error: you can only resign if you are a player");
+                }
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult(e.getMessage());
+                return new ErrorResult("Error: " + e.getMessage());
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new ErrorResult("Error: " + e.getMessage());
         }
     }
 
@@ -177,10 +186,10 @@ public class GameService {
             } catch (NotAuthException n) {
                 return new ConnectResult("Error: unauthorized", null, null, null, null);
             } catch (DataAccessException e) {
-                return new ConnectResult(e.getMessage(), null, null, null, null);
+                return new ConnectResult("Error: " + e.getMessage(), null, null, null, null);
             }
         } catch (DataAccessException e) {
-            return new ConnectResult(e.getMessage(), null, null, null, null);
+            return new ConnectResult("Error: " + e.getMessage(), null, null, null, null);
         }
     }
 
@@ -199,10 +208,10 @@ public class GameService {
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (DataAccessException e) {
-                return new ErrorResult(e.getMessage());
+                return new ErrorResult("Error: " + e.getMessage());
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new ErrorResult("Error: " + e.getMessage());
         }
     }
 
@@ -233,74 +242,10 @@ public class GameService {
                 return new MoveResult("Error: unauthorized", null, null, 0, false, false, false);
 
             } catch (Exception e) {
-                return new MoveResult(e.getMessage(), null, null, 0, false, false, false);
+                return new MoveResult("Error: " + e.getMessage(), null, null, 0, false, false, false);
             }
         } catch (DataAccessException e) {
-            return new MoveResult(e.getMessage(), null, null, 0, false, false, false);
-        }
-    }
-
-    private boolean checkMoveWorked(String jsonGame, ChessMove move, ChessGame.TeamColor teamColor) {
-        ChessGame temp = new Gson().fromJson(jsonGame, ChessGame.class);
-        if (temp.getBoard().getPiece(move.getEndPosition()) != null && temp.getBoard().getPiece(move.getEndPosition()).getTeamColor() == teamColor) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private boolean checkWhoseTurn(String jsonGame, ChessGame.TeamColor teamColor, ChessMove move) {
-        ChessGame temp = new Gson().fromJson(jsonGame, ChessGame.class);
-        if (temp.getBoard().getPiece(move.getEndPosition()).getTeamColor() != teamColor) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public ExtraMoveResult extraMoveResult(String authToken, int gameID, ChessMove move) {
-        try {
-            SQLAuthDAO authSQL = new SQLAuthDAO();
-            SQLGameDAO gameDAO = new SQLGameDAO();
-            try {
-                authSQL.checkAuth(authToken);
-                if (gameID < 1) {
-                    return new ExtraMoveResult("Error: bad request", null, null, false, false, false, null);
-                }
-                String user = authSQL.getUser(authToken);
-                String jsonGame = gameDAO.getJsonGame(gameID);
-                String gameState = gameDAO.getGameState(gameID);
-                boolean inCheck = false;
-                boolean inCheckmate = false;
-                boolean inStalemate = false;
-                if (gameState.equals("check")) {
-                    inCheck = true;
-                } else if (gameState.equals("checkmate")) {
-                    inCheckmate = true;
-                } else if (gameState.equals("stalemate")) {
-                    inStalemate = true;
-                }
-                String team = gameDAO.getPlayerTeam(gameID, user);
-                ChessGame.TeamColor officialTeam = null;
-                if (team.equals("black")) {
-                    officialTeam = ChessGame.TeamColor.BLACK;
-                } else {
-                    officialTeam = ChessGame.TeamColor.WHITE;
-                }
-                if (!checkMoveWorked(jsonGame, move, officialTeam)) {
-                    return new ExtraMoveResult("Error: move didn't work", null, null, false, false, false, null);
-                }
-                if (!checkWhoseTurn(jsonGame, officialTeam, move)) {
-                    return new ExtraMoveResult("Error: not your turn", null, null, false, false, false, null);
-                }
-                return new ExtraMoveResult("", user, jsonGame, inCheck, inCheckmate, inStalemate, officialTeam);
-            } catch (NotAuthException n) {
-                return new ExtraMoveResult("Error: unauthorized", null, null, false, false, false, null);
-            } catch (Exception e) {
-                return new ExtraMoveResult(e.getMessage(), null, null, false, false, false, null);
-            }
-        } catch (DataAccessException e) {
-            return new ExtraMoveResult(e.getMessage(), null, null, false, false, false, null);
+            return new MoveResult("Error: " + e.getMessage(), null, null, 0, false, false, false);
         }
     }
 
@@ -318,10 +263,10 @@ public class GameService {
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
             } catch (Exception e) {
-                return new ErrorResult(e.getMessage());
+                return new ErrorResult("Error: " + e.getMessage());
             }
         } catch (DataAccessException e) {
-            return new ErrorResult(e.getMessage());
+            return new ErrorResult("Error: " + e.getMessage());
         }
     }
 }

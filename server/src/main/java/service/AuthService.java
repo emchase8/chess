@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
+import dataaccess.NotAuthException;
 import dataaccess.SQLAuthDAO;
 import model.results.Result;
 
@@ -15,13 +16,13 @@ public class AuthService {
         }
     }
 
-    public String getUser(String authToken) {
+    public String getUser(String authToken) throws NotAuthException {
         try {
             SQLAuthDAO authDAO = new SQLAuthDAO();
             return authDAO.getUser(authToken);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             //replace with something else later
-            return "error";
+            throw new NotAuthException(e.getMessage());
         }
     }
 }
