@@ -4,7 +4,13 @@ import model.GameListData;
 
 import java.util.List;
 
-public record MoveResult(String message, String jsonGame, String username, int gameID, boolean inCheck, boolean inCheckmate, boolean inStalemate) implements MostBasicResult {
+public record MoveResult(String message,
+                         String jsonGame,
+                         String username,
+                         int gameID,
+                         boolean inCheck,
+                         boolean inCheckmate,
+                         boolean inStalemate) implements MostBasicResult {
     @Override
     public String jsonGame() {
         return jsonGame;

@@ -584,7 +584,8 @@ public class ChessClient implements NotificationHandler  {
                     //do WS stuff!!!!
                     ws.resign(currentGame, clientAuth);
                     isPlayer = false;
-                    String msg = String.format("You have resigned from game number %d and this game is no longer active. Hope to see you again soon.\n", currentGame);
+                    String msg = String.format("You have resigned from game number %d and this game is no longer active. " +
+                            "Hope to see you again soon.\n", currentGame);
                     currentGame = -1;
                     return msg;
                 } catch (Exception e) {
