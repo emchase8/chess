@@ -54,14 +54,6 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcastGameExculdeCurrent(int gameID, Session excludedSession, ServerMessage notify) throws IOException {
-        ArrayList<Session> current = connection.get(gameID);
-        for (Session session : current) {
-            if (!session.equals(excludedSession) && session.isOpen()) {
-                session.getRemote().sendString(new Gson().toJson(notify));
-            }
-        }
-    }
 
     public void broadcastGameAll(int gameID, ServerMessage notify) throws IOException {
         ArrayList<Session> current = connection.get(gameID);
