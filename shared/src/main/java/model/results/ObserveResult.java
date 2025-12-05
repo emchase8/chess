@@ -10,13 +10,8 @@ public record ObserveResult(String jsonGame, String username, int gameID) implem
     }
 
     @Override
-    public String message() {
-        return "";
-    }
-
-    @Override
-    public String authToken() {
-        return "";
+    public int gameID() {
+        return gameID;
     }
 
     @Override
@@ -25,12 +20,17 @@ public record ObserveResult(String jsonGame, String username, int gameID) implem
     }
 
     @Override
-    public int gameID() {
-        return gameID;
+    public List<GameListData> games() {
+        return List.of();
     }
 
     @Override
-    public List<GameListData> games() {
-        return List.of();
+    public String message() {
+        return "";
+    }
+
+    @Override
+    public String authToken() {
+        return "";
     }
 }

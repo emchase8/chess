@@ -1,5 +1,4 @@
 package ui;
-
 import chess.*;
 import com.google.gson.Gson;
 import model.GameListData;
@@ -9,7 +8,6 @@ import sharedservice.ServerFacade;
 import websocket.NotificationHandler;
 import websocket.WebsocketFacade;
 import websocket.messages.ServerMessage;
-
 import java.util.*;
 
 public class ChessClient implements NotificationHandler  {
@@ -20,14 +18,7 @@ public class ChessClient implements NotificationHandler  {
     private int currentGame;
     private boolean isPlayer;
     private final HashMap<String, Integer> colConverter = new HashMap<>() {{
-        put("a", 1);
-        put("b", 2);
-        put("c", 3);
-        put("d", 4);
-        put("e", 5);
-        put("f", 6);
-        put("g", 7);
-        put("h", 8);
+        put("a", 1); put("b", 2); put("c", 3); put("d", 4); put("e", 5); put("f", 6);put("g", 7); put("h", 8);
     }};
     private ChessGame.TeamColor currentTeam;
 
@@ -318,11 +309,9 @@ public class ChessClient implements NotificationHandler  {
                 case "logout" -> logout(neededParams);
                 case "create" -> create(neededParams);
                 case "list" -> listGames(neededParams);
-                //ALSO A LOT OF THESE NEED USERNAMES FOR WS WHICH IS FUN
                 case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
                 //case "quitgame" -> quitGame(neededParams);
-                //ANYTHING THAT HAS A GAME ID PASSED IN NEEDS TO HAVE THE CHECK TO SEE IF THAT GAME ID IS VALID
                 case "redraw" -> redrawBoard(neededParams);
                 case "leave" -> leaveGame(neededParams);
                 case "move" -> makeMove(neededParams);
@@ -552,7 +541,7 @@ public class ChessClient implements NotificationHandler  {
 
     public String leaveGame(String[] params) throws Exception {
         if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
-            LeaveRequest myRequest = new LeaveRequest(clientAuth, currentGame);
+            //LeaveRequest myRequest = new LeaveRequest(clientAuth, currentGame);
             try {
                 // LeaveResult result = facade.leave(myRequest);
                 //do WS stuff!!!!
@@ -578,7 +567,7 @@ public class ChessClient implements NotificationHandler  {
         if (params.length == 0 && currentState == ClientState.GAMEPLAY) {
             boolean doubleCheck = wantToResign();
             if (doubleCheck && isPlayer) {
-                ResignRequest myRequest = new ResignRequest(clientAuth, currentGame);
+                //ResignRequest myRequest = new ResignRequest(clientAuth, currentGame);
                 try {
                     //ResignResult result = facade.resign(myRequest);
                     //do WS stuff!!!!
@@ -608,8 +597,6 @@ public class ChessClient implements NotificationHandler  {
         if (params.length == 3 && currentState == ClientState.GAMEPLAY) {
             ChessPosition start = strToPosition(params[0]);
             ChessPosition end = strToPosition(params[1]);
-            //this promote will only be access if the piece at the starting spot is a pawn
-            //the team doesn't matter because the ChessGame will take care of all those checks, IN THEORY!!!!
             ChessPiece.PieceType promote = null;
             if (params[2].toLowerCase().equals("queen")) {
                 promote = ChessPiece.PieceType.QUEEN;

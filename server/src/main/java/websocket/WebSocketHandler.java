@@ -10,7 +10,6 @@ import model.requests.ResignRequest;
 import model.results.*;
 import service.AuthService;
 import service.GameService;
-import websocket.commands.ConnectCommand;
 import websocket.commands.*;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
@@ -155,8 +154,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             username = getUsername(command.getAuthToken());
             GameService inst = new GameService();
-            MostBasicResult result = inst.leaveGameService(new LeaveRequest(command.getAuthToken(), command.getGameID()));
-            if (result.message().isEmpty()) {
+            MostBasicResult resultLeave = inst.leaveGameService(new LeaveRequest(command.getAuthToken(), command.getGameID()));
+            if (resultLeave.message().isEmpty()) {
                 var msg = String.format("%s is leaving the game.\n", username);
                 var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
                 notify.setMessage(msg);
@@ -164,7 +163,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.broadcastExcludeCurrent(command.getGameID(), session, notify);
             } else {
                 try {
-                    sendMessage(session, command.getGameID(), "Error: " + result.message());
+                    sendMessage(session, command.getGameID(), "Error: " + resultLeave.message());
                 } catch (IOException ex) {
                     System.out.println("Error: Something is really broken.");
                 }
@@ -183,8 +182,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             username = getUsername(command.getAuthToken());
             GameService inst = new GameService();
-            MostBasicResult result = inst.resignGameService(new ResignRequest(command.getAuthToken(), command.getGameID()));
-            if (result.message().isEmpty()) {
+            MostBasicResult resultResign = inst.resignGameService(new ResignRequest(command.getAuthToken(), command.getGameID()));
+            if (resultResign.message().isEmpty()) {
                 var msg = String.format("%s is resigning from the game. This game is now over.\n", username);
                 var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
                 notify.setMessage(msg);
@@ -192,7 +191,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.remove(command.getGameID(), session);
             } else {
                 try {
-                    sendMessage(session, command.getGameID(), "Error: " + result.message());
+                    sendMessage(session, command.getGameID(), "Error: " + resultResign.message());
                 } catch (IOException ex) {
                     System.out.println("Error: Something is really broken.");
                 }
