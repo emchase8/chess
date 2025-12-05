@@ -343,7 +343,6 @@ public class ChessClient implements NotificationHandler  {
                     isPlayer = false;
                     String msg = String.format("You have resigned from game number %d and this game is no longer active. " +
                             "Hope to see you again soon.\n", currentGame);
-                    //currentGame = -1;
                     return msg;
                 } catch (Exception e) {
                     return e.getMessage() + "\n";
