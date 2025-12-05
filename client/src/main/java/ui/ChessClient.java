@@ -321,7 +321,7 @@ public class ChessClient implements NotificationHandler  {
                 //ALSO A LOT OF THESE NEED USERNAMES FOR WS WHICH IS FUN
                 case "join" -> join(neededParams);
                 case "observe" -> observe(neededParams);
-                case "quitgame" -> quitGame(neededParams);
+                //case "quitgame" -> quitGame(neededParams);
                 //ANYTHING THAT HAS A GAME ID PASSED IN NEEDS TO HAVE THE CHECK TO SEE IF THAT GAME ID IS VALID
                 case "redraw" -> redrawBoard(neededParams);
                 case "leave" -> leaveGame(neededParams);
@@ -460,20 +460,20 @@ public class ChessClient implements NotificationHandler  {
         throw new Exception("Expected: list\n");
     }
 
-    public String quitGame(String[] params) throws Exception {
-        if (currentState == ClientState.GAMEPLAY && params.length == 0 && !isPlayer) {
-            //make so you can only quit as an observer!!!!
-            currentState = ClientState.POSTLOGIN;
-            return "Thank you for visiting game play. See you again soon :)\n";
-        } else if (isPlayer) {
-            throw new Exception("You must use the leave or resign command as a player.\n");
-        } else if (currentState == ClientState.POSTLOGIN) {
-            throw new Exception("You must be in game play in order to exit game play.\n");
-        } else if (currentState == ClientState.PRELOGIN) {
-            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
-        }
-        throw new Exception("Expected: quitGame\n");
-    }
+//    public String quitGame(String[] params) throws Exception {
+//        if (currentState == ClientState.GAMEPLAY && params.length == 0 && !isPlayer) {
+//            //make so you can only quit as an observer!!!!
+//            currentState = ClientState.POSTLOGIN;
+//            return "Thank you for visiting game play. See you again soon :)\n";
+//        } else if (isPlayer) {
+//            throw new Exception("You must use the leave or resign command as a player.\n");
+//        } else if (currentState == ClientState.POSTLOGIN) {
+//            throw new Exception("You must be in game play in order to exit game play.\n");
+//        } else if (currentState == ClientState.PRELOGIN) {
+//            throw new Exception("You must first be logged in and then in game play in order to exit game play.\n");
+//        }
+//        throw new Exception("Expected: quitGame\n");
+//    }
 
     public String join(String[] params) throws Exception {
         if (params.length == 2 && currentState == ClientState.POSTLOGIN) {
@@ -498,9 +498,6 @@ public class ChessClient implements NotificationHandler  {
                 currentGame = success.gameID();
                 isPlayer = true;
                 currentTeam = teamColor;
-                //write functionality in phase 6 to get the correct chess board
-                //joinResult now has a json form of the game in it that we can pass into the ws, as well as username and game id
-                //do WS stuff!!!!
                 ws.connect(success.gameID(), clientAuth);
 //                ChessGame placeholder = new Gson().fromJson(success.jsonGame(), ChessGame.class);
 //                if (teamColor == ChessGame.TeamColor.WHITE) {
@@ -531,16 +528,14 @@ public class ChessClient implements NotificationHandler  {
             } catch (Exception e) {
                 return e.getMessage() + "\n";
             }
-            //write functionality in phase 6 to get the correct chess board
-            ObserveRequest myRequest2 = new ObserveRequest(clientAuth, publicGameNum);
+//            ObserveRequest myRequest2 = new ObserveRequest(clientAuth, publicGameNum);
             try {
-                ObserveResult result = facade.observe(myRequest2);
-                currentGame = result.gameID();
-                //result has all the stuff needed for the ws to work
-                //do WS stuff!!!!!
+//                ObserveResult result = facade.observe(myRequest2);
+//                currentGame = result.gameID();
+                currentGame = publicGameNum;
                 currentState = ClientState.GAMEPLAY;
                 isPlayer = false;
-                //set team to white for WS stuff
+                currentTeam = ChessGame.TeamColor.WHITE;
                 ws.connect(currentGame, clientAuth);
 //                ChessGame placeholder = new Gson().fromJson(result.jsonGame(), ChessGame.class);
 //                return printWhiteBoard(placeholder.getBoard());
@@ -630,14 +625,14 @@ public class ChessClient implements NotificationHandler  {
                 MoveResult result = facade.move(myRequest);
                 ws.move(currentGame, clientAuth, currentMove);
                 //FIGURE OUT THE CHECK/CHECKMATE/STALEMATE FUNCTIONALITY!!!
-                ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
-                if (currentTeam == ChessGame.TeamColor.BLACK) {
-                    return printBlackBoard(temp.getBoard());
-                } else {
-                    return printWhiteBoard(temp.getBoard());
-                }
+//                ChessGame temp = new Gson().fromJson(result.jsonGame(), ChessGame.class);
+//                if (currentTeam == ChessGame.TeamColor.BLACK) {
+//                    return printBlackBoard(temp.getBoard());
+//                } else {
+//                    return printWhiteBoard(temp.getBoard());
+//                }
                 //do WS stuff!!!!
-                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!! (i'm assuming WS does that but I just hadn't though of that before)
+                //HOW TO REDRAW THE BOARD FOR EVERYONE!!!! (I'm assuming WS does that, but I just hadn't though of that before)
                 //the real question is how to draw different boards based off of player color
             } catch (Exception e) {
                 return e.getMessage() + "\n";

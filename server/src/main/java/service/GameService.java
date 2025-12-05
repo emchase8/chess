@@ -109,7 +109,9 @@ public class GameService {
                 }
                 String user = authSQL.getUser(request.authToken());
                 String team = gameDAO.getPlayerTeam(request.gameID(), user);
-                gameDAO.removePlayer(request.gameID(), team);
+                if (!team.equals("observer")) {
+                    gameDAO.removePlayer(request.gameID(), team);
+                }
                 return new LeaveResult(user, request.gameID());
             } catch (NotAuthException n) {
                 return new ErrorResult("Error: unauthorized");
@@ -237,6 +239,24 @@ public class GameService {
         }
     }
 
+    private boolean checkMoveWorked(String jsonGame, ChessMove move, ChessGame.TeamColor teamColor) {
+        ChessGame temp = new Gson().fromJson(jsonGame, ChessGame.class);
+        if (temp.getBoard().getPiece(move.getEndPosition()) != null && temp.getBoard().getPiece(move.getEndPosition()).getTeamColor() == teamColor) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean checkWhoseTurn(String jsonGame, ChessGame.TeamColor teamColor, ChessMove move) {
+        ChessGame temp = new Gson().fromJson(jsonGame, ChessGame.class);
+        if (temp.getBoard().getPiece(move.getEndPosition()).getTeamColor() != teamColor) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public ExtraMoveResult extraMoveResult(String authToken, int gameID, ChessMove move) {
         try {
             SQLAuthDAO authSQL = new SQLAuthDAO();
@@ -265,6 +285,12 @@ public class GameService {
                     officialTeam = ChessGame.TeamColor.BLACK;
                 } else {
                     officialTeam = ChessGame.TeamColor.WHITE;
+                }
+                if (!checkMoveWorked(jsonGame, move, officialTeam)) {
+                    return new ExtraMoveResult("Error: move didn't work", null, null, false, false, false, null);
+                }
+                if (!checkWhoseTurn(jsonGame, officialTeam, move)) {
+                    return new ExtraMoveResult("Error: not your turn", null, null, false, false, false, null);
                 }
                 return new ExtraMoveResult("", user, jsonGame, inCheck, inCheckmate, inStalemate, officialTeam);
             } catch (NotAuthException n) {

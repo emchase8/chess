@@ -29,7 +29,7 @@ public class ConnectionManager {
         String msg = notify.getMessage();
         ArrayList<Session> current = connection.get(gameID);
         for (Session session : current) {
-            if (!session.equals(excludedSession)) {
+            if (!session.equals(excludedSession) && session.isOpen()) {
                 session.getRemote().sendString(new Gson().toJson(notify));
             }
         }
@@ -38,7 +38,7 @@ public class ConnectionManager {
     public void broadcastOnlyCurrent(int gameID, Session userSession, ServerMessage notify) throws IOException {
         ArrayList<Session> current = connection.get(gameID);
         for (Session option : current) {
-            if (option.equals(userSession)) {
+            if (option.equals(userSession) && option.isOpen()) {
                 option.getRemote().sendString(new Gson().toJson(notify));
             }
         }
@@ -48,7 +48,7 @@ public class ConnectionManager {
     public void broadcastGameOne(int gameID, Session session, ServerMessage notify) throws IOException {
         ArrayList<Session> current = connection.get(gameID);
         for (Session option : current) {
-            if (option.equals(session)) {
+            if (option.equals(session) && option.isOpen()) {
                 option.getRemote().sendString(new Gson().toJson(notify));
             }
         }
@@ -57,7 +57,7 @@ public class ConnectionManager {
     public void broadcastGameExculdeCurrent(int gameID, Session excludedSession, ServerMessage notify) throws IOException {
         ArrayList<Session> current = connection.get(gameID);
         for (Session session : current) {
-            if (!session.equals(excludedSession)) {
+            if (!session.equals(excludedSession) && session.isOpen()) {
                 session.getRemote().sendString(new Gson().toJson(notify));
             }
         }
@@ -66,15 +66,18 @@ public class ConnectionManager {
     public void broadcastGameAll(int gameID, ServerMessage notify) throws IOException {
         ArrayList<Session> current = connection.get(gameID);
         for (Session option : current) {
-            option.getRemote().sendString(new Gson().toJson(notify));
+            if (option.isOpen()) {
+                option.getRemote().sendString(new Gson().toJson(notify));
+            }
         }
     }
 
     public void broadcastIncludingCurrentUser(int gameID, ServerMessage notify) throws IOException {
-        String msg = notify.getMessage();
         ArrayList<Session> current = connection.get(gameID);
         for (Session session : current) {
-            session.getRemote().sendString(new Gson().toJson(notify));
+            if (session.isOpen()) {
+                session.getRemote().sendString(new Gson().toJson(notify));
+            }
         }
     }
 }

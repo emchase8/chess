@@ -116,9 +116,9 @@ public class SQLGameDAO implements GameDAO {
                     String whiteUser = rs.getString("white_user");
                     String blackUser = rs.getString("black_user");
                     //see if they are both players???
-                    if (whiteUser.equals(username)) {
+                    if (whiteUser != null && whiteUser.equals(username)) {
                         return "white";
-                    } else if (blackUser.equals(username)) {
+                    } else if (blackUser != null && blackUser.equals(username)) {
                         return "black";
                     } else {
                         return "observer";
@@ -141,7 +141,7 @@ public class SQLGameDAO implements GameDAO {
             } catch (SQLException e) {
                 throw new DataAccessException("Error: database error");
             }
-        } else {
+        } else if (team.equals("black")) {
             try (var removeBlack = conn.prepareStatement("UPDATE real_games SET black_user=? WHERE game_id=?")) {
                 removeBlack.setString(1, null);
                 removeBlack.setInt(2, gameID);
