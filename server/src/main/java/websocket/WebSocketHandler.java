@@ -117,20 +117,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String username = "";
         try {
             username = getUsername(command.getAuthToken());
-            //describe move
             var notify = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             GameService inst = new GameService();
             MoveResult result = inst.move(new MoveRequest(command.getAuthToken(), command.getGameID(), command.getMove()));
             ChessGame game = new Gson().fromJson(result.jsonGame(), ChessGame.class);
-            ChessPiece myPiece = game.getBoard().getPiece(command.getMove().getEndPosition());
-            String otherPlayer = inst.getOtherPlayer(command.getGameID(), username);
-            var msg = String.format("%s has move a %s.\n", username, myPiece.getPieceType().toString());
             if (!result.message().isEmpty()) {
-                notify.setServerMessageType(ServerMessage.ServerMessageType.ERROR);
-                notify.setErrorMessage(result.message());
-                connections.broadcastOnlyCurrent(command.getGameID(), session, notify);
+                try {
+                    sendMessage(session, command.getGameID(), "Error: " + result.message());
+                } catch (IOException ex) {
+                    System.out.println("Error: Something is really broken.");
+                }
             } else {
-                //username of person in check, checkmate not working???
+                ChessPiece myPiece = game.getBoard().getPiece(command.getMove().getEndPosition());
+                String otherPlayer = inst.getOtherPlayer(command.getGameID(), username);
+                var msg = String.format("%s has move a %s.\n", username, myPiece.getPieceType().toString());
                 String msg2 = "";
                 if (result.inCheck()) {
                     msg2 = String.format("%s is now in check.\n", otherPlayer);
@@ -142,7 +142,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     msg2 = "This game is now in stalemate and is over.\n";
                 }
                 notify.setGame(result.jsonGame());
-                //set to notify and then back
                 connections.broadcastGameAll(command.getGameID(), notify);
                 notify.setServerMessageType(ServerMessage.ServerMessageType.NOTIFICATION);
                 notify.setGame(null);
@@ -201,7 +200,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 var notify = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
                 notify.setMessage(msg);
                 connections.broadcastIncludingCurrentUser(command.getGameID(), notify);
-                connections.remove(command.getGameID(), session);
+                //connections.remove(command.getGameID(), session);
             } else {
                 try {
                     sendMessage(session, command.getGameID(), "Error: " + resultResign.message());
