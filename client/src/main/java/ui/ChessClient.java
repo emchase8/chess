@@ -21,54 +21,14 @@ public class ChessClient implements NotificationHandler  {
         put("a", 1); put("b", 2); put("c", 3); put("d", 4); put("e", 5); put("f", 6);put("g", 7); put("h", 8);
     }};
     private ChessGame.TeamColor currentTeam;
-    //MAYBE COMBINE ALL THE PRINT SQUARES INTO ONE MEGA FUNCTION (WITH COLOR OF SQUARE PASSED IN)
-    private String printBlackSquare(ChessPiece piece) {
-        if (piece == null) {
-            return EscapeSequences.SET_BG_COLOR_BLACK + "   ";
-        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            return EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-        } else {
-            return EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-        }
-    }
 
-    private String printWhiteSquare(ChessPiece piece) {
+    private String printSquare(ChessPiece piece, String color) {
         if (piece == null) {
-            return EscapeSequences.SET_BG_COLOR_WHITE + "   ";
+            return color + "   ";
         } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            return EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
+            return color + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
         } else {
-            return EscapeSequences.SET_BG_COLOR_WHITE + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-        }
-    }
-
-    private String printGreenSquare(ChessPiece piece) {
-        if (piece == null) {
-            return EscapeSequences.SET_BG_COLOR_GREEN + "   ";
-        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            return EscapeSequences.SET_BG_COLOR_GREEN + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-        } else {
-            return EscapeSequences.SET_BG_COLOR_GREEN + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-        }
-    }
-
-    private String printDarkGreenSquare(ChessPiece piece) {
-        if (piece == null) {
-            return EscapeSequences.SET_BG_COLOR_DARK_GREEN + "   ";
-        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            return EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-        } else {
-            return EscapeSequences.SET_BG_COLOR_DARK_GREEN + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
-        }
-    }
-
-    private String printYellowSquare(ChessPiece piece) {
-        if (piece == null) {
-            return EscapeSequences.SET_BG_COLOR_YELLOW + "   ";
-        } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            return EscapeSequences.SET_BG_COLOR_YELLOW + EscapeSequences.SET_TEXT_COLOR_RED + " " + piece.toString().toUpperCase() + " ";
-        } else {
-            return EscapeSequences.SET_BG_COLOR_YELLOW + EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
+            return color+ EscapeSequences.SET_TEXT_COLOR_BLUE + " " + piece.toString().toUpperCase() + " ";
         }
     }
 
@@ -89,21 +49,21 @@ public class ChessClient implements NotificationHandler  {
 
     private String printBlackHighlightVersion(ChessPiece piece, int row, int col, ChessPosition start, List<ChessPosition> possible) {
         if (isStart(start, row, col)) {
-            return printYellowSquare(piece);
+            return printSquare(piece, EscapeSequences.SET_BG_COLOR_YELLOW);
         } else if (isPossible(possible, row, col)) {
-            return printDarkGreenSquare(piece);
+            return printSquare(piece, EscapeSequences.SET_BG_COLOR_DARK_GREEN);
         } else {
-            return printBlackSquare(piece);
+            return printSquare(piece, EscapeSequences.SET_BG_COLOR_BLACK);
         }
     }
 
     private String printWhiteHighlightVersion(ChessPiece piece, int row, int col, ChessPosition start, List<ChessPosition> possible) {
         if (isStart(start, row, col)) {
-            return printYellowSquare(piece);
+            return printSquare(piece, EscapeSequences.SET_BG_COLOR_YELLOW);
         } else if (isPossible(possible, row, col)) {
-            return printGreenSquare(piece);
+            return printSquare(piece, EscapeSequences.SET_BG_COLOR_GREEN);
         } else {
-            return printWhiteSquare(piece);
+            return printSquare(piece, EscapeSequences.SET_BG_COLOR_WHITE);
         }
     }
 
@@ -151,13 +111,13 @@ public class ChessClient implements NotificationHandler  {
             for (int j = 8; j >= 1; j--) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
                 if (j%2 == 0 && i%2 == 0) {
-                    temp += printBlackSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_BLACK);
                 } else if (j%2 == 0 && i%2 != 0) {
-                    temp += printWhiteSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_WHITE);
                 } else if (j%2 != 0 && i%2 == 0) {
-                    temp += printWhiteSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_WHITE);
                 } else {
-                    temp += printBlackSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_BLACK);
                 }
             }
             blackBoardStr += temp + EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
@@ -215,13 +175,13 @@ public class ChessClient implements NotificationHandler  {
             for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i,j));
                 if (i%2 == 0 && j%2 != 0) {
-                    temp += printWhiteSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_WHITE);
                 } else if (i%2 == 0 && j%2 == 0) {
-                    temp += printBlackSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_BLACK);
                 } else if (i%2 != 0 && j%2 != 0) {
-                    temp += printBlackSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_BLACK);
                 } else {
-                    temp += printWhiteSquare(piece);
+                    temp += printSquare(piece, EscapeSequences.SET_BG_COLOR_WHITE);
                 }
             }
             whiteBoardStr += temp + EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK + " " + i
