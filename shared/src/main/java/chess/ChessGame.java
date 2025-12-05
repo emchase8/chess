@@ -133,6 +133,12 @@ public class ChessGame {
          }
     }
 
+    private void checkPromote(ChessPiece.PieceType promote) throws InvalidMoveException {
+        if (promote == null) {
+            throw new InvalidMoveException("Error: you must have a promotion piece if you move a pawn to the end of the board.");
+        }
+    }
+
     /**
      * Makes a move in a chess game
      *
@@ -148,16 +154,18 @@ public class ChessGame {
                 if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
                     ChessPiece.PieceType promote = move.getPromotionPiece();
                     if (piece.getTeamColor() == TeamColor.WHITE && move.getEndPosition().getRow() == 8) {
-                        if (promote == null) {
-                            throw new InvalidMoveException("Error: you must have a promotion piece if you move a pawn to the end of the board.");
-                        }
+                        checkPromote(promote);
+//                        if (promote == null) {
+//                            throw new InvalidMoveException("Error: you must have a promotion piece if you move a pawn to the end of the board.");
+//                        }
                         myBoard.addPiece(move.getStartPosition(), null);
                         ChessPiece upgradeWhite = new ChessPiece(piece.getTeamColor(), promote);
                         myBoard.addPiece(move.getEndPosition(), upgradeWhite);
                     } else if (piece.getTeamColor() == TeamColor.BLACK && move.getEndPosition().getRow() == 1) {
-                        if (promote == null) {
-                            throw new InvalidMoveException("Error: you must have a promotion piece if you move a pawn to the end of the board.");
-                        }
+                        checkPromote(promote);
+//                        if (promote == null) {
+//                            throw new InvalidMoveException("Error: you must have a promotion piece if you move a pawn to the end of the board.");
+//                        }
                         myBoard.addPiece(move.getStartPosition(), null);
                         ChessPiece upgradeBlack = new ChessPiece(piece.getTeamColor(), promote);
                         myBoard.addPiece(move.getEndPosition(), upgradeBlack);
